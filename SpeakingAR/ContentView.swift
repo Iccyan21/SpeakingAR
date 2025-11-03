@@ -5,17 +5,97 @@
 //  Created by 水原樹 on 2025/11/03.
 //
 
+import ARKit
+import RealityKit
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var transcriber = LiveTranscriber()
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        ZStack(alignment: .bottom) {
+            ARViewContainer()
+                .ignoresSafeArea()
+
+            VStack(spacing: 16) {
+                SubtitleView(text: transcriber.transcript)
+
+                RecordButton(isRecording: transcriber.isRecording) {
+                    if transcriber.isRecording {
+                        transcriber.stopTranscribing()
+                    } else {
+                        transcriber.startTranscribing()
+                    }
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 40)
         }
-        .padding()
+        .onAppear {
+            transcriber.requestAuthorizationIfNeeded()
+        }
+    }
+}
+
+private struct ARViewContainer: UIViewRepresentable {
+    func makeUIView(context: Context) -> ARView {
+        let arView = ARView(frame: .zero)
+        configureSession(for: arView)
+        return arView
+    }
+
+    func updateUIView(_ uiView: ARView, context: Context) {}
+
+    private func configureSession(for arView: ARView) {
+        let configuration = ARWorldTrackingConfiguration()
+        configuration.planeDetection = [.horizontal, .vertical]
+        configuration.environmentTexturing = .automatic
+        arView.session.run(configuration)
+    }
+}
+
+private struct SubtitleView: View {
+    let text: String
+
+    var body: some View {
+        Group {
+            if text.isEmpty {
+                Text("マイクボタンを押して字幕を開始")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+            } else {
+                Text(text)
+                    .font(.title3.weight(.semibold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .background(.thinMaterial, in: Capsule())
+        .shadow(radius: 10)
+    }
+}
+
+private struct RecordButton: View {
+    var isRecording: Bool
+    var action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label(isRecording ? "停止" : "録音", systemImage: isRecording ? "stop.circle.fill" : "mic.circle.fill")
+                .font(.title2.weight(.bold))
+                .padding(.horizontal, 24)
+                .padding(.vertical, 14)
+                .background(isRecording ? Color.red.opacity(0.8) : Color.blue.opacity(0.8))
+                .foregroundColor(.white)
+                .clipShape(Capsule())
+                .shadow(radius: 8)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(isRecording ? "字幕を停止" : "字幕を開始")
     }
 }
 
