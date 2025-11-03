@@ -2,7 +2,7 @@
 //  LiveTranscriber.swift
 //  SpeakingAR
 //
-//  Created by OpenAI on 2025/11/03.
+//  権限リクエストと音声セッション管理を改善したライブ文字起こしクラス
 //
 
 import AVFoundation
@@ -13,6 +13,7 @@ final class LiveTranscriber: ObservableObject {
     @Published var transcript: String = ""
     @Published var isRecording: Bool = false
     @Published var authorizationStatus: SFSpeechRecognizerAuthorizationStatus = .notDetermined
+    @Published var recordPermission: AVAudioSession.RecordPermission = .undetermined
 
     private let speechRecognizer: SFSpeechRecognizer?
     private let audioEngine = AVAudioEngine()
@@ -21,31 +22,52 @@ final class LiveTranscriber: ObservableObject {
 
     init(locale: Locale = Locale(identifier: Locale.preferredLanguages.first ?? "en-US")) {
         speechRecognizer = SFSpeechRecognizer(locale: locale)
+        authorizationStatus = SFSpeechRecognizer.authorizationStatus()
+        recordPermission = AVAudioSession.sharedInstance().recordPermission
     }
 
-    func requestAuthorizationIfNeeded() {
-        guard authorizationStatus == .notDetermined else { return }
-
-        SFSpeechRecognizer.requestAuthorization { [weak self] status in
-            Task { @MainActor in
-                self?.authorizationStatus = status
-                if status == .authorized {
-                    self?.startTranscribing()
+    func requestPermissionsIfNeeded() {
+        if authorizationStatus == .notDetermined {
+            SFSpeechRecognizer.requestAuthorization { [weak self] status in
+                Task { @MainActor in
+                    self?.authorizationStatus = status
                 }
             }
+        }
+
+        let audioSession = AVAudioSession.sharedInstance()
+        let currentPermission = audioSession.recordPermission
+
+        if currentPermission == .undetermined {
+            audioSession.requestRecordPermission { [weak self] granted in
+                Task { @MainActor in
+                    self?.recordPermission = granted ? .granted : .denied
+                }
+            }
+        } else {
+            recordPermission = currentPermission
         }
     }
 
     func startTranscribing() {
         guard !isRecording else { return }
 
-        if authorizationStatus == .notDetermined {
-            requestAuthorizationIfNeeded()
+        switch authorizationStatus {
+        case .authorized:
+            break
+        case .notDetermined:
+            requestPermissionsIfNeeded()
+            fallthrough
+        default:
+            transcript = "音声認識の権限が許可されていません。設定アプリでマイクと音声認識の権限を有効にしてください。"
             return
         }
 
-        guard authorizationStatus == .authorized else {
-            transcript = "音声認識の権限が許可されていません。設定アプリでマイクと音声認識の権限を有効にしてください。"
+        guard recordPermission == .granted else {
+            if recordPermission == .undetermined {
+                requestPermissionsIfNeeded()
+            }
+            transcript = "マイクへのアクセスが許可されていません。設定アプリでマイク権限を有効にしてください。"
             return
         }
 
@@ -68,12 +90,24 @@ final class LiveTranscriber: ObservableObject {
         recognitionTask = nil
         recognitionRequest = nil
         isRecording = false
+        deactivateAudioSession()
     }
 
     private func configureAudioSession() throws {
         let audioSession = AVAudioSession.sharedInstance()
         try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.mixWithOthers, .allowBluetooth])
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+    }
+
+    private func deactivateAudioSession() {
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
+        } catch {
+            #if DEBUG
+            print("Failed to deactivate audio session: \(error.localizedDescription)")
+            #endif
+        }
     }
 
     private func beginRecognitionSession() throws {
@@ -103,16 +137,22 @@ final class LiveTranscriber: ObservableObject {
             guard let self else { return }
 
             if let result {
-                transcript = result.bestTranscription.formattedString
+                Task { @MainActor in
+                    self.transcript = result.bestTranscription.formattedString
+                }
             }
 
             if let error {
-                stopTranscribing()
-                transcript = "音声認識中にエラーが発生しました: \(error.localizedDescription)"
+                Task { @MainActor in
+                    self.stopTranscribing()
+                    self.transcript = "音声認識中にエラーが発生しました: \(error.localizedDescription)"
+                }
             } else if result?.isFinal == true {
-                stopTranscribing()
-                startTranscribing()
+                Task { @MainActor in
+                    self.stopTranscribing()
+                }
             }
         }
     }
 }
+

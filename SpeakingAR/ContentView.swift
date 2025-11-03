@@ -32,7 +32,7 @@ struct ContentView: View {
             .padding(.vertical, 40)
         }
         .onAppear {
-            transcriber.requestAuthorizationIfNeeded()
+            transcriber.requestPermissionsIfNeeded()
         }
     }
 }
