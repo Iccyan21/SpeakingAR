@@ -33,6 +33,7 @@
 			isa = PBXGroup;
 			children = (
 				56ED82FA2EB8AC2A003C0EEF /* SpeakingAR */,
+				56ED84292EC0E770003C0EEF /* Frameworks */,
 				56ED82F92EB8AC2A003C0EEF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +44,13 @@
 				56ED82F82EB8AC2A003C0EEF /* SpeakingAR.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		56ED84292EC0E770003C0EEF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

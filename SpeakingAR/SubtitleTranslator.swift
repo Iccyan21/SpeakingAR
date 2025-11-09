@@ -2,15 +2,9 @@
 //  SubtitleTranslator.swift
 //  SpeakingAR
 //
-//  Handles language detection and translation between English and Japanese for live subtitles.
-//
 
 import Foundation
 import NaturalLanguage
-
-#if canImport(Translate)
-import Translate
-#endif
 
 struct SubtitleTranslationResult {
     let translatedText: String
@@ -27,35 +21,28 @@ enum SubtitleTranslationOutcome {
 actor SubtitleTranslator {
     private let recognizer = NLLanguageRecognizer()
 
-    #if canImport(Translate)
-    private var cachedSessions: [LanguagePair: TranslationSession] = [:]
-    #endif
-
     func translate(_ text: String) async throws -> SubtitleTranslationOutcome {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return .unsupportedLanguage(code: nil) }
 
+        // 言語を検出
         let detectedCode = detectLanguageCode(for: trimmed)
         guard let sourceCode = detectedCode else {
             return .unsupportedLanguage(code: nil)
         }
 
+        // 翻訳先の言語を決定
         guard let targetCode = targetLanguageCode(for: sourceCode) else {
             return .unsupportedLanguage(code: sourceCode)
         }
 
-        #if canImport(Translate)
-        do {
-            let result = try await translate(trimmed, sourceCode: sourceCode, targetCode: targetCode)
-            return .translated(result)
-        } catch is CancellationError {
-            throw CancellationError()
-        } catch {
-            return .unavailable
-        }
-        #else
+        // Translation フレームワークは使えないので unavailable を返す
+        // 将来的に他の翻訳サービス（Google Translate API など）を使う場合はここに実装
         return .unavailable
-        #endif
+    }
+
+    func preloadDefaultLanguagePairs() async {
+        // 何もしない（将来の拡張用）
     }
 
     private func detectLanguageCode(for text: String) -> String? {
@@ -74,35 +61,6 @@ actor SubtitleTranslator {
             return nil
         }
     }
-
-    #if canImport(Translate)
-    private func translate(_ text: String, sourceCode: String, targetCode: String) async throws -> SubtitleTranslationResult {
-        if Task.isCancelled { throw CancellationError() }
-        let pair = LanguagePair(sourceCode: sourceCode, targetCode: targetCode)
-        let session = try translationSession(for: pair)
-        let response = try await session.translate(text)
-        if Task.isCancelled { throw CancellationError() }
-        return SubtitleTranslationResult(
-            translatedText: response.targetText,
-            sourceLanguageCode: sourceCode,
-            targetLanguageCode: targetCode
-        )
-    }
-
-    private func translationSession(for pair: LanguagePair) throws -> TranslationSession {
-        if let existing = cachedSessions[pair] {
-            return existing
-        }
-
-        let configuration = TranslationSession.Configuration(
-            source: Locale.Language(identifier: pair.sourceCode),
-            target: Locale.Language(identifier: pair.targetCode)
-        )
-        let session = try TranslationSession(configuration: configuration)
-        cachedSessions[pair] = session
-        return session
-    }
-    #endif
 }
 
 private struct LanguagePair: Hashable {

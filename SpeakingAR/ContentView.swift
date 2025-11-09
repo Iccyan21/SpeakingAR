@@ -27,12 +27,16 @@ struct ContentView: View {
                     isTranslating: transcriber.isTranslating,
                     aiResponse: transcriber.aiResponse,
                     aiError: transcriber.aiError,
-                    isGeneratingAIResponse: transcriber.isGeneratingAIResponse
+                    isGeneratingAIResponse: transcriber.isGeneratingAIResponse,
+                    japaneseTranslation: transcriber.japaneseTranslation,
+                    englishReplyJapanese: transcriber.englishReplyJapanese,// ← 追加
+                    katakanaReading: transcriber.katakanaReading          // ← 追加
+                    
                 )
 
                 RecordButton(isRecording: transcriber.isRecording) {
                     if transcriber.isRecording {
-                        transcriber.stopTranscribing()
+                        transcriber.stopTranscribing(userInitiated: true)
                     } else {
                         transcriber.startTranscribing()
                     }
@@ -63,7 +67,6 @@ private struct ARViewContainer: UIViewRepresentable {
         arView.session.run(configuration)
     }
 }
-
 private struct SubtitleView: View {
     let originalText: String
     let translatedText: String
@@ -73,17 +76,20 @@ private struct SubtitleView: View {
     let aiResponse: String
     let aiError: String?
     let isGeneratingAIResponse: Bool
+    let japaneseTranslation: String
+    let englishReplyJapanese: String  // ← 追加
+    let katakanaReading: String
 
     private var trimmedAIResponse: String {
         aiResponse.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private var shouldShowTranslationSection: Bool {
-        !(originalText.isEmpty && translatedText.isEmpty)
+        !originalText.isEmpty
     }
 
     private var shouldShowAISection: Bool {
-        isGeneratingAIResponse || !trimmedAIResponse.isEmpty || !(aiError?.isEmpty ?? true)
+        isGeneratingAIResponse || !trimmedAIResponse.isEmpty || !japaneseTranslation.isEmpty || !(aiError?.isEmpty ?? true)
     }
 
     var body: some View {
@@ -96,64 +102,37 @@ private struct SubtitleView: View {
     @ViewBuilder
     private var content: some View {
         if !shouldShowTranslationSection && !shouldShowAISection {
-            Text("マイクボタンを押して字幕を開始")
+            Text("マイクボタンを押して英会話を開始")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
         } else {
             VStack(alignment: .leading, spacing: 12) {
+                // 音声認識セクション
                 if shouldShowTranslationSection {
                     VStack(alignment: .leading, spacing: 8) {
-                        if !translatedText.isEmpty {
-                            Text(translatedText)
-                                .font(.title3.weight(.semibold))
-                                .foregroundColor(.white)
-                        } else if !originalText.isEmpty {
-                            Text(originalText)
-                                .font(.title3.weight(.semibold))
-                                .foregroundColor(.white)
+                        HStack(spacing: 6) {
+                            Image(systemName: "waveform")
+                            Text("あなた")
                         }
-
-                        if isTranslating {
-                            HStack(spacing: 8) {
-                                ProgressView()
-                                    .progressViewStyle(.circular)
-                                    .tint(.white.opacity(0.85))
-                                Text("翻訳中…")
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.8))
-                            }
-                        }
-
-                        if let info = translationInfo, !info.isEmpty {
-                            Text(info)
-                                .font(.caption)
-                                .foregroundColor(.white.opacity(0.8))
-                        }
-
-                        if let error = translationError, !error.isEmpty {
-                            Text(error)
-                                .font(.caption2)
-                                .foregroundColor(.red.opacity(0.9))
-                        }
-
-                        if !translatedText.isEmpty && !originalText.isEmpty {
-                            Text(originalText)
-                                .font(.footnote)
-                                .foregroundColor(.white.opacity(0.8))
-                        }
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.white.opacity(0.85))
+                        
+                        Text(originalText)
+                            .font(.title3.weight(.semibold))
+                            .foregroundColor(.white)
                     }
                 }
 
+                // AIセクション
                 if shouldShowAISection {
                     if shouldShowTranslationSection {
-                        Rectangle()
-                            .background(Color.white.opacity(0.2))
-                            .padding(.bottom, 4)
+                        Divider()
+                            .background(Color.white.opacity(0.3))
                     }
 
-                    VStack(alignment: .leading, spacing: 6) {
+                    VStack(alignment: .leading, spacing: 10) {
                         HStack(spacing: 6) {
                             Image(systemName: "sparkles")
                             Text("AIの提案")
@@ -172,11 +151,49 @@ private struct SubtitleView: View {
                             }
                         }
 
+                        // 日本語訳（相手の発言の意味）
+                        if !japaneseTranslation.isEmpty {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("意味:")
+                                    .font(.caption2)
+                                    .foregroundColor(.white.opacity(0.7))
+                                Text(japaneseTranslation)
+                                    .font(.callout)
+                                    .foregroundColor(.white.opacity(0.9))
+                            }
+                        }
+
+                        // 英語の返答
                         if !trimmedAIResponse.isEmpty {
-                            Text(trimmedAIResponse)
-                                .font(.callout)
-                                .foregroundColor(.white)
-                                .fixedSize(horizontal: false, vertical: true)
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("返し方:")
+                                    .font(.caption2)
+                                    .foregroundColor(.white.opacity(0.7))
+                                
+                                // 英語
+                                Text(trimmedAIResponse)
+                                    .font(.title3.weight(.semibold))
+                                    .foregroundColor(.cyan)
+                                
+                                // 日本語訳 ← 追加
+                                if !englishReplyJapanese.isEmpty {
+                                    Text("→ \(englishReplyJapanese)")
+                                        .font(.callout)
+                                        .foregroundColor(.white.opacity(0.85))
+                                }
+                            }
+                        }
+
+                        // カタカナ読み
+                        if !katakanaReading.isEmpty {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("読み方:")
+                                    .font(.caption2)
+                                    .foregroundColor(.white.opacity(0.7))
+                                Text(katakanaReading)
+                                    .font(.callout)
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
                         }
 
                         if let error = aiError, !error.isEmpty {
@@ -193,7 +210,6 @@ private struct SubtitleView: View {
         }
     }
 }
-
 private struct RecordButton: View {
     var isRecording: Bool
     var action: () -> Void

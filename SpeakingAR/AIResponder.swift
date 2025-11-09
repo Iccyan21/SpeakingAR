@@ -2,8 +2,6 @@
 //  AIResponder.swift
 //  SpeakingAR
 //
-//  Created to provide AI-generated replies based on the live transcript.
-//
 
 import Foundation
 
@@ -27,6 +25,13 @@ extension AIResponderError: LocalizedError {
             return "AI サービスとの通信に失敗しました (ステータスコード: \(statusCode))。"
         }
     }
+}
+
+struct AIResponseData {
+    let japaneseTranslation: String     // 相手の英語の日本語訳
+    let englishReply: String            // AIの英語返答
+    let englishReplyJapanese: String    // AIの英語返答の日本語訳 ← 追加
+    let katakanaReading: String         // 英語返答のカタカナ読み
 }
 
 actor AIResponder {
@@ -87,19 +92,43 @@ actor AIResponder {
         self.urlSession = urlSession
     }
 
-    func generateResponse(for transcript: String) async throws -> String {
+    func generateResponse(for transcript: String) async throws -> AIResponseData {
         let trimmed = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { throw AIResponderError.invalidResponse }
 
+        let systemPrompt = """
+        You are a helpful English conversation partner for Japanese speakers.
+
+        The user will speak in English. You must respond with a JSON object containing:
+        1. "japanese_translation": A Japanese translation of what the user said
+        2. "english_reply": Your natural English reply (short and conversational)
+        3. "english_reply_japanese": A Japanese translation of your English reply
+        4. "katakana_reading": The katakana pronunciation guide for your English reply
+
+        Example format:
+        {
+          "japanese_translation": "こんにちは、元気ですか？",
+          "english_reply": "I'm doing great, thanks! How about you?",
+          "english_reply_japanese": "とても元気だよ、ありがとう！君はどう？",
+          "katakana_reading": "アイム ドゥーイング グレイト、サンクス！ ハウ アバウト ユー？"
+        }
+
+        Rules:
+        - Keep your English reply casual and natural
+        - Make the Japanese translation natural and conversational
+        - Make the katakana reading easy to pronounce for Japanese speakers
+        - Only respond with valid JSON, nothing else
+        """
+
         let messages = [
-            ChatMessage(role: "system", content: "You are a helpful conversation partner. Reply in the same language as the user in a concise and friendly tone."),
+            ChatMessage(role: "system", content: systemPrompt),
             ChatMessage(role: "user", content: trimmed)
         ]
 
         let requestBody = ChatRequest(
             model: "gpt-4o-mini",
             messages: messages,
-            maxTokens: 256,
+            maxTokens: 512,
             temperature: 0.7
         )
 
@@ -123,10 +152,25 @@ actor AIResponder {
 
         let decoder = JSONDecoder()
         guard let chatResponse = try? decoder.decode(ChatResponse.self, from: data),
-              let message = chatResponse.choices.first?.message?.content else {
+              let content = chatResponse.choices.first?.message?.content else {
             throw AIResponderError.invalidResponse
         }
 
-        return message.trimmingCharacters(in: .whitespacesAndNewlines)
+        // JSONをパース
+        guard let jsonData = content.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: String],
+              let japaneseTranslation = json["japanese_translation"],
+              let englishReply = json["english_reply"],
+              let englishReplyJapanese = json["english_reply_japanese"],
+              let katakanaReading = json["katakana_reading"] else {
+            throw AIResponderError.invalidResponse
+        }
+
+        return AIResponseData(
+            japaneseTranslation: japaneseTranslation,
+            englishReply: englishReply,
+            englishReplyJapanese: englishReplyJapanese,  // ← 追加
+            katakanaReading: katakanaReading
+        )
     }
 }
