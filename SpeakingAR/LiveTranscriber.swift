@@ -30,7 +30,10 @@ final class LiveTranscriber: ObservableObject {
     private let translator = SubtitleTranslator()
     private var translationTask: Task<Void, Never>?
     private var lastTranscribedText: String = ""
-    private var isTranslationAvailable: Bool = true
+    private var nextTranslationRetryDate: Date?
+    private var translationModelPreloadTask: Task<Void, Never>?
+
+    private var shouldSuppressRecognitionTaskErrors: Bool = false
 
     private let aiResponder: AIResponder?
     private let aiSetupErrorMessage: String?
@@ -53,6 +56,12 @@ final class LiveTranscriber: ObservableObject {
         aiSetupErrorMessage = setupError
         if let setupError {
             aiError = setupError
+        }
+
+        translationModelPreloadTask = Task { [translator] in
+            #if canImport(Translate)
+            await translator.preloadDefaultLanguagePairs()
+            #endif
         }
     }
 
@@ -163,7 +172,10 @@ final class LiveTranscriber: ObservableObject {
         }
     }
 
-    func stopTranscribing() {
+    func stopTranscribing(userInitiated: Bool = false) {
+        if userInitiated {
+            shouldSuppressRecognitionTaskErrors = true
+        }
         translationTask?.cancel()
         translationTask = nil
         aiResponseTask?.cancel()
@@ -237,6 +249,10 @@ final class LiveTranscriber: ObservableObject {
 
             if let error {
                 Task { @MainActor in
+                    if self.shouldSuppressRecognitionTaskErrors {
+                        self.shouldSuppressRecognitionTaskErrors = false
+                        return
+                    }
                     self.stopTranscribing()
                     self.transcript = "音声認識中にエラーが発生しました: \(error.localizedDescription)"
                     self.aiError = "音声認識が停止したため、AI 応答を生成できません。"
@@ -251,19 +267,28 @@ final class LiveTranscriber: ObservableObject {
     private func prepareForNewSession() {
         translationTask?.cancel()
         translationTask = nil
+        translationModelPreloadTask?.cancel()
+        translationModelPreloadTask = nil
         transcript = ""
         translatedTranscript = ""
         translationInfo = nil
         translationError = nil
         isTranslating = false
         lastTranscribedText = ""
-        isTranslationAvailable = true
+        nextTranslationRetryDate = nil
+        shouldSuppressRecognitionTaskErrors = false
         aiResponse = ""
         aiResponseTask?.cancel()
         aiResponseTask = nil
         lastAIInput = ""
         isGeneratingAIResponse = false
         aiError = aiSetupErrorMessage
+
+        translationModelPreloadTask = Task { [translator] in
+            #if canImport(Translate)
+            await translator.preloadDefaultLanguagePairs()
+            #endif
+        }
     }
 
     @MainActor
@@ -284,20 +309,28 @@ final class LiveTranscriber: ObservableObject {
             return
         }
 
-        guard isTranslationAvailable else {
-            isTranslating = false
-            translatedTranscript = ""
-            translationInfo = nil
-            if translationError == nil {
-                translationError = "翻訳サービスを利用できません。ネットワーク接続と翻訳データを確認してください。"
+        if let retryDate = nextTranslationRetryDate {
+            if retryDate > Date() {
+                isTranslating = false
+                translatedTranscript = ""
+                translationInfo = nil
+                if translationError == nil {
+                    translationError = "翻訳サービスを利用できません。ネットワーク接続と翻訳データを確認してください。"
+                }
+                translationTask = nil
+                return
+            } else {
+                nextTranslationRetryDate = nil
             }
-            translationTask = nil
-            return
         }
 
         isTranslating = true
         translationError = nil
-        translationInfo = nil
+        if translatedTranscript.isEmpty {
+            translationInfo = "翻訳モデルを準備中..."
+        } else {
+            translationInfo = nil
+        }
 
         let translator = self.translator
         translationTask = Task {
@@ -309,17 +342,22 @@ final class LiveTranscriber: ObservableObject {
                     switch outcome {
                     case .translated(let result):
                         self.translatedTranscript = result.translatedText
-                        self.translationInfo = self.localizedLanguagePairDescription(sourceCode: result.sourceLanguageCode, targetCode: result.targetLanguageCode)
+                        self.translationInfo = self.localizedLanguagePairDescription(
+                            sourceCode: result.sourceLanguageCode,
+                            targetCode: result.targetLanguageCode
+                        )
                         self.translationError = nil
+                        self.nextTranslationRetryDate = nil
                     case .unsupportedLanguage(let code):
                         self.translatedTranscript = ""
                         self.translationInfo = code.map { self.unsupportedLanguageDescription(for: $0) }
                         self.translationError = "英語または日本語の音声のみ翻訳されます。"
+                        self.nextTranslationRetryDate = nil
                     case .unavailable:
                         self.translatedTranscript = ""
                         self.translationInfo = nil
                         self.translationError = "翻訳サービスを利用できません。ネットワーク接続と翻訳データを確認してください。"
-                        self.isTranslationAvailable = false
+                        self.nextTranslationRetryDate = Date().addingTimeInterval(20)
                     }
                     self.translationTask = nil
                 }
@@ -331,6 +369,7 @@ final class LiveTranscriber: ObservableObject {
                     self.translatedTranscript = ""
                     self.translationInfo = nil
                     self.translationError = "翻訳中にエラーが発生しました: \(error.localizedDescription)"
+                    self.nextTranslationRetryDate = Date().addingTimeInterval(10)
                     self.translationTask = nil
                 }
             }
