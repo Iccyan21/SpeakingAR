@@ -97,111 +97,128 @@ private struct SubtitleView: View {
     }
 
     var body: some View {
-        Group {
-            if !shouldShowTranslationSection && !shouldShowAISection {
-                Text("Tap the microphone to start captions")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-            } else {
-                VStack(alignment: .leading, spacing: 12) {
-                    if shouldShowTranslationSection {
-                        VStack(alignment: .leading, spacing: 8) {
-                            if !trimmedTranslation.isEmpty {
-                                Text(trimmedTranslation)
-                                    .font(.title3.weight(.semibold))
-                                    .foregroundColor(.white)
-                            } else if !originalText.isEmpty {
-                                Text(originalText)
-                                    .font(.title3.weight(.semibold))
-                                    .foregroundColor(.white)
-                            }
+        content
+            .frame(maxWidth: .infinity)
+            .background(.thinMaterial, in: Capsule())
+            .shadow(radius: 10)
+    }
 
-                            if isTranslating {
-                                HStack(spacing: 8) {
-                                    ProgressView()
-                                        .progressViewStyle(.circular)
-                                        .tint(.white.opacity(0.85))
-                                    Text("Translating…")
-                                        .font(.caption)
-                                        .foregroundColor(.white.opacity(0.8))
-                                }
-                            }
-
-                            if let info = translationInfo, !info.isEmpty {
-                                Text(info)
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.8))
-                            }
-
-                            if let error = translationError, !error.isEmpty {
-                                Text(error)
-                                    .font(.caption2)
-                                    .foregroundColor(.red.opacity(0.9))
-                            }
-
-                            if !trimmedTranslation.isEmpty && !originalText.isEmpty {
-                                Text(originalText)
-                                    .font(.footnote)
-                                    .foregroundColor(.white.opacity(0.8))
-                            }
-                        }
-                    }
-
-                    if shouldShowAISection {
-                        if shouldShowTranslationSection {
-                            Rectangle()
-                                .fill(Color.white.opacity(0.2))
-                                .frame(maxWidth: .infinity, height: 1)
-                        }
-
-                        VStack(alignment: .leading, spacing: 6) {
-                            Label("AI Suggestions", systemImage: "sparkles")
-                                .font(.caption.weight(.semibold))
-                                .foregroundColor(.white.opacity(0.85))
-
-                            if isGeneratingAIResponse {
-                                HStack(spacing: 8) {
-                                    ProgressView()
-                                        .progressViewStyle(.circular)
-                                        .tint(.white.opacity(0.85))
-                                    Text("Thinking…")
-                                        .font(.caption)
-                                        .foregroundColor(.white.opacity(0.8))
-                                }
-                            }
-
-                            if !trimmedAIResponseEnglish.isEmpty {
-                                Text(trimmedAIResponseEnglish)
-                                    .font(.callout)
-                                    .foregroundColor(.white)
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
-
-                            if !trimmedAIResponseJapanese.isEmpty {
-                                Text(trimmedAIResponseJapanese)
-                                    .font(.footnote)
-                                    .foregroundColor(.white.opacity(0.85))
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
-
-                            if let error = aiError, !error.isEmpty {
-                                Text(error)
-                                    .font(.caption2)
-                                    .foregroundColor(.red.opacity(0.9))
-                            }
-                        }
-                    }
-                }
+    @ViewBuilder
+    private var content: some View {
+        if !shouldShowTranslationSection && !shouldShowAISection {
+            Text("Tap the microphone to start captions")
+                .font(.callout)
+                .foregroundStyle(.secondary)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
-                .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            VStack(alignment: .leading, spacing: 12) {
+                if shouldShowTranslationSection {
+                    translationSection
+                }
+
+                if shouldShowAISection {
+                    aiSection
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    @ViewBuilder
+    private var translationSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if !trimmedTranslation.isEmpty {
+                Text(trimmedTranslation)
+                    .font(.title3.weight(.semibold))
+                    .foregroundColor(.white)
+            } else if !originalText.isEmpty {
+                Text(originalText)
+                    .font(.title3.weight(.semibold))
+                    .foregroundColor(.white)
+            }
+
+            if isTranslating {
+                HStack(spacing: 8) {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(.white.opacity(0.85))
+                    Text("Translating…")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.8))
+                }
+            }
+
+            if let info = translationInfo, !info.isEmpty {
+                Text(info)
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.8))
+            }
+
+            if let error = translationError, !error.isEmpty {
+                Text(error)
+                    .font(.caption2)
+                    .foregroundColor(.red.opacity(0.9))
+            }
+
+            if !trimmedTranslation.isEmpty && !originalText.isEmpty {
+                Text(originalText)
+                    .font(.footnote)
+                    .foregroundColor(.white.opacity(0.8))
             }
         }
-        .frame(maxWidth: .infinity)
-        .background(.thinMaterial, in: Capsule())
-        .shadow(radius: 10)
+    }
+
+    @ViewBuilder
+    private var aiSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            if shouldShowTranslationSection {
+                Rectangle()
+                    .fill(Color.white.opacity(0.2))
+                    .frame(maxWidth: .infinity, height: 1)
+            }
+
+            HStack(spacing: 6) {
+                Image(systemName: "sparkles")
+                Text("AI Suggestions")
+                    .fontWeight(.semibold)
+            }
+            .font(.caption)
+            .foregroundColor(.white.opacity(0.85))
+
+            if isGeneratingAIResponse {
+                HStack(spacing: 8) {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(.white.opacity(0.85))
+                    Text("Thinking…")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.8))
+                }
+            }
+
+            if !trimmedAIResponseEnglish.isEmpty {
+                Text(trimmedAIResponseEnglish)
+                    .font(.callout)
+                    .foregroundColor(.white)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if !trimmedAIResponseJapanese.isEmpty {
+                Text(trimmedAIResponseJapanese)
+                    .font(.footnote)
+                    .foregroundColor(.white.opacity(0.85))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if let error = aiError, !error.isEmpty {
+                Text(error)
+                    .font(.caption2)
+                    .foregroundColor(.red.opacity(0.9))
+            }
+        }
     }
 }
 
