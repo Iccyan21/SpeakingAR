@@ -29,9 +29,7 @@ actor SubtitleTranslator {
 
     #if canImport(Translation)
     private var cachedSessions: [LanguagePair: TranslationSession] = [:]
-    private var preparedPairs: Set<LanguagePair> = []
-    private var preparingPairs: [LanguagePair: Task<Void, Error>] = [:]
-    private var languagePreparationTasks: [String: Task<Void, Error>] = [:]
+    private var sessionCreationTasks: [LanguagePair: Task<TranslationSession, Error>] = [:]
     #endif
 
     func translate(_ text: String) async throws -> SubtitleTranslationOutcome {
@@ -70,12 +68,11 @@ actor SubtitleTranslator {
 
         for pair in commonPairs {
             do {
-                try await prepareModelsIfNeeded(for: pair)
+                _ = try await translationSession(for: pair)
             } catch is CancellationError {
                 return
             } catch {
                 cachedSessions[pair] = nil
-                preparedPairs.remove(pair)
             }
         }
     }
@@ -119,7 +116,6 @@ actor SubtitleTranslator {
             print("Translation failed for pair \(pair): \(error.localizedDescription)")
             #endif
             cachedSessions[pair] = nil
-            preparedPairs.remove(pair)
             throw error
         }
     }
@@ -129,74 +125,26 @@ actor SubtitleTranslator {
             return existing
         }
 
-        try await prepareModelsIfNeeded(for: pair)
+        if let task = sessionCreationTasks[pair] {
+            return try await task.value
+        }
 
         let configuration = TranslationSession.Configuration(
             source: Locale.Language(identifier: pair.sourceCode),
             target: Locale.Language(identifier: pair.targetCode)
         )
 
-        let session = try TranslationSession(configuration: configuration)
+        let creationTask = Task<TranslationSession, Error> {
+            try await TranslationSession(configuration: configuration)
+        }
+
+        sessionCreationTasks[pair] = creationTask
+
+        defer { sessionCreationTasks[pair] = nil }
+
+        let session = try await creationTask.value
         cachedSessions[pair] = session
         return session
-    }
-
-    private func prepareModelsIfNeeded(for pair: LanguagePair) async throws {
-        if preparedPairs.contains(pair) {
-            return
-        }
-
-        if let task = preparingPairs[pair] {
-            return try await task.value
-        }
-
-        let task = Task {
-            try await withThrowingTaskGroup(of: Void.self) { group in
-                group.addTask { try await self.prepareLanguageIfNeeded(code: pair.sourceCode) }
-                group.addTask { try await self.prepareLanguageIfNeeded(code: pair.targetCode) }
-                try await group.waitForAll()
-            }
-        }
-
-        preparingPairs[pair] = task
-
-        defer { preparingPairs[pair] = nil }
-
-        do {
-            try await task.value
-            preparedPairs.insert(pair)
-        } catch {
-            preparedPairs.remove(pair)
-            throw error
-        }
-    }
-
-    private func prepareLanguageIfNeeded(code: String) async throws {
-        let key = code.lowercased()
-
-        if let task = languagePreparationTasks[key] {
-            return try await task.value
-        }
-
-        let language = Locale.Language(identifier: code)
-        let task = Task {
-            let model = TranslationModel(language: language)
-            if model.state != .downloaded {
-                try await model.makeAvailable()
-            }
-        }
-
-        languagePreparationTasks[key] = task
-
-        defer { languagePreparationTasks[key] = nil }
-
-        do {
-            try await task.value
-        } catch is CancellationError {
-            throw CancellationError()
-        } catch {
-            throw error
-        }
     }
     #endif
 }
