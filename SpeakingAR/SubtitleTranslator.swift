@@ -135,7 +135,14 @@ actor SubtitleTranslator {
         )
 
         let creationTask = Task<TranslationSession, Error> {
-            try TranslationSession(configuration: configuration)
+            #if os(iOS) || os(macOS) || os(visionOS)
+            guard #available(iOS 17.0, macOS 14.0, visionOS 1.0, *) else {
+                throw SubtitleTranslationError.translationUnavailable
+            }
+            return try await TranslationSession.make(configuration: configuration)
+            #else
+            return try await TranslationSession.make(configuration: configuration)
+            #endif
         }
 
         sessionCreationTasks[pair] = creationTask
@@ -148,6 +155,12 @@ actor SubtitleTranslator {
     }
     #endif
 }
+
+#if canImport(Translation)
+private enum SubtitleTranslationError: Error {
+    case translationUnavailable
+}
+#endif
 
 private struct LanguagePair: Hashable {
     let sourceCode: String
