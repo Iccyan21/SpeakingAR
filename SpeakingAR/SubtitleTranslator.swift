@@ -135,7 +135,7 @@ actor SubtitleTranslator {
         )
 
         let creationTask = Task<TranslationSession, Error> {
-            try await TranslationSession(configuration: configuration)
+            try TranslationSession(configuration: configuration)
         }
 
         sessionCreationTasks[pair] = creationTask
