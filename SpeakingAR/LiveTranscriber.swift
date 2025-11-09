@@ -4,7 +4,6 @@
 //
 
 import AVFoundation
-import NaturalLanguage
 import Speech
 
 @MainActor
@@ -19,8 +18,7 @@ final class LiveTranscriber: ObservableObject {
     @Published var translationError: String?
     @Published var isTranslating: Bool = false
 
-    @Published var aiResponseEnglish: String = ""
-    @Published var aiResponseJapanese: String = ""
+    @Published var aiResponse: String = ""
     @Published var aiError: String?
     @Published var isGeneratingAIResponse: Bool = false
 
@@ -29,12 +27,15 @@ final class LiveTranscriber: ObservableObject {
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
 
-    private let languageRecognizer = NLLanguageRecognizer()
-    private var guidanceTask: Task<Void, Never>?
-    private var lastProcessedTranscript: String = ""
+    private let translator = SubtitleTranslator()
+    private var translationTask: Task<Void, Never>?
+    private var lastTranscribedText: String = ""
+    private var isTranslationAvailable: Bool = true
 
     private let aiResponder: AIResponder?
     private let aiSetupErrorMessage: String?
+    private var aiResponseTask: Task<Void, Never>?
+    private var lastAIInput: String = ""
 
     init(locale: Locale = Locale(identifier: Locale.preferredLanguages.first ?? "en-US")) {
         speechRecognizer = SFSpeechRecognizer(locale: locale)
@@ -46,12 +47,63 @@ final class LiveTranscriber: ObservableObject {
         do {
             responder = try AIResponder()
         } catch {
-            setupError = (error as? LocalizedError)?.errorDescription ?? "The AI assistant could not be initialized."
+            setupError = (error as? LocalizedError)?.errorDescription ?? "AI 応答機能を初期化できませんでした。"
         }
         aiResponder = responder
         aiSetupErrorMessage = setupError
         if let setupError {
             aiError = setupError
+        }
+    }
+
+    @MainActor
+    private func scheduleAIResponse(for text: String) {
+        guard text != lastAIInput else { return }
+        lastAIInput = text
+
+        aiResponseTask?.cancel()
+
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            aiResponse = ""
+            aiError = aiSetupErrorMessage
+            isGeneratingAIResponse = false
+            aiResponseTask = nil
+            return
+        }
+
+        guard let responder = aiResponder else {
+            aiResponse = ""
+            aiError = aiSetupErrorMessage
+            isGeneratingAIResponse = false
+            aiResponseTask = nil
+            return
+        }
+
+        isGeneratingAIResponse = true
+        aiError = nil
+
+        aiResponseTask = Task {
+            do {
+                let reply = try await responder.generateResponse(for: trimmed)
+                guard !Task.isCancelled else { return }
+                await MainActor.run {
+                    self.isGeneratingAIResponse = false
+                    self.aiResponse = reply
+                    self.aiError = reply.isEmpty ? "AI からの返答が取得できませんでした。" : nil
+                    self.aiResponseTask = nil
+                }
+            } catch is CancellationError {
+                return
+            } catch {
+                let message = (error as? LocalizedError)?.errorDescription ?? "AI 応答の生成中にエラーが発生しました。"
+                await MainActor.run {
+                    self.isGeneratingAIResponse = false
+                    self.aiResponse = ""
+                    self.aiError = message
+                    self.aiResponseTask = nil
+                }
+            }
         }
     }
 
@@ -88,7 +140,7 @@ final class LiveTranscriber: ObservableObject {
             requestPermissionsIfNeeded()
             fallthrough
         default:
-            transcript = "Speech recognition permission has not been granted. Enable microphone and speech recognition in Settings."
+            transcript = "音声認識の権限が許可されていません。設定アプリでマイクと音声認識の権限を有効にしてください。"
             return
         }
 
@@ -96,7 +148,7 @@ final class LiveTranscriber: ObservableObject {
             if recordPermission == .undetermined {
                 requestPermissionsIfNeeded()
             }
-            transcript = "Microphone access has not been granted. Enable the microphone permission in Settings."
+            transcript = "マイクへのアクセスが許可されていません。設定アプリでマイク権限を有効にしてください。"
             return
         }
 
@@ -107,17 +159,17 @@ final class LiveTranscriber: ObservableObject {
             try beginRecognitionSession()
         } catch {
             stopTranscribing()
-            transcript = "Could not start speech recognition: \(error.localizedDescription)"
+            transcript = "音声認識を開始できませんでした: \(error.localizedDescription)"
         }
     }
 
-    func stopTranscribing(cancelGuidance: Bool = true) {
-        if cancelGuidance {
-            guidanceTask?.cancel()
-            guidanceTask = nil
-            isTranslating = false
-            isGeneratingAIResponse = false
-        }
+    func stopTranscribing() {
+        translationTask?.cancel()
+        translationTask = nil
+        aiResponseTask?.cancel()
+        aiResponseTask = nil
+        isTranslating = false
+        isGeneratingAIResponse = false
         if audioEngine.isRunning {
             audioEngine.stop()
             audioEngine.inputNode.removeTap(onBus: 0)
@@ -149,7 +201,7 @@ final class LiveTranscriber: ObservableObject {
 
     private func beginRecognitionSession() throws {
         guard let speechRecognizer, speechRecognizer.isAvailable else {
-            transcript = "Speech recognition is currently unavailable. Please try again later."
+            transcript = "音声認識サービスが現在利用できません。しばらくしてから再試行してください。"
             return
         }
 
@@ -177,138 +229,126 @@ final class LiveTranscriber: ObservableObject {
                 let latestTranscript = result.bestTranscription.formattedString
                 Task { @MainActor in
                     self.transcript = latestTranscript
-                    self.handleTranscriptUpdate(for: latestTranscript, isFinal: result.isFinal)
+                    self.scheduleTranslation(for: latestTranscript)
+                    self.scheduleAIResponse(for: latestTranscript)
+
                 }
             }
 
             if let error {
                 Task { @MainActor in
                     self.stopTranscribing()
-                    self.transcript = "A speech recognition error occurred: \(error.localizedDescription)"
-                    self.aiError = "AI suggestions are unavailable because speech recognition stopped."
+                    self.transcript = "音声認識中にエラーが発生しました: \(error.localizedDescription)"
+                    self.aiError = "音声認識が停止したため、AI 応答を生成できません。"
                 }
             } else if result?.isFinal == true {
                 Task { @MainActor in
-                    self.stopTranscribing(cancelGuidance: false)
+                    self.stopTranscribing()
                 }
             }
         }
     }
     private func prepareForNewSession() {
-        guidanceTask?.cancel()
-        guidanceTask = nil
+        translationTask?.cancel()
+        translationTask = nil
         transcript = ""
         translatedTranscript = ""
         translationInfo = nil
         translationError = nil
         isTranslating = false
-        lastProcessedTranscript = ""
-        aiResponseEnglish = ""
-        aiResponseJapanese = ""
+        lastTranscribedText = ""
+        isTranslationAvailable = true
+        aiResponse = ""
+        aiResponseTask?.cancel()
+        aiResponseTask = nil
+        lastAIInput = ""
         isGeneratingAIResponse = false
         aiError = aiSetupErrorMessage
     }
 
     @MainActor
-    private func handleTranscriptUpdate(for text: String, isFinal: Bool) {
-        if isFinal {
-            requestGuidance(for: text)
-        }
-    }
+    private func scheduleTranslation(for text: String) {
+        guard text != lastTranscribedText else { return }
+        lastTranscribedText = text
 
-    @MainActor
-    private func requestGuidance(for text: String) {
+        translationTask?.cancel()
+
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmed != lastProcessedTranscript else { return }
-        lastProcessedTranscript = trimmed
-
-        guidanceTask?.cancel()
-
         guard !trimmed.isEmpty else {
             translatedTranscript = ""
             translationInfo = nil
             translationError = nil
-            aiResponseEnglish = ""
-            aiResponseJapanese = ""
-            aiError = aiSetupErrorMessage
             isTranslating = false
-            isGeneratingAIResponse = false
-            guidanceTask = nil
+            translationTask = nil
+            scheduleAIResponse(for: text)
             return
         }
 
-        languageRecognizer.reset()
-        languageRecognizer.processString(trimmed)
-        let detectedCode = languageRecognizer.dominantLanguage?.rawValue
-
-        guard detectedCode == "en" else {
+        guard isTranslationAvailable else {
+            isTranslating = false
             translatedTranscript = ""
             translationInfo = nil
-            translationError = "Speak in English to see the Japanese translation."
-            aiResponseEnglish = ""
-            aiResponseJapanese = ""
-            aiError = "Speak in English to receive AI suggestions."
-            isTranslating = false
-            isGeneratingAIResponse = false
-            guidanceTask = nil
-            return
-        }
-
-        guard let responder = aiResponder else {
-            translatedTranscript = ""
-            translationInfo = "English → Japanese"
-            translationError = aiSetupErrorMessage
-            aiResponseEnglish = ""
-            aiResponseJapanese = ""
-            aiError = aiSetupErrorMessage
-            isTranslating = false
-            isGeneratingAIResponse = false
-            guidanceTask = nil
+            if translationError == nil {
+                translationError = "翻訳サービスを利用できません。ネットワーク接続と翻訳データを確認してください。"
+            }
+            translationTask = nil
             return
         }
 
         isTranslating = true
         translationError = nil
-        translationInfo = "English → Japanese"
-        isGeneratingAIResponse = true
-        aiError = nil
+        translationInfo = nil
 
-        guidanceTask = Task {
+        let translator = self.translator
+        translationTask = Task {
             do {
-                let output = try await responder.generateGuidance(for: trimmed)
+                let outcome = try await translator.translate(trimmed)
                 guard !Task.isCancelled else { return }
                 await MainActor.run {
                     self.isTranslating = false
-                    self.isGeneratingAIResponse = false
-                    self.translatedTranscript = output.userTranslationJa.trimmingCharacters(in: .whitespacesAndNewlines)
-                    self.translationInfo = "English → Japanese"
-                    self.translationError = self.translatedTranscript.isEmpty ? "The AI did not return a translation." : nil
-                    self.aiResponseEnglish = output.replyEn.trimmingCharacters(in: .whitespacesAndNewlines)
-                    self.aiResponseJapanese = output.replyJa.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if self.aiResponseEnglish.isEmpty && self.aiResponseJapanese.isEmpty {
-                        self.aiError = "The AI did not provide a suggestion."
-                    } else {
-                        self.aiError = nil
+                    switch outcome {
+                    case .translated(let result):
+                        self.translatedTranscript = result.translatedText
+                        self.translationInfo = self.localizedLanguagePairDescription(sourceCode: result.sourceLanguageCode, targetCode: result.targetLanguageCode)
+                        self.translationError = nil
+                    case .unsupportedLanguage(let code):
+                        self.translatedTranscript = ""
+                        self.translationInfo = code.map { self.unsupportedLanguageDescription(for: $0) }
+                        self.translationError = "英語または日本語の音声のみ翻訳されます。"
+                    case .unavailable:
+                        self.translatedTranscript = ""
+                        self.translationInfo = nil
+                        self.translationError = "翻訳サービスを利用できません。ネットワーク接続と翻訳データを確認してください。"
+                        self.isTranslationAvailable = false
                     }
-                    self.guidanceTask = nil
+                    self.translationTask = nil
                 }
             } catch is CancellationError {
                 return
             } catch {
-                let message = (error as? LocalizedError)?.errorDescription ?? "The AI request failed."
                 await MainActor.run {
                     self.isTranslating = false
-                    self.isGeneratingAIResponse = false
                     self.translatedTranscript = ""
-                    self.translationInfo = "English → Japanese"
-                    self.translationError = message
-                    self.aiResponseEnglish = ""
-                    self.aiResponseJapanese = ""
-                    self.aiError = message
-                    self.guidanceTask = nil
+                    self.translationInfo = nil
+                    self.translationError = "翻訳中にエラーが発生しました: \(error.localizedDescription)"
+                    self.translationTask = nil
                 }
             }
         }
     }
-}
 
+    private func localizedLanguagePairDescription(sourceCode: String, targetCode: String) -> String {
+        let sourceName = localizedLanguageName(for: sourceCode)
+        let targetName = localizedLanguageName(for: targetCode)
+        return "\(sourceName) → \(targetName)"
+    }
+
+    private func unsupportedLanguageDescription(for code: String) -> String {
+        let languageName = localizedLanguageName(for: code)
+        return "\(languageName) は翻訳対象外です"
+    }
+
+    private func localizedLanguageName(for code: String) -> String {
+        Locale.current.localizedString(forLanguageCode: code) ?? code
+    }
+}
