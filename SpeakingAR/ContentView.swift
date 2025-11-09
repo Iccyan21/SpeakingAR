@@ -18,7 +18,14 @@ struct ContentView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 16) {
-                SubtitleView(text: transcriber.transcript)
+
+                SubtitleView(
+                    originalText: transcriber.transcript,
+                    translatedText: transcriber.translatedTranscript,
+                    translationInfo: transcriber.translationInfo,
+                    translationError: transcriber.translationError,
+                    isTranslating: transcriber.isTranslating
+                )
 
                 RecordButton(isRecording: transcriber.isRecording) {
                     if transcriber.isRecording {
@@ -55,22 +62,64 @@ private struct ARViewContainer: UIViewRepresentable {
 }
 
 private struct SubtitleView: View {
-    let text: String
+    let originalText: String
+    let translatedText: String
+    let translationInfo: String?
+    let translationError: String?
+    let isTranslating: Bool
 
     var body: some View {
         Group {
-            if text.isEmpty {
+            if originalText.isEmpty && translatedText.isEmpty {
                 Text("マイクボタンを押して字幕を開始")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 12)
             } else {
-                Text(text)
-                    .font(.title3.weight(.semibold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
+                VStack(alignment: .leading, spacing: 8) {
+                    if !translatedText.isEmpty {
+                        Text(translatedText)
+                            .font(.title3.weight(.semibold))
+                            .foregroundColor(.white)
+                    } else {
+                        Text(originalText)
+                            .font(.title3.weight(.semibold))
+                            .foregroundColor(.white)
+                    }
+
+                    if isTranslating {
+                        HStack(spacing: 8) {
+                            ProgressView()
+                                .progressViewStyle(.circular)
+                                .tint(.white.opacity(0.85))
+                            Text("翻訳中…")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                    }
+
+                    if let info = translationInfo, !info.isEmpty {
+                        Text(info)
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.8))
+                    }
+
+                    if let error = translationError, !error.isEmpty {
+                        Text(error)
+                            .font(.caption2)
+                            .foregroundColor(.red.opacity(0.9))
+                    }
+
+                    if !translatedText.isEmpty && !originalText.isEmpty {
+                        Text(originalText)
+                            .font(.footnote)
+                            .foregroundColor(.white.opacity(0.8))
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .frame(maxWidth: .infinity)

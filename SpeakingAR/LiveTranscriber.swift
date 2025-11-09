@@ -2,8 +2,6 @@
 //  LiveTranscriber.swift
 //  SpeakingAR
 //
-//  権限リクエストと音声セッション管理を改善したライブ文字起こしクラス
-//
 
 import AVFoundation
 import Speech
@@ -15,10 +13,20 @@ final class LiveTranscriber: ObservableObject {
     @Published var authorizationStatus: SFSpeechRecognizerAuthorizationStatus = .notDetermined
     @Published var recordPermission: AVAudioSession.RecordPermission = .undetermined
 
+    @Published var translatedTranscript: String = ""
+    @Published var translationInfo: String?
+    @Published var translationError: String?
+    @Published var isTranslating: Bool = false
+
     private let speechRecognizer: SFSpeechRecognizer?
     private let audioEngine = AVAudioEngine()
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
+
+    private let translator = SubtitleTranslator()
+    private var translationTask: Task<Void, Never>?
+    private var lastTranscribedText: String = ""
+    private var isTranslationAvailable: Bool = true
 
     init(locale: Locale = Locale(identifier: Locale.preferredLanguages.first ?? "en-US")) {
         speechRecognizer = SFSpeechRecognizer(locale: locale)
@@ -71,6 +79,8 @@ final class LiveTranscriber: ObservableObject {
             return
         }
 
+        prepareForNewSession()
+
         do {
             try configureAudioSession()
             try beginRecognitionSession()
@@ -81,6 +91,9 @@ final class LiveTranscriber: ObservableObject {
     }
 
     func stopTranscribing() {
+        translationTask?.cancel()
+        translationTask = nil
+        isTranslating = false
         if audioEngine.isRunning {
             audioEngine.stop()
             audioEngine.inputNode.removeTap(onBus: 0)
@@ -137,8 +150,11 @@ final class LiveTranscriber: ObservableObject {
             guard let self else { return }
 
             if let result {
+                let latestTranscript = result.bestTranscription.formattedString
                 Task { @MainActor in
-                    self.transcript = result.bestTranscription.formattedString
+                    self.transcript = latestTranscript
+                    self.scheduleTranslation(for: latestTranscript)
+
                 }
             }
 
@@ -153,6 +169,102 @@ final class LiveTranscriber: ObservableObject {
                 }
             }
         }
+    }
+    private func prepareForNewSession() {
+        translationTask?.cancel()
+        translationTask = nil
+        transcript = ""
+        translatedTranscript = ""
+        translationInfo = nil
+        translationError = nil
+        isTranslating = false
+        lastTranscribedText = ""
+        isTranslationAvailable = true
+    }
+
+    @MainActor
+    private func scheduleTranslation(for text: String) {
+        guard text != lastTranscribedText else { return }
+        lastTranscribedText = text
+
+        translationTask?.cancel()
+
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            translatedTranscript = ""
+            translationInfo = nil
+            translationError = nil
+            isTranslating = false
+            translationTask = nil
+            return
+        }
+
+        guard isTranslationAvailable else {
+            isTranslating = false
+            translatedTranscript = ""
+            translationInfo = nil
+            if translationError == nil {
+                translationError = "翻訳サービスを利用できません。ネットワーク接続と翻訳データを確認してください。"
+            }
+            translationTask = nil
+            return
+        }
+
+        isTranslating = true
+        translationError = nil
+        translationInfo = nil
+
+        let translator = self.translator
+        translationTask = Task {
+            do {
+                let outcome = try await translator.translate(trimmed)
+                guard !Task.isCancelled else { return }
+                await MainActor.run {
+                    self.isTranslating = false
+                    switch outcome {
+                    case .translated(let result):
+                        self.translatedTranscript = result.translatedText
+                        self.translationInfo = self.localizedLanguagePairDescription(sourceCode: result.sourceLanguageCode, targetCode: result.targetLanguageCode)
+                        self.translationError = nil
+                    case .unsupportedLanguage(let code):
+                        self.translatedTranscript = ""
+                        self.translationInfo = code.map { self.unsupportedLanguageDescription(for: $0) }
+                        self.translationError = "英語または日本語の音声のみ翻訳されます。"
+                    case .unavailable:
+                        self.translatedTranscript = ""
+                        self.translationInfo = nil
+                        self.translationError = "翻訳サービスを利用できません。ネットワーク接続と翻訳データを確認してください。"
+                        self.isTranslationAvailable = false
+                    }
+                    self.translationTask = nil
+                }
+            } catch is CancellationError {
+                return
+            } catch {
+                await MainActor.run {
+                    self.isTranslating = false
+                    self.translatedTranscript = ""
+                    self.translationInfo = nil
+                    self.translationError = "翻訳中にエラーが発生しました: \(error.localizedDescription)"
+                    self.translationTask = nil
+                }
+            }
+        }
+    }
+
+    private func localizedLanguagePairDescription(sourceCode: String, targetCode: String) -> String {
+        let sourceName = localizedLanguageName(for: sourceCode)
+        let targetName = localizedLanguageName(for: targetCode)
+        return "\(sourceName) → \(targetName)"
+    }
+
+    private func unsupportedLanguageDescription(for code: String) -> String {
+        let languageName = localizedLanguageName(for: code)
+        return "\(languageName) は翻訳対象外です"
+    }
+
+    private func localizedLanguageName(for code: String) -> String {
+        Locale.current.localizedString(forLanguageCode: code) ?? code
     }
 }
 
