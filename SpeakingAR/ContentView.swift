@@ -24,7 +24,10 @@ struct ContentView: View {
                     translatedText: transcriber.translatedTranscript,
                     translationInfo: transcriber.translationInfo,
                     translationError: transcriber.translationError,
-                    isTranslating: transcriber.isTranslating
+                    isTranslating: transcriber.isTranslating,
+                    aiResponse: transcriber.aiResponse,
+                    aiError: transcriber.aiError,
+                    isGeneratingAIResponse: transcriber.isGeneratingAIResponse
                 )
 
                 RecordButton(isRecording: transcriber.isRecording) {
@@ -67,54 +70,111 @@ private struct SubtitleView: View {
     let translationInfo: String?
     let translationError: String?
     let isTranslating: Bool
+    let aiResponse: String
+    let aiError: String?
+    let isGeneratingAIResponse: Bool
+
+    private var trimmedAIResponse: String {
+        aiResponse.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var shouldShowTranslationSection: Bool {
+        !(originalText.isEmpty && translatedText.isEmpty)
+    }
+
+    private var shouldShowAISection: Bool {
+        isGeneratingAIResponse || !trimmedAIResponse.isEmpty || !(aiError?.isEmpty ?? true)
+    }
 
     var body: some View {
         Group {
-            if originalText.isEmpty && translatedText.isEmpty {
+            if !shouldShowTranslationSection && !shouldShowAISection {
                 Text("マイクボタンを押して字幕を開始")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 12)
             } else {
-                VStack(alignment: .leading, spacing: 8) {
-                    if !translatedText.isEmpty {
-                        Text(translatedText)
-                            .font(.title3.weight(.semibold))
-                            .foregroundColor(.white)
-                    } else {
-                        Text(originalText)
-                            .font(.title3.weight(.semibold))
-                            .foregroundColor(.white)
-                    }
+                VStack(alignment: .leading, spacing: 12) {
+                    if shouldShowTranslationSection {
+                        VStack(alignment: .leading, spacing: 8) {
+                            if !translatedText.isEmpty {
+                                Text(translatedText)
+                                    .font(.title3.weight(.semibold))
+                                    .foregroundColor(.white)
+                            } else if !originalText.isEmpty {
+                                Text(originalText)
+                                    .font(.title3.weight(.semibold))
+                                    .foregroundColor(.white)
+                            }
 
-                    if isTranslating {
-                        HStack(spacing: 8) {
-                            ProgressView()
-                                .progressViewStyle(.circular)
-                                .tint(.white.opacity(0.85))
-                            Text("翻訳中…")
-                                .font(.caption)
-                                .foregroundColor(.white.opacity(0.8))
+                            if isTranslating {
+                                HStack(spacing: 8) {
+                                    ProgressView()
+                                        .progressViewStyle(.circular)
+                                        .tint(.white.opacity(0.85))
+                                    Text("翻訳中…")
+                                        .font(.caption)
+                                        .foregroundColor(.white.opacity(0.8))
+                                }
+                            }
+
+                            if let info = translationInfo, !info.isEmpty {
+                                Text(info)
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
+
+                            if let error = translationError, !error.isEmpty {
+                                Text(error)
+                                    .font(.caption2)
+                                    .foregroundColor(.red.opacity(0.9))
+                            }
+
+                            if !translatedText.isEmpty && !originalText.isEmpty {
+                                Text(originalText)
+                                    .font(.footnote)
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
                         }
                     }
 
-                    if let info = translationInfo, !info.isEmpty {
-                        Text(info)
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.8))
-                    }
+                    if shouldShowAISection {
+                        if shouldShowTranslationSection {
+                            Rectangle()
+                                .fill(Color.white.opacity(0.2))
+                                .frame(maxWidth: .infinity, height: 1)
+                        }
 
-                    if let error = translationError, !error.isEmpty {
-                        Text(error)
-                            .font(.caption2)
-                            .foregroundColor(.red.opacity(0.9))
-                    }
+                        VStack(alignment: .leading, spacing: 6) {
+                            Label("AIの提案", systemImage: "sparkles")
+                                .font(.caption.weight(.semibold))
+                                .foregroundColor(.white.opacity(0.85))
 
-                    if !translatedText.isEmpty && !originalText.isEmpty {
-                        Text(originalText)
-                            .font(.footnote)
-                            .foregroundColor(.white.opacity(0.8))
+                            if isGeneratingAIResponse {
+                                HStack(spacing: 8) {
+                                    ProgressView()
+                                        .progressViewStyle(.circular)
+                                        .tint(.white.opacity(0.85))
+                                    Text("考え中…")
+                                        .font(.caption)
+                                        .foregroundColor(.white.opacity(0.8))
+                                }
+                            }
+
+                            if !trimmedAIResponse.isEmpty {
+                                Text(trimmedAIResponse)
+                                    .font(.callout)
+                                    .foregroundColor(.white)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+
+                            if let error = aiError, !error.isEmpty {
+                                Text(error)
+                                    .font(.caption2)
+                                    .foregroundColor(.red.opacity(0.9))
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal, 20)
