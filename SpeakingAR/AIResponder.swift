@@ -10,6 +10,7 @@ import Foundation
 enum AIResponderError: Error {
     case missingAPIKey
     case invalidResponse
+    case quotaExceeded
     case serverError(message: String)
     case httpError(statusCode: Int)
 }
@@ -21,6 +22,8 @@ extension AIResponderError: LocalizedError {
             return "AI 応答を利用するには OPENAI_API_KEY を環境変数に設定してください。"
         case .invalidResponse:
             return "AI からの応答を解釈できませんでした。"
+        case .quotaExceeded:
+            return "AI の利用上限に達しました。OpenAI の利用状況とプラン、請求設定を確認してください。"
         case .serverError(let message):
             return "AI サービスからエラーが返されました: \(message)"
         case .httpError(let statusCode):
@@ -116,7 +119,13 @@ actor AIResponder {
 
         guard 200...299 ~= httpResponse.statusCode else {
             if let apiError = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                if httpResponse.statusCode == 429 || apiError.error.message.localizedCaseInsensitiveContains("quota") {
+                    throw AIResponderError.quotaExceeded
+                }
                 throw AIResponderError.serverError(message: apiError.error.message)
+            }
+            if httpResponse.statusCode == 429 {
+                throw AIResponderError.quotaExceeded
             }
             throw AIResponderError.httpError(statusCode: httpResponse.statusCode)
         }
