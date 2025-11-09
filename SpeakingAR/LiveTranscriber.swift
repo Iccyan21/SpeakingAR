@@ -186,7 +186,7 @@ final class LiveTranscriber: ObservableObject {
 
             if let error {
                 let nsError = error as NSError
-                if nsError.domain == SFSpeechRecognitionErrorDomain,
+                if nsError.domain == SFSpeechRecognizerErrorDomain,
                    nsError.code == SFSpeechRecognitionErrorCode.canceled.rawValue,
                    self.isCancellingRecognition {
                     self.isCancellingRecognition = false
