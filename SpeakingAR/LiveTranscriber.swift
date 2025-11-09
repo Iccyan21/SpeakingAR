@@ -2,8 +2,6 @@
 //  LiveTranscriber.swift
 //  SpeakingAR
 //
-//  音声認識に加えて字幕の自動翻訳を提供するライブ文字起こしクラス
-//
 
 import AVFoundation
 import Speech
@@ -14,6 +12,7 @@ final class LiveTranscriber: ObservableObject {
     @Published var isRecording: Bool = false
     @Published var authorizationStatus: SFSpeechRecognizerAuthorizationStatus = .notDetermined
     @Published var recordPermission: AVAudioSession.RecordPermission = .undetermined
+
     @Published var translatedTranscript: String = ""
     @Published var translationInfo: String?
     @Published var translationError: String?
@@ -23,6 +22,7 @@ final class LiveTranscriber: ObservableObject {
     private let audioEngine = AVAudioEngine()
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
+
     private let translator = SubtitleTranslator()
     private var translationTask: Task<Void, Never>?
     private var lastTranscribedText: String = ""
@@ -154,6 +154,7 @@ final class LiveTranscriber: ObservableObject {
                 Task { @MainActor in
                     self.transcript = latestTranscript
                     self.scheduleTranslation(for: latestTranscript)
+
                 }
             }
 
@@ -169,7 +170,6 @@ final class LiveTranscriber: ObservableObject {
             }
         }
     }
-
     private func prepareForNewSession() {
         translationTask?.cancel()
         translationTask = nil

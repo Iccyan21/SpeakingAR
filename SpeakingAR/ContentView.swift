@@ -18,6 +18,7 @@ struct ContentView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 16) {
+
                 SubtitleView(
                     originalText: transcriber.transcript,
                     translatedText: transcriber.translatedTranscript,
