@@ -19,17 +19,23 @@ extension AIResponderError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .missingAPIKey:
-            return "AI 応答を利用するには OPENAI_API_KEY を環境変数に設定してください。"
+            return "Set the OPENAI_API_KEY environment variable to enable the AI assistant."
         case .invalidResponse:
-            return "AI からの応答を解釈できませんでした。"
+            return "The AI response could not be parsed."
         case .quotaExceeded:
-            return "AI の利用上限に達しました。OpenAI の利用状況とプラン、請求設定を確認してください。"
+            return "You have reached the AI usage quota. Review your OpenAI usage, plan, and billing settings."
         case .serverError(let message):
-            return "AI サービスからエラーが返されました: \(message)"
+            return "The AI service returned an error: \(message)"
         case .httpError(let statusCode):
-            return "AI サービスとの通信に失敗しました (ステータスコード: \(statusCode))。"
+            return "The AI request failed (HTTP status code: \(statusCode))."
         }
     }
+}
+
+struct AIResponderOutput: Decodable {
+    let userTranslationJa: String
+    let replyEn: String
+    let replyJa: String
 }
 
 actor AIResponder {
@@ -39,16 +45,22 @@ actor AIResponder {
     }
 
     private struct ChatRequest: Encodable {
+        struct ResponseFormat: Encodable {
+            let type: String
+        }
+
         let model: String
         let messages: [ChatMessage]
         let maxTokens: Int
         let temperature: Double
+        let responseFormat: ResponseFormat
 
         enum CodingKeys: String, CodingKey {
             case model
             case messages
             case maxTokens = "max_tokens"
             case temperature
+            case responseFormat = "response_format"
         }
     }
 
@@ -90,12 +102,22 @@ actor AIResponder {
         self.urlSession = urlSession
     }
 
-    func generateResponse(for transcript: String) async throws -> String {
+    func generateGuidance(for transcript: String) async throws -> AIResponderOutput {
         let trimmed = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { throw AIResponderError.invalidResponse }
 
         let messages = [
-            ChatMessage(role: "system", content: "You are a helpful conversation partner. Reply in the same language as the user in a concise and friendly tone."),
+            ChatMessage(
+                role: "system",
+                content: """
+                You are assisting with live conversations. Always respond with strict JSON that matches this schema:
+                {"userTranslationJa":"<Japanese translation of the user's English input>","replyEn":"<a helpful, natural English reply the speaker could say next>","replyJa":"<the Japanese translation of replyEn>"}
+                - Keep the translations natural and conversational.
+                - replyEn must be in English.
+                - replyJa must faithfully translate replyEn into Japanese.
+                - Do not wrap the JSON in markdown or add any commentary.
+                """
+            ),
             ChatMessage(role: "user", content: trimmed)
         ]
 
@@ -103,7 +125,8 @@ actor AIResponder {
             model: "gpt-4o-mini",
             messages: messages,
             maxTokens: 256,
-            temperature: 0.7
+            temperature: 0.7,
+            responseFormat: .init(type: "json_object")
         )
 
         var request = URLRequest(url: endpoint)
@@ -136,6 +159,33 @@ actor AIResponder {
             throw AIResponderError.invalidResponse
         }
 
-        return message.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleaned = message.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if let parsed = try? decodeOutput(from: cleaned) {
+            return parsed
+        }
+
+        // Attempt to salvage JSON from the response if the assistant returned leading/trailing text.
+        if let fallback = extractJSONObject(from: cleaned),
+           let parsed = try? decodeOutput(from: fallback) {
+            return parsed
+        }
+
+        throw AIResponderError.invalidResponse
+    }
+
+    private func decodeOutput(from string: String) throws -> AIResponderOutput {
+        guard let data = string.data(using: .utf8) else {
+            throw AIResponderError.invalidResponse
+        }
+        return try JSONDecoder().decode(AIResponderOutput.self, from: data)
+    }
+
+    private func extractJSONObject(from text: String) -> String? {
+        guard let startIndex = text.firstIndex(of: "{"),
+              let endIndex = text.lastIndex(of: "}") else {
+            return nil
+        }
+        return String(text[startIndex...endIndex])
     }
 }
