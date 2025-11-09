@@ -32,7 +32,7 @@ struct ContentView: View {
 
                 RecordButton(isRecording: transcriber.isRecording) {
                     if transcriber.isRecording {
-                        transcriber.stopTranscribing()
+                        transcriber.stopTranscribing(userInitiated: true)
                     } else {
                         transcriber.startTranscribing()
                     }
