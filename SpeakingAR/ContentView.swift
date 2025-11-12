@@ -17,8 +17,14 @@ struct ContentView: View {
             ARViewContainer()
                 .ignoresSafeArea()
 
-            VStack(spacing: 16) {
+            LinearGradient(
+                colors: [Color.black.opacity(0.45), Color.black.opacity(0.05), .clear],
+                startPoint: .bottom,
+                endPoint: .top
+            )
+            .ignoresSafeArea()
 
+            VStack(spacing: 20) {
                 SubtitleView(
                     originalText: transcriber.transcript,
                     translatedText: transcriber.translatedTranscript,
@@ -29,9 +35,8 @@ struct ContentView: View {
                     aiError: transcriber.aiError,
                     isGeneratingAIResponse: transcriber.isGeneratingAIResponse,
                     japaneseTranslation: transcriber.japaneseTranslation,
-                    englishReplyJapanese: transcriber.englishReplyJapanese,// ← 追加
-                    katakanaReading: transcriber.katakanaReading          // ← 追加
-                    
+                    englishReplyJapanese: transcriber.englishReplyJapanese,
+                    katakanaReading: transcriber.katakanaReading
                 )
 
                 RecordButton(isRecording: transcriber.isRecording) {
@@ -43,7 +48,8 @@ struct ContentView: View {
                 }
             }
             .padding(.horizontal, 24)
-            .padding(.vertical, 40)
+            .padding(.bottom, 44)
+            .padding(.top, 24)
         }
         .onAppear {
             transcriber.requestPermissionsIfNeeded()
@@ -93,10 +99,29 @@ private struct SubtitleView: View {
     }
 
     var body: some View {
-        content
-            .frame(maxWidth: .infinity)
-            .background(.thinMaterial, in: Capsule())
-            .shadow(radius: 10)
+        VStack(spacing: 16) {
+            statusHeader
+
+            Divider()
+                .opacity((shouldShowTranslationSection || shouldShowAISection) ? 1 : 0)
+
+            ScrollView(showsIndicators: false) {
+                content
+                    .padding(.bottom, 4)
+            }
+        }
+        .padding(.vertical, 18)
+        .padding(.horizontal, 20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 26, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .shadow(color: .black.opacity(0.25), radius: 16, x: 0, y: 10)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 26, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
+        )
     }
 
     @ViewBuilder
@@ -108,37 +133,37 @@ private struct SubtitleView: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
         } else {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 16) {
                 // 音声認識セクション
                 if shouldShowTranslationSection {
                     VStack(alignment: .leading, spacing: 8) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "waveform")
-                            Text("あなた")
-                        }
-                        .font(.caption.weight(.semibold))
-                        .foregroundColor(.white.opacity(0.85))
-                        
+                        sectionHeader(title: "あなた", systemImage: "person.fill")
+
                         Text(originalText)
                             .font(.title3.weight(.semibold))
                             .foregroundColor(.white)
+                            .multilineTextAlignment(.leading)
+
+                        if !translatedText.isEmpty {
+                            Divider()
+                                .background(Color.white.opacity(0.2))
+
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("英語に変換:")
+                                    .font(.caption2)
+                                    .foregroundColor(.white.opacity(0.7))
+                                Text(translatedText)
+                                    .font(.callout)
+                                    .foregroundColor(.white.opacity(0.9))
+                            }
+                        }
                     }
                 }
 
                 // AIセクション
                 if shouldShowAISection {
-                    if shouldShowTranslationSection {
-                        Divider()
-                            .background(Color.white.opacity(0.3))
-                    }
-
                     VStack(alignment: .leading, spacing: 10) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "sparkles")
-                            Text("AIの提案")
-                        }
-                        .font(.caption.weight(.semibold))
-                        .foregroundColor(.white.opacity(0.85))
+                        sectionHeader(title: "AIの提案", systemImage: "sparkles")
 
                         if isGeneratingAIResponse {
                             HStack(spacing: 8) {
@@ -169,12 +194,12 @@ private struct SubtitleView: View {
                                 Text("返し方:")
                                     .font(.caption2)
                                     .foregroundColor(.white.opacity(0.7))
-                                
+
                                 // 英語
                                 Text(trimmedAIResponse)
                                     .font(.title3.weight(.semibold))
-                                    .foregroundColor(.cyan)
-                                
+                                    .foregroundColor(Color.cyan)
+                                    
                                 // 日本語訳 ← 追加
                                 if !englishReplyJapanese.isEmpty {
                                     Text("→ \(englishReplyJapanese)")
@@ -204,10 +229,69 @@ private struct SubtitleView: View {
                     }
                 }
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+
+    private var statusHeader: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Label(
+                isTranslating ? "リスニング中" : "待機中",
+                systemImage: isTranslating ? "waveform" : "mic"
+            )
+            .font(.footnote.weight(.semibold))
+            .padding(.vertical, 6)
+            .padding(.horizontal, 12)
+            .background(
+                Capsule()
+                    .fill(isTranslating ? Color.green.opacity(0.25) : Color.blue.opacity(0.25))
+            )
+            .foregroundColor(.white.opacity(0.9))
+
+            if let info = translationInfo, !info.isEmpty {
+                ChipView(text: info, systemImage: "character.book.closed")
+            }
+
+            if let error = translationError, !error.isEmpty {
+                ChipView(text: error, systemImage: "exclamationmark.triangle.fill", tint: .red.opacity(0.8))
+            }
+
+            Spacer(minLength: 0)
+        }
+    }
+
+    private func sectionHeader(title: String, systemImage: String) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: systemImage)
+            Text(title)
+        }
+        .font(.caption.weight(.semibold))
+        .foregroundColor(.white.opacity(0.85))
+    }
+}
+
+private struct ChipView: View {
+    let text: String
+    var systemImage: String
+    var tint: Color = Color.white.opacity(0.85)
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: systemImage)
+            Text(text)
+                .lineLimit(1)
+        }
+        .font(.caption.weight(.medium))
+        .padding(.vertical, 6)
+        .padding(.horizontal, 10)
+        .background(
+            Capsule()
+                .fill(Color.white.opacity(0.12))
+        )
+        .overlay(
+            Capsule()
+                .stroke(tint.opacity(0.6), lineWidth: 1)
+        )
+        .foregroundColor(tint)
     }
 }
 private struct RecordButton: View {
@@ -216,20 +300,37 @@ private struct RecordButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 8) {
+            HStack(spacing: 12) {
                 Image(systemName: isRecording ? "stop.circle.fill" : "mic.circle.fill")
-                Text(isRecording ? "停止" : "録音")
+                    .font(.system(size: 28, weight: .bold))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(isRecording ? "字幕を停止" : "字幕を開始")
+                        .font(.headline.weight(.bold))
+                    Text(isRecording ? "タップして録音を終了" : "タップして録音を開始")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.85))
+                }
             }
-            .font(.title2.weight(.bold))
             .padding(.horizontal, 24)
-            .padding(.vertical, 14)
-            .background(isRecording ? Color.red.opacity(0.8) : Color.blue.opacity(0.8))
+            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity)
+            .background(
+                LinearGradient(
+                    colors: isRecording
+                        ? [Color.red.opacity(0.9), Color.red.opacity(0.7)]
+                        : [Color.blue.opacity(0.9), Color.purple.opacity(0.7)],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .shadow(color: .black.opacity(0.25), radius: 16, x: 0, y: 12)
             .foregroundColor(.white)
-            .clipShape(Capsule())
-            .shadow(radius: 8)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(isRecording ? "字幕を停止" : "字幕を開始")
+        .animation(.easeInOut(duration: 0.2), value: isRecording)
     }
 }
 
