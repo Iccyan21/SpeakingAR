@@ -12,18 +12,18 @@ final class LiveTranscriber: ObservableObject {
     @Published var isRecording: Bool = false
     @Published var authorizationStatus: SFSpeechRecognizerAuthorizationStatus = .notDetermined
     @Published var recordPermission: AVAudioSession.RecordPermission = .undetermined
-    @Published var japaneseTranslation: String = ""
-    @Published var katakanaReading: String = ""
-    @Published var translatedTranscript: String = ""
-    @Published var englishReplyJapanese: String = ""  // ← 追加
 
+    // チャット履歴
+    @Published var messages: [Message] = []
+
+    // 一時的な状態（録音中の表示用）
+    @Published var currentTranscript: String = ""
+    @Published var isGeneratingAIResponse: Bool = false
+    @Published var aiError: String?
+    @Published var translatedTranscript: String = ""
     @Published var translationInfo: String?
     @Published var translationError: String?
     @Published var isTranslating: Bool = false
-
-    @Published var aiResponse: String = ""
-    @Published var aiError: String?
-    @Published var isGeneratingAIResponse: Bool = false
 
     private let speechRecognizer: SFSpeechRecognizer?
     private let audioEngine = AVAudioEngine()
@@ -38,8 +38,7 @@ final class LiveTranscriber: ObservableObject {
 
     private var shouldSuppressRecognitionTaskErrors: Bool = false
 
-    private let aiResponder: AIResponder?
-    private let aiSetupErrorMessage: String?
+    private let aiResponder: AIResponder
     private var aiResponseTask: Task<Void, Never>?
     private var lastAIInput: String = ""
 
@@ -48,18 +47,7 @@ final class LiveTranscriber: ObservableObject {
         authorizationStatus = SFSpeechRecognizer.authorizationStatus()
         recordPermission = AVAudioSession.sharedInstance().recordPermission
 
-        var responder: AIResponder?
-        var setupError: String?
-        do {
-            responder = try AIResponder()
-        } catch {
-            setupError = (error as? LocalizedError)?.errorDescription ?? "AI 応答機能を初期化できませんでした。"
-        }
-        aiResponder = responder
-        aiSetupErrorMessage = setupError
-        if let setupError {
-            aiError = setupError
-        }
+        aiResponder = AIResponder()
 
         translationModelPreloadTask = Task { [translator] in
             #if canImport(Translation)
@@ -70,47 +58,51 @@ final class LiveTranscriber: ObservableObject {
 
     @MainActor
     private func scheduleAIResponse(for text: String) {
-        guard text != lastAIInput else { return }
-        lastAIInput = text
-
-        aiResponseTask?.cancel()
-
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
-            aiResponse = ""
-            japaneseTranslation = ""
-            englishReplyJapanese = ""
-            katakanaReading = ""
-            aiError = aiSetupErrorMessage
+            aiError = "AI 応答用のテキストが取得できませんでした。"
             isGeneratingAIResponse = false
-            aiResponseTask = nil
             return
         }
 
-        guard let responder = aiResponder else {
-            aiResponse = ""
-            japaneseTranslation = ""
-            englishReplyJapanese = ""
-            katakanaReading = ""
-            aiError = aiSetupErrorMessage
-            isGeneratingAIResponse = false
-            aiResponseTask = nil
+        guard trimmed != lastAIInput else {
+            currentTranscript = ""
             return
         }
+        lastAIInput = trimmed
+
+        aiResponseTask?.cancel()
+        aiResponseTask = nil
+
+        appendUserMessage(trimmed)
+        currentTranscript = ""
 
         isGeneratingAIResponse = true
         aiError = nil
 
         aiResponseTask = Task {
             do {
-                let responseData = try await responder.generateResponse(for: trimmed)
+                let responseData = try await aiResponder.generateResponse(for: trimmed)
                 guard !Task.isCancelled else { return }
                 await MainActor.run {
                     self.isGeneratingAIResponse = false
-                    self.japaneseTranslation = responseData.japaneseTranslation
-                    self.aiResponse = responseData.englishReply
-                    self.englishReplyJapanese = responseData.englishReplyJapanese  // ← 追加
-                    self.katakanaReading = responseData.katakanaReading
+                    // AIメッセージを追加
+                    let aiMessage = Message(
+                        type: .ai(
+                            japaneseTranslation: responseData.japaneseTranslation,
+                            suggestedReplies: responseData.suggestedReplies.map { aiReply in
+                                SuggestedReply(
+                                    tone: ReplyTone(rawValue: aiReply.tone.rawValue) ?? .neutral,
+                                    englishText: aiReply.englishText,
+                                    japaneseTranslation: aiReply.japaneseTranslation,
+                                    katakanaReading: aiReply.katakanaReading,
+                                    explanation: aiReply.explanation
+                                )
+                            }
+                        )
+                    )
+                    self.messages.append(aiMessage)
+
                     self.aiError = nil
                     self.aiResponseTask = nil
                 }
@@ -120,10 +112,6 @@ final class LiveTranscriber: ObservableObject {
                 let message = (error as? LocalizedError)?.errorDescription ?? "AI 応答の生成中にエラーが発生しました。"
                 await MainActor.run {
                     self.isGeneratingAIResponse = false
-                    self.aiResponse = ""
-                    self.japaneseTranslation = ""
-                    self.katakanaReading = ""
-                    self.englishReplyJapanese = ""
                     self.aiError = message
                     self.aiResponseTask = nil
                 }
@@ -190,13 +178,14 @@ final class LiveTranscriber: ObservableObject {
     func stopTranscribing(userInitiated: Bool = false) {
         if userInitiated {
             shouldSuppressRecognitionTaskErrors = true
+            let latestTranscript = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !latestTranscript.isEmpty {
+                scheduleAIResponse(for: latestTranscript)
+            }
         }
         translationTask?.cancel()
         translationTask = nil
-        aiResponseTask?.cancel()
-        aiResponseTask = nil
         isTranslating = false
-        isGeneratingAIResponse = false
         if audioEngine.isRunning {
             audioEngine.stop()
             audioEngine.inputNode.removeTap(onBus: 0)
@@ -256,9 +245,7 @@ final class LiveTranscriber: ObservableObject {
                 let latestTranscript = result.bestTranscription.formattedString
                 Task { @MainActor in
                     self.transcript = latestTranscript
-                    self.scheduleTranslation(for: latestTranscript)
-                    self.scheduleAIResponse(for: latestTranscript)
-
+                    self.currentTranscript = latestTranscript
                 }
             }
 
@@ -274,6 +261,10 @@ final class LiveTranscriber: ObservableObject {
                 }
             } else if result?.isFinal == true {
                 Task { @MainActor in
+                    // 音声認識が完了したら、AI応答を生成
+                    if !self.transcript.isEmpty {
+                        self.scheduleAIResponse(for: self.transcript)
+                    }
                     self.stopTranscribing()
                 }
             }
@@ -285,6 +276,7 @@ final class LiveTranscriber: ObservableObject {
         translationModelPreloadTask?.cancel()
         translationModelPreloadTask = nil
         transcript = ""
+        currentTranscript = ""
         translatedTranscript = ""
         translationInfo = nil
         translationError = nil
@@ -292,15 +284,11 @@ final class LiveTranscriber: ObservableObject {
         lastTranscribedText = ""
         nextTranslationRetryDate = nil
         shouldSuppressRecognitionTaskErrors = false
-        aiResponse = ""
-        japaneseTranslation = ""  // ← 追加
-        katakanaReading = ""      // ← 追加
-        englishReplyJapanese = "" 
         aiResponseTask?.cancel()
         aiResponseTask = nil
         lastAIInput = ""
         isGeneratingAIResponse = false
-        aiError = aiSetupErrorMessage
+        aiError = nil
 
         translationModelPreloadTask = Task { [translator] in
             #if canImport(Translation)
@@ -407,5 +395,10 @@ final class LiveTranscriber: ObservableObject {
 
     private func localizedLanguageName(for code: String) -> String {
         Locale.current.localizedString(forLanguageCode: code) ?? code
+    }
+
+    private func appendUserMessage(_ text: String) {
+        let userMessage = Message(type: .user(text: text))
+        messages.append(userMessage)
     }
 }

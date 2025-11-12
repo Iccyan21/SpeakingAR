@@ -5,40 +5,68 @@
 //  Created by 水原樹 on 2025/11/03.
 //
 
-import ARKit
-import RealityKit
 import SwiftUI
 
 struct ContentView: View {
     @StateObject private var transcriber = LiveTranscriber()
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            ARViewContainer()
-                .ignoresSafeArea()
-
+        ZStack {
+            // 背景グラデーション
             LinearGradient(
-                colors: [Color.black.opacity(0.45), Color.black.opacity(0.05), .clear],
-                startPoint: .bottom,
-                endPoint: .top
+                colors: [Color(red: 0.05, green: 0.05, blue: 0.15), Color(red: 0.1, green: 0.1, blue: 0.2)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
 
-            VStack(spacing: 20) {
-                SubtitleView(
-                    originalText: transcriber.transcript,
-                    translatedText: transcriber.translatedTranscript,
-                    translationInfo: transcriber.translationInfo,
-                    translationError: transcriber.translationError,
-                    isTranslating: transcriber.isTranslating,
-                    aiResponse: transcriber.aiResponse,
-                    aiError: transcriber.aiError,
-                    isGeneratingAIResponse: transcriber.isGeneratingAIResponse,
-                    japaneseTranslation: transcriber.japaneseTranslation,
-                    englishReplyJapanese: transcriber.englishReplyJapanese,
-                    katakanaReading: transcriber.katakanaReading
-                )
+            VStack(spacing: 0) {
+                // ヘッダー
+                ChatHeader(isRecording: transcriber.isRecording)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
 
+                // チャット履歴
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(spacing: 16) {
+                            if transcriber.messages.isEmpty {
+                                EmptyStateView()
+                            } else {
+                                ForEach(transcriber.messages) { message in
+                                    MessageRow(message: message)
+                                        .id(message.id)
+                                }
+                            }
+
+                            // 録音中の一時的な表示
+                            if transcriber.isRecording && !transcriber.currentTranscript.isEmpty {
+                                MessageRow(
+                                    message: Message(
+                                        type: .user(text: transcriber.currentTranscript)
+                                    )
+                                )
+                                .opacity(0.6)
+                            }
+
+                            // AI応答生成中の表示
+                            if transcriber.isGeneratingAIResponse {
+                                AIThinkingView()
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                    }
+                    .onChange(of: transcriber.messages.count) { _ in
+                        if let lastMessage = transcriber.messages.last {
+                            withAnimation {
+                                proxy.scrollTo(lastMessage.id, anchor: .bottom)
+                            }
+                        }
+                    }
+                }
+
+                // 録音ボタン
                 RecordButton(isRecording: transcriber.isRecording) {
                     if transcriber.isRecording {
                         transcriber.stopTranscribing(userInitiated: true)
@@ -46,10 +74,13 @@ struct ContentView: View {
                         transcriber.startTranscribing()
                     }
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(
+                    Color(red: 0.05, green: 0.05, blue: 0.15)
+                        .ignoresSafeArea(edges: .bottom)
+                )
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 44)
-            .padding(.top, 24)
         }
         .onAppear {
             transcriber.requestPermissionsIfNeeded()
@@ -57,241 +88,252 @@ struct ContentView: View {
     }
 }
 
-private struct ARViewContainer: UIViewRepresentable {
-    func makeUIView(context: Context) -> ARView {
-        let arView = ARView(frame: .zero)
-        configureSession(for: arView)
-        return arView
-    }
+// MARK: - Chat Header
+private struct ChatHeader: View {
+    let isRecording: Bool
 
-    func updateUIView(_ uiView: ARView, context: Context) {}
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("English Chat")
+                    .font(.title2.weight(.bold))
+                    .foregroundColor(.white)
 
-    private func configureSession(for arView: ARView) {
-        let configuration = ARWorldTrackingConfiguration()
-        configuration.planeDetection = [.horizontal, .vertical]
-        configuration.environmentTexturing = .automatic
-        arView.session.run(configuration)
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(isRecording ? Color.green : Color.gray)
+                        .frame(width: 8, height: 8)
+
+                    Text(isRecording ? "リスニング中" : "待機中")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.7))
+                }
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 12)
     }
 }
-private struct SubtitleView: View {
-    let originalText: String
-    let translatedText: String
-    let translationInfo: String?
-    let translationError: String?
-    let isTranslating: Bool
-    let aiResponse: String
-    let aiError: String?
-    let isGeneratingAIResponse: Bool
-    let japaneseTranslation: String
-    let englishReplyJapanese: String  // ← 追加
-    let katakanaReading: String
 
-    private var trimmedAIResponse: String {
-        aiResponse.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private var shouldShowTranslationSection: Bool {
-        !originalText.isEmpty
-    }
-
-    private var shouldShowAISection: Bool {
-        isGeneratingAIResponse || !trimmedAIResponse.isEmpty || !japaneseTranslation.isEmpty || !(aiError?.isEmpty ?? true)
-    }
-
+// MARK: - Empty State
+private struct EmptyStateView: View {
     var body: some View {
         VStack(spacing: 16) {
-            statusHeader
+            Image(systemName: "waveform.circle.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.white.opacity(0.3))
 
-            Divider()
-                .opacity((shouldShowTranslationSection || shouldShowAISection) ? 1 : 0)
-
-            ScrollView(showsIndicators: false) {
-                content
-                    .padding(.bottom, 4)
-            }
+            Text("マイクボタンを押して\n英会話を開始")
+                .font(.body)
+                .foregroundColor(.white.opacity(0.6))
+                .multilineTextAlignment(.center)
         }
-        .padding(.vertical, 18)
-        .padding(.horizontal, 20)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 26, style: .continuous)
-                .fill(.ultraThinMaterial)
-                .shadow(color: .black.opacity(0.25), radius: 16, x: 0, y: 10)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 26, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
-        )
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        if !shouldShowTranslationSection && !shouldShowAISection {
-            Text("マイクボタンを押して英会話を開始")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
-        } else {
-            VStack(alignment: .leading, spacing: 16) {
-                // 音声認識セクション
-                if shouldShowTranslationSection {
-                    VStack(alignment: .leading, spacing: 8) {
-                        sectionHeader(title: "あなた", systemImage: "person.fill")
-
-                        Text(originalText)
-                            .font(.title3.weight(.semibold))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.leading)
-
-                        if !translatedText.isEmpty {
-                            Divider()
-                                .background(Color.white.opacity(0.2))
-
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("英語に変換:")
-                                    .font(.caption2)
-                                    .foregroundColor(.white.opacity(0.7))
-                                Text(translatedText)
-                                    .font(.callout)
-                                    .foregroundColor(.white.opacity(0.9))
-                            }
-                        }
-                    }
-                }
-
-                // AIセクション
-                if shouldShowAISection {
-                    VStack(alignment: .leading, spacing: 10) {
-                        sectionHeader(title: "AIの提案", systemImage: "sparkles")
-
-                        if isGeneratingAIResponse {
-                            HStack(spacing: 8) {
-                                ProgressView()
-                                    .progressViewStyle(.circular)
-                                    .tint(.white.opacity(0.85))
-                                Text("考え中…")
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.8))
-                            }
-                        }
-
-                        // 日本語訳（相手の発言の意味）
-                        if !japaneseTranslation.isEmpty {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("意味:")
-                                    .font(.caption2)
-                                    .foregroundColor(.white.opacity(0.7))
-                                Text(japaneseTranslation)
-                                    .font(.callout)
-                                    .foregroundColor(.white.opacity(0.9))
-                            }
-                        }
-
-                        // 英語の返答
-                        if !trimmedAIResponse.isEmpty {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("返し方:")
-                                    .font(.caption2)
-                                    .foregroundColor(.white.opacity(0.7))
-
-                                // 英語
-                                Text(trimmedAIResponse)
-                                    .font(.title3.weight(.semibold))
-                                    .foregroundColor(Color.cyan)
-                                    
-                                // 日本語訳 ← 追加
-                                if !englishReplyJapanese.isEmpty {
-                                    Text("→ \(englishReplyJapanese)")
-                                        .font(.callout)
-                                        .foregroundColor(.white.opacity(0.85))
-                                }
-                            }
-                        }
-
-                        // カタカナ読み
-                        if !katakanaReading.isEmpty {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("読み方:")
-                                    .font(.caption2)
-                                    .foregroundColor(.white.opacity(0.7))
-                                Text(katakanaReading)
-                                    .font(.callout)
-                                    .foregroundColor(.white.opacity(0.8))
-                            }
-                        }
-
-                        if let error = aiError, !error.isEmpty {
-                            Text(error)
-                                .font(.caption2)
-                                .foregroundColor(.red.opacity(0.9))
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private var statusHeader: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Label(
-                isTranslating ? "リスニング中" : "待機中",
-                systemImage: isTranslating ? "waveform" : "mic"
-            )
-            .font(.footnote.weight(.semibold))
-            .padding(.vertical, 6)
-            .padding(.horizontal, 12)
-            .background(
-                Capsule()
-                    .fill(isTranslating ? Color.green.opacity(0.25) : Color.blue.opacity(0.25))
-            )
-            .foregroundColor(.white.opacity(0.9))
-
-            if let info = translationInfo, !info.isEmpty {
-                ChipView(text: info, systemImage: "character.book.closed")
-            }
-
-            if let error = translationError, !error.isEmpty {
-                ChipView(text: error, systemImage: "exclamationmark.triangle.fill", tint: .red.opacity(0.8))
-            }
-
-            Spacer(minLength: 0)
-        }
-    }
-
-    private func sectionHeader(title: String, systemImage: String) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: systemImage)
-            Text(title)
-        }
-        .font(.caption.weight(.semibold))
-        .foregroundColor(.white.opacity(0.85))
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 60)
     }
 }
 
-private struct ChipView: View {
-    let text: String
-    var systemImage: String
-    var tint: Color = Color.white.opacity(0.85)
+// MARK: - AI Thinking View
+private struct AIThinkingView: View {
+    var body: some View {
+        HStack(spacing: 10) {
+            ProgressView()
+                .progressViewStyle(.circular)
+                .tint(.white.opacity(0.7))
+
+            Text("AI が考え中...")
+                .font(.callout)
+                .foregroundColor(.white.opacity(0.7))
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+// MARK: - Message Row
+private struct MessageRow: View {
+    let message: Message
 
     var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: systemImage)
-            Text(text)
-                .lineLimit(1)
+        HStack(alignment: .top, spacing: 0) {
+            switch message.type {
+            case .user(let text):
+                Spacer(minLength: 50)
+                UserMessageBubble(text: text, timestamp: message.timestamp)
+
+            case .ai(let japaneseTranslation, let suggestedReplies):
+                AIMessageBubble(
+                    japaneseTranslation: japaneseTranslation,
+                    suggestedReplies: suggestedReplies,
+                    timestamp: message.timestamp
+                )
+                Spacer(minLength: 50)
+            }
         }
-        .font(.caption.weight(.medium))
-        .padding(.vertical, 6)
-        .padding(.horizontal, 10)
+    }
+}
+
+// MARK: - User Message Bubble
+private struct UserMessageBubble: View {
+    let text: String
+    let timestamp: Date
+
+    var body: some View {
+        VStack(alignment: .trailing, spacing: 4) {
+            Text(text)
+                .font(.body)
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(LinearGradient(
+                            colors: [Color.blue.opacity(0.7), Color.blue.opacity(0.5)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ))
+                )
+
+            Text(timestamp, style: .time)
+                .font(.caption2)
+                .foregroundColor(.white.opacity(0.5))
+                .padding(.trailing, 4)
+        }
+    }
+}
+
+// MARK: - AI Message Bubble
+private struct AIMessageBubble: View {
+    let japaneseTranslation: String
+    let suggestedReplies: [SuggestedReply]
+    let timestamp: Date
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // 意味（日本語訳）
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 6) {
+                    Image(systemName: "sparkles")
+                        .font(.caption)
+                    Text("意味")
+                        .font(.caption.weight(.semibold))
+                }
+                .foregroundColor(.white.opacity(0.7))
+
+                Text(japaneseTranslation)
+                    .font(.callout)
+                    .foregroundColor(.white)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(Color.white.opacity(0.1))
+            )
+
+            // 3つの返答候補
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 6) {
+                    Image(systemName: "text.bubble")
+                        .font(.caption)
+                    Text("返し方の候補")
+                        .font(.caption.weight(.semibold))
+                }
+                .foregroundColor(.white.opacity(0.7))
+                .padding(.horizontal, 4)
+
+                ForEach(suggestedReplies) { reply in
+                    SuggestedReplyCard(reply: reply)
+                }
+            }
+
+            Text(timestamp, style: .time)
+                .font(.caption2)
+                .foregroundColor(.white.opacity(0.5))
+                .padding(.leading, 4)
+        }
+    }
+}
+
+// MARK: - Suggested Reply Card
+private struct SuggestedReplyCard: View {
+    let reply: SuggestedReply
+
+    private var toneColor: Color {
+        switch reply.tone {
+        case .positive:
+            return Color.green
+        case .neutral:
+            return Color.blue
+        case .negative:
+            return Color.orange
+        }
+    }
+
+    private var toneLabel: String {
+        switch reply.tone {
+        case .positive:
+            return "ポジティブ"
+        case .neutral:
+            return "ニュートラル"
+        case .negative:
+            return "ネガティブ"
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // トーンラベル
+            Text(toneLabel)
+                .font(.caption2.weight(.semibold))
+                .foregroundColor(toneColor)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(
+                    Capsule()
+                        .fill(toneColor.opacity(0.2))
+                )
+
+            // 英語テキスト
+            Text(reply.englishText)
+                .font(.body.weight(.semibold))
+                .foregroundColor(.cyan)
+
+            // 日本語訳
+            if !reply.japaneseTranslation.isEmpty {
+                Text("→ \(reply.japaneseTranslation)")
+                    .font(.callout)
+                    .foregroundColor(.white.opacity(0.8))
+            }
+
+            // カタカナ読み
+            if !reply.katakanaReading.isEmpty {
+                Text(reply.katakanaReading)
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.6))
+            }
+
+            // 説明
+            if !reply.explanation.isEmpty {
+                Text(reply.explanation)
+                    .font(.caption2)
+                    .foregroundColor(.white.opacity(0.5))
+                    .padding(.top, 2)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            Capsule()
-                .fill(Color.white.opacity(0.12))
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color.white.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(toneColor.opacity(0.3), lineWidth: 1)
+                )
         )
-        .overlay(
-            Capsule()
-                .stroke(tint.opacity(0.6), lineWidth: 1)
-        )
-        .foregroundColor(tint)
     }
 }
 private struct RecordButton: View {
