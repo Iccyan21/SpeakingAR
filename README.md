@@ -1,24 +1,39 @@
-# 概要
-英語で相手が喋ってきた場合、それを翻訳するのとその喋ったことに対し、AIが自動でどう返答するべきかと返答する文章の発音をかたがなで表記する
+# 💬 Overview
 
-OPENAIのAPIKEYだけ必須
+This app automatically translates what someone says in English and uses AI to suggest the most natural reply.
+It also shows the katakana pronunciation of the suggested English sentence, so even if you’re not confident in English, you can respond right away.
 
-# 使い方
-録音ボタンを押して相手の発音を録音する
+The focus isn’t just on understanding English — it’s on actually responding to it.
 
-音声取得後、自動で表示される (録音Buttonは押したままで)
+※ You only need your own OpenAI API key to use the app.
 
-# 参考画像
-Hello nice to meet you 
-相手が喋った文章
+# 🎙️ How to Use
 
-意味:
-相手が喋った意味
+Press and hold the record button to capture the other person’s English speech.
 
-返し方:
-相手が喋った文章に対して、何を返答すべきかの提案
+Once recording is finished, the following information will automatically appear:
 
-読み方
-返答すべきかの提案英文の発音をかたがなで読み方を表示する
+　🗣️ The English phrase that was spoken
+　💬 Its meaning in Japanese
+　🤖 AI-generated “recommended reply”
+　🔈 Katakana pronunciation guide for the reply
+
+Keep the button pressed to continue real-time conversation.
+
+# 🖼️ Example
+Speaker: Hello, nice to meet you  
+
+Meaning: こんにちは、はじめまして。  
+
+Suggested Reply:
+Hey, that’s nice to hear!  
+→ それを聞いて嬉しいよ！
+
+Pronunciation:
+ヘイ、ザッツ ナイス トゥ ヒア！
+
+
+Just by listening to the other person’s words,
+you instantly get the meaning → reply → pronunciation flow — all automatically generated.
 
 <img width="340" alt="IMG_2996" src="https://github.com/user-attachments/assets/e79bbd78-8866-4cf4-9be5-07e1f210b59e" />
