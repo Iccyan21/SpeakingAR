@@ -138,7 +138,9 @@ actor AIResponder {
         - "neutral": a balanced, calm, or typical reply
         - "negative": a reserved, tired, or slightly downbeat reply
         3. "reply_explanations": Japanese explanations for each reply (describe the nuance and when to use it)
-        4. "katakana_readings": Katakana pronunciation guides for each reply
+        4. "katakana_readings": Katakana pronunciation guides that reflect **natural English pronunciation**, not romaji reading.
+        - Omit unnatural syllables (like “ドゥーイング”) and use pronunciation-based forms (like “ドゥイン”).
+        - Reflect connected speech (like “アイヴィン” for “I’ve been”).
 
         Example format:
         {
