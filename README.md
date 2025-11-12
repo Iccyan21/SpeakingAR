@@ -38,7 +38,3 @@ you instantly get the meaning → reply → pronunciation flow — all automatic
 
 
 https://github.com/user-attachments/assets/f2c60024-6c8d-415d-9948-999befdcbe81
-
-
-<img width="340" alt="IMG_2996" src="https://github.com/user-attachments/assets/e79bbd78-8866-4cf4-9be5-07e1f210b59e" />
-
