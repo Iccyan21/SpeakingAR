@@ -159,16 +159,16 @@ private struct MessageRow: View {
         HStack(alignment: .top, spacing: 0) {
             switch message.type {
             case .user(let text):
-                Spacer(minLength: 50)
                 UserMessageBubble(text: text, timestamp: message.timestamp)
+                Spacer(minLength: 50)
 
             case .ai(let japaneseTranslation, let suggestedReplies):
+                Spacer(minLength: 50)
                 AIMessageBubble(
                     japaneseTranslation: japaneseTranslation,
                     suggestedReplies: suggestedReplies,
                     timestamp: message.timestamp
                 )
-                Spacer(minLength: 50)
             }
         }
     }
