@@ -31,6 +31,7 @@ final class LiveTranscriber: ObservableObject {
     private var recognitionTask: SFSpeechRecognitionTask?
 
     private let translator = SubtitleTranslator()
+    private let instantResponseBuilder = LocalResponseBuilder()
     private var translationTask: Task<Void, Never>?
     private var lastTranscribedText: String = ""
     private var nextTranslationRetryDate: Date?
@@ -41,6 +42,7 @@ final class LiveTranscriber: ObservableObject {
     private let aiResponder: AIResponder
     private var aiResponseTask: Task<Void, Never>?
     private var lastAIInput: String = ""
+    private var pendingAIMessageID: UUID?
 
     init(locale: Locale = Locale(identifier: "en-US")) {
         speechRecognizer = SFSpeechRecognizer(locale: locale)
@@ -54,6 +56,7 @@ final class LiveTranscriber: ObservableObject {
             await translator.preloadDefaultLanguagePairs()
             #endif
         }
+        pendingAIMessageID = nil
     }
 
     @MainActor
@@ -74,8 +77,21 @@ final class LiveTranscriber: ObservableObject {
         aiResponseTask?.cancel()
         aiResponseTask = nil
 
+        if let pendingID = pendingAIMessageID {
+            finalizeProvisionalAIMessage(id: pendingID)
+            pendingAIMessageID = nil
+        }
+
         appendUserMessage(trimmed)
         currentTranscript = ""
+
+        let previewData = instantResponseBuilder.buildResponse(for: trimmed)
+        let provisionalMessage = createAIMessage(
+            from: previewData,
+            isProvisional: true
+        )
+        messages.append(provisionalMessage)
+        pendingAIMessageID = provisionalMessage.id
 
         isGeneratingAIResponse = true
         aiError = nil
@@ -86,24 +102,12 @@ final class LiveTranscriber: ObservableObject {
                 guard !Task.isCancelled else { return }
                 await MainActor.run {
                     self.isGeneratingAIResponse = false
-                    // AIメッセージを追加
-                    let aiMessage = Message(
-                        type: .ai(
-                            japaneseTranslation: responseData.japaneseTranslation,
-                            suggestedReplies: responseData.suggestedReplies.map { aiReply in
-                                SuggestedReply(
-                                    tone: ReplyTone(rawValue: aiReply.tone.rawValue) ?? .neutral,
-                                    englishText: aiReply.englishText,
-                                    japaneseTranslation: aiReply.japaneseTranslation,
-                                    katakanaReading: aiReply.katakanaReading,
-                                    explanation: aiReply.explanation
-                                )
-                            }
-                        )
+                    self.replaceProvisionalAIMessage(
+                        id: provisionalMessage.id,
+                        with: responseData
                     )
-                    self.messages.append(aiMessage)
-
                     self.aiError = nil
+                    self.pendingAIMessageID = nil
                     self.aiResponseTask = nil
                 }
             } catch is CancellationError {
@@ -113,6 +117,10 @@ final class LiveTranscriber: ObservableObject {
                 await MainActor.run {
                     self.isGeneratingAIResponse = false
                     self.aiError = message
+                    if let pendingID = self.pendingAIMessageID {
+                        self.finalizeProvisionalAIMessage(id: pendingID)
+                        self.pendingAIMessageID = nil
+                    }
                     self.aiResponseTask = nil
                 }
             }
@@ -395,6 +403,66 @@ final class LiveTranscriber: ObservableObject {
 
     private func localizedLanguageName(for code: String) -> String {
         Locale.current.localizedString(forLanguageCode: code) ?? code
+    }
+
+    private func replaceProvisionalAIMessage(id: UUID, with responseData: AIResponseData) {
+        let timestamp = messages.first(where: { $0.id == id })?.timestamp ?? Date()
+        let message = createAIMessage(
+            from: responseData,
+            id: id,
+            timestamp: timestamp,
+            isProvisional: false
+        )
+
+        if let index = messages.firstIndex(where: { $0.id == id }) {
+            messages[index] = message
+        } else {
+            messages.append(message)
+        }
+    }
+
+    private func finalizeProvisionalAIMessage(id: UUID) {
+        guard let index = messages.firstIndex(where: { $0.id == id }) else { return }
+        let existingMessage = messages[index]
+        guard case let .ai(japaneseTranslation, suggestedReplies) = existingMessage.type else { return }
+        messages[index] = Message(
+            id: id,
+            timestamp: existingMessage.timestamp,
+            type: .ai(
+                japaneseTranslation: japaneseTranslation,
+                suggestedReplies: suggestedReplies
+            ),
+            isProvisional: false
+        )
+    }
+
+    private func createAIMessage(
+        from responseData: AIResponseData,
+        id: UUID = UUID(),
+        timestamp: Date = Date(),
+        isProvisional: Bool
+    ) -> Message {
+        Message(
+            id: id,
+            timestamp: timestamp,
+            type: .ai(
+                japaneseTranslation: responseData.japaneseTranslation,
+                suggestedReplies: convertToSuggestedReplies(responseData.suggestedReplies)
+            ),
+            isProvisional: isProvisional
+        )
+    }
+
+    private func convertToSuggestedReplies(_ replies: [AIReply]) -> [SuggestedReply] {
+        replies.map { aiReply in
+            SuggestedReply(
+                tone: aiReply.tone,
+                englishText: aiReply.englishText,
+                japaneseTranslation: aiReply.japaneseTranslation,
+                katakanaReading: aiReply.katakanaReading,
+                explanation: aiReply.explanation
+            )
+        }
     }
 
     private func appendUserMessage(_ text: String) {
