@@ -17,6 +17,9 @@ struct ContentView: View {
     @State private var showSubscriptionSheet = false
     @State private var showLearningPlanSheet = false
 
+    @State private var hasDismissedLimitedNotice = false
+    @State private var hasDismissedProBanner = false
+
     @State private var dailyGoalMinutes: Double = 15
     @State private var practicedMinutesToday: Double = 6
     @State private var weeklyStreak = 4
@@ -72,11 +75,12 @@ struct ContentView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 8)
 
-                if !isProUser {
+                if !isProUser && !hasDismissedLimitedNotice {
                     LimitedAccessNoticeView(
                         remainingResponses: remainingFreeResponses,
                         limit: freeTierLimit,
-                        onUpgrade: { showSubscriptionSheet = true }
+                        onUpgrade: { showSubscriptionSheet = true },
+                        onDismiss: { hasDismissedLimitedNotice = true }
                     )
                     .padding(.horizontal, 16)
                 }
@@ -121,10 +125,11 @@ struct ContentView: View {
                     }
                 }
 
-                if !isProUser {
-                    ProFeatureBanner {
-                        showSubscriptionSheet = true
-                    }
+                if !isProUser && !hasDismissedProBanner {
+                    ProFeatureBanner(
+                        onUpgrade: { showSubscriptionSheet = true },
+                        onDismiss: { hasDismissedProBanner = true }
+                    )
                     .padding(.horizontal, 16)
                     .padding(.bottom, 6)
                 }
@@ -561,10 +566,10 @@ private struct PracticeFocusPanel: View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("今日の英会話ミッション")
+                    Text("\(Int(practicedMinutes)) / \(Int(goalMinutes)) 分 完了")
                         .font(.headline.weight(.semibold))
                         .foregroundColor(.white)
-                    Text("\(Int(practicedMinutes)) / \(Int(goalMinutes)) 分 完了")
+                    Text("目標まであと \(remainingMinutes) 分")
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.7))
                 }
@@ -613,6 +618,7 @@ private struct LimitedAccessNoticeView: View {
     let remainingResponses: Int
     let limit: Int
     var onUpgrade: () -> Void
+    var onDismiss: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -623,6 +629,15 @@ private struct LimitedAccessNoticeView: View {
                 Text("無料プランの残り回数")
                     .font(.callout.weight(.semibold))
                     .foregroundColor(.white)
+
+                Spacer()
+
+                Button(action: onDismiss) {
+                    Text("❌")
+                        .font(.caption.bold())
+                        .foregroundColor(.white.opacity(0.7))
+                }
+                .buttonStyle(.plain)
             }
 
             ProgressView(value: Double(limit - remainingResponses), total: Double(limit)) {
@@ -654,32 +669,45 @@ private struct LimitedAccessNoticeView: View {
 
 private struct ProFeatureBanner: View {
     var onUpgrade: () -> Void
+    var onDismiss: () -> Void
 
     var body: some View {
-        HStack(alignment: .center, spacing: 16) {
-            Image(systemName: "sparkles")
-                .font(.title2)
-                .foregroundColor(.yellow)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text("SpeakingAR Pro を体験")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                Text("リアルタイム訳と会話テンプレを無制限で利用できます")
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.7))
+        VStack(spacing: 12) {
+            HStack {
+                Spacer()
+                Button(action: onDismiss) {
+                    Text("❌")
+                        .font(.caption.bold())
+                        .foregroundColor(.white.opacity(0.7))
+                }
+                .buttonStyle(.plain)
             }
 
-            Spacer()
+            HStack(alignment: .center, spacing: 16) {
+                Image(systemName: "sparkles")
+                    .font(.title2)
+                    .foregroundColor(.yellow)
 
-            Button(action: onUpgrade) {
-                Text("詳しく")
-                    .font(.caption.bold())
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.white.opacity(0.1), in: Capsule())
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("SpeakingAR Pro を体験")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Text("リアルタイム訳と会話テンプレを無制限で利用できます")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.7))
+                }
+
+                Spacer()
+
+                Button(action: onUpgrade) {
+                    Text("詳しく")
+                        .font(.caption.bold())
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.white.opacity(0.1), in: Capsule())
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
         .padding(16)
         .background(
