@@ -129,44 +129,55 @@ actor AIResponder {
 
         Your goal is to help the user decide how to reply naturally and effectively in English conversations.
 
-        The user will input an English sentence that someone else said to them.  
+        The user will input an English sentence that someone else said to them.
         You must output a JSON object containing:
 
         1. "japanese_translation": A natural Japanese translation of what the other person said.
         2. "suggested_replies": An object containing 3 reply options with different tones:
-        - "positive": a friendly, upbeat, or optimistic reply
-        - "neutral": a balanced, calm, or typical reply
-        - "negative": a reserved, tired, or slightly downbeat reply
-        3. "reply_explanations": Japanese explanations for each reply (describe the nuance and when to use it)
-        4. "katakana_readings": Katakana pronunciation guides that reflect **natural English pronunciation**, not romaji reading.
-        - Omit unnatural syllables (like “ドゥーイング”) and use pronunciation-based forms (like “ドゥイン”).
-        - Reflect connected speech (like “アイヴィン” for “I’ve been”).
+            - "positive": a friendly, upbeat, or optimistic reply
+            - "neutral": a balanced, calm, or typical reply
+            - "negative": a reserved, tired, or slightly downbeat reply
+           Each reply MUST be an object with:
+            {
+                "english": "reply in English",
+                "japanese_translation": "natural Japanese translation of the reply",
+                "katakana_reading": "katakana pronunciation of the reply",
+                "explanation": "Japanese explanation of nuance and when to use it"
+            }
+        3. Katakana pronunciation guides must reflect **natural English pronunciation**, not romaji reading.
+            - Omit unnatural syllables (like “ドゥーイング”) and use pronunciation-based forms (like “ドゥイン”).
+            - Reflect connected speech (like “アイヴィン” for “I’ve been”).
 
         Example format:
         {
-        "japanese_translation": "最近どうしてる？",
-        "suggested_replies": {
-            "positive": "I've been really good, thanks for asking!",
-            "neutral": "Pretty good, just the usual stuff.",
-            "negative": "Not great, honestly. It’s been a bit rough lately."
-        },
-        "reply_explanations": {
-            "positive": "とても元気で前向きな印象を与える返答。カジュアルで明るいトーン。",
-            "neutral": "普通に元気だよ、という自然なトーン。会話の定番表現。",
-            "negative": "少し疲れている、しんどいという正直なトーン。親しい人に使いやすい。"
-        },
-        "katakana_readings": {
-            "positive": "アイヴ ビーン リアリー グッド、サンクス フォー アスキング！",
-            "neutral": "プリティ グッド、ジャスト ザ ユージュアル スタッフ。",
-            "negative": "ノット グレイト、オネスリー。イッツ ビーン ア ビット ラフ レイトリー。"
-        }
+          "japanese_translation": "最近どうしてる？",
+          "suggested_replies": {
+            "positive": {
+              "english": "I've been really good, thanks for asking!",
+              "japanese_translation": "すごく元気だよ、聞いてくれてありがとう！",
+              "katakana_reading": "アイヴ ビーン リアリー グッド、サンクス フォー アスキング！",
+              "explanation": "とても元気で前向きな印象を与える返答。カジュアルで明るいトーン。"
+            },
+            "neutral": {
+              "english": "Pretty good, just the usual stuff.",
+              "japanese_translation": "まあまあかな。いつも通りだよ。",
+              "katakana_reading": "プリティ グッド、ジャスト ザ ユージュアル スタッフ。",
+              "explanation": "普通に元気だよ、という自然なトーン。会話の定番表現。"
+            },
+            "negative": {
+              "english": "Not great, honestly. It's been a bit rough lately.",
+              "japanese_translation": "正直あまり良くないんだ。最近ちょっと大変で。",
+              "katakana_reading": "ノット グレイト、オネスリー。イッツ ビーン ア ビット ラフ レイトリー。",
+              "explanation": "少し疲れている、しんどいという正直なトーン。親しい人に使いやすい。"
+            }
+          }
         }
 
         Rules:
         - Each reply should sound natural and conversational in English.
         - Keep replies short (1–2 sentences max).
         - Match the emotional tone clearly (positive / neutral / negative).
-        - Explanations and translations should be natural in Japanese.
+        - Japanese translations and explanations should be natural and easy to understand.
         - Only output valid JSON, nothing else.
         """
 
@@ -209,23 +220,21 @@ actor AIResponder {
         guard let jsonData = content.data(using: .utf8),
               let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
               let japaneseTranslation = json["japanese_translation"] as? String,
-              let suggestedRepliesDict = json["suggested_replies"] as? [String: String],
-              let replyExplanations = json["reply_explanations"] as? [String: String],
-              let katakanaReadings = json["katakana_readings"] as? [String: String] else {
+              let suggestedRepliesDict = json["suggested_replies"] as? [String: [String: Any]] else {
             throw AIResponderError.invalidResponse
         }
 
         var replies: [AIReply] = []
 
         for tone in ["positive", "neutral", "negative"] {
-            guard let englishText = suggestedRepliesDict[tone],
-                  let explanation = replyExplanations[tone],
-                  let katakana = katakanaReadings[tone],
+            guard let replyDict = suggestedRepliesDict[tone],
+                  let englishText = replyDict["english"] as? String,
+                  let japaneseReply = replyDict["japanese_translation"] as? String,
+                  let katakana = replyDict["katakana_reading"] as? String,
+                  let explanation = replyDict["explanation"] as? String,
                   let replyTone = ReplyTone(rawValue: tone) else {
                 continue
             }
-
-            let japaneseReply = explanation.components(separatedBy: "。").first ?? explanation
 
             replies.append(AIReply(
                 tone: replyTone,
