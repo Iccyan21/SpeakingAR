@@ -112,7 +112,8 @@ struct ContentView: View {
                                 .opacity(0.6)
                             }
 
-                            if transcriber.isGeneratingAIResponse {
+                            if transcriber.isGeneratingAIResponse,
+                               !transcriber.messages.contains(where: { $0.isProvisional }) {
                                 AIThinkingView()
                             }
                         }
@@ -326,7 +327,8 @@ private struct MessageRow: View {
                 AIMessageBubble(
                     japaneseTranslation: japaneseTranslation,
                     suggestedReplies: suggestedReplies,
-                    timestamp: message.timestamp
+                    timestamp: message.timestamp,
+                    isProvisional: message.isProvisional
                 )
             }
         }
@@ -367,6 +369,7 @@ private struct AIMessageBubble: View {
     let japaneseTranslation: String
     let suggestedReplies: [SuggestedReply]
     let timestamp: Date
+    let isProvisional: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -390,6 +393,20 @@ private struct AIMessageBubble: View {
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .fill(Color.white.opacity(0.1))
             )
+
+            if isProvisional {
+                HStack(spacing: 8) {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(.white.opacity(0.7))
+                        .scaleEffect(0.8)
+
+                    Text("AI プレビューを表示中…")
+                        .font(.caption2)
+                        .foregroundColor(.white.opacity(0.7))
+                }
+                .padding(.horizontal, 20)
+            }
 
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 6) {

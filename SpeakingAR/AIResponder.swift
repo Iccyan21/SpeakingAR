@@ -257,7 +257,7 @@ actor AIResponder {
 }
 
 // MARK: - Local fallback generator
-private struct LocalResponseBuilder {
+struct LocalResponseBuilder {
     private let templateTranslations: [(keyword: String, translation: String)] = [
         ("how are you", "最近どうしてる？"),
         ("what's up", "何か良いことあった？"),
