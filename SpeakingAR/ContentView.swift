@@ -24,7 +24,8 @@ struct ContentView: View {
     @State private var practicedMinutesToday: Double = 6
     @State private var weeklyStreak = 4
 
-    private let freeTierLimit = 3
+    /// nil の場合は無料利用の回数制限を無効化
+    private let freeTierLimit: Int? = nil
 
     private var aiResponseCount: Int {
         transcriber.messages.reduce(0) { partialResult, message in
@@ -37,12 +38,14 @@ struct ContentView: View {
         }
     }
 
-    private var remainingFreeResponses: Int {
-        max(freeTierLimit - aiResponseCount, 0)
+    private var remainingFreeResponses: Int? {
+        guard let freeTierLimit else { return nil }
+        return max(freeTierLimit - aiResponseCount, 0)
     }
 
     private var isRecordingLocked: Bool {
-        !isProUser && aiResponseCount >= freeTierLimit
+        guard let freeTierLimit else { return false }
+        return !isProUser && aiResponseCount >= freeTierLimit
     }
 
     var body: some View {
@@ -75,10 +78,13 @@ struct ContentView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 8)
 
-                if !isProUser && !hasDismissedLimitedNotice {
+                if !isProUser,
+                   let limit = freeTierLimit,
+                   let remaining = remainingFreeResponses,
+                   !hasDismissedLimitedNotice {
                     LimitedAccessNoticeView(
-                        remainingResponses: remainingFreeResponses,
-                        limit: freeTierLimit,
+                        remainingResponses: remaining,
+                        limit: limit,
                         onUpgrade: { showSubscriptionSheet = true },
                         onDismiss: { hasDismissedLimitedNotice = true }
                     )
@@ -195,8 +201,8 @@ struct ContentView: View {
 // MARK: - Chat Header
 private struct ChatHeader: View {
     let isRecording: Bool
-    let remainingFreeResponses: Int
-    let freeTierLimit: Int
+    let remainingFreeResponses: Int?
+    let freeTierLimit: Int?
     let isProUser: Bool
     var onShowTutorial: () -> Void
     var onShowSubscription: () -> Void
@@ -217,7 +223,9 @@ private struct ChatHeader: View {
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.7))
 
-                    if !isProUser {
+                    if !isProUser,
+                       let remainingFreeResponses,
+                       let freeTierLimit {
                         Text("残り \(remainingFreeResponses) / \(freeTierLimit)")
                             .font(.caption2.weight(.semibold))
                             .padding(.horizontal, 8)
@@ -813,8 +821,8 @@ private struct LearningPlanSheet: View {
 
 private struct SubscriptionSheetView: View {
     @Binding var isProUser: Bool
-    let remainingResponses: Int
-    let limit: Int
+    let remainingResponses: Int?
+    let limit: Int?
 
     var body: some View {
         NavigationStack {
@@ -839,7 +847,9 @@ private struct SubscriptionSheetView: View {
                         .fill(Color(.secondarySystemBackground))
                 )
 
-                if !isProUser {
+                if !isProUser,
+                   let remainingResponses,
+                   let limit {
                     Text("無料プランの残り: \(remainingResponses) / \(limit)")
                         .font(.footnote)
                         .foregroundColor(.secondary)
