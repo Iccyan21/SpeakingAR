@@ -89,6 +89,7 @@ actor AIResponder {
     private let endpoint: URL
     private let urlSession: URLSession
     private let fallbackBuilder = LocalResponseBuilder()
+    private var fallbackCache: [String: AIResponseData] = [:]
 
     init(
         apiKey: String? = "OPENAI_API_KEY",
@@ -105,26 +106,92 @@ actor AIResponder {
         self.urlSession = urlSession
     }
 
-    func generateResponse(for transcript: String) async throws -> AIResponseData {
+    func generateTranslation(for transcript: String) async throws -> String {
         let trimmed = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { throw AIResponderError.invalidResponse }
 
         switch mode {
         case .remote(let apiKey):
             do {
-                return try await requestRemoteResponse(for: trimmed, apiKey: apiKey)
+                return try await requestRemoteTranslation(for: trimmed, apiKey: apiKey)
             } catch {
                 #if DEBUG
-                print("Remote AI call failed, falling back to local response: \(error)")
+                print("Remote translation failed, falling back to local response: \(error)")
                 #endif
-                return fallbackBuilder.buildResponse(for: trimmed)
+                return fallbackResponse(for: trimmed).japaneseTranslation
             }
         case .offline:
-            return fallbackBuilder.buildResponse(for: trimmed)
+            return fallbackResponse(for: trimmed).japaneseTranslation
         }
     }
 
-    private func requestRemoteResponse(for transcript: String, apiKey: String) async throws -> AIResponseData {
+    func generateReplies(for transcript: String) async throws -> [AIReply] {
+        let trimmed = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { throw AIResponderError.invalidResponse }
+
+        switch mode {
+        case .remote(let apiKey):
+            do {
+                return try await requestRemoteReplies(for: trimmed, apiKey: apiKey)
+            } catch {
+                #if DEBUG
+                print("Remote reply generation failed, falling back to local response: \(error)")
+                #endif
+                return fallbackResponse(for: trimmed).suggestedReplies
+            }
+        case .offline:
+            return fallbackResponse(for: trimmed).suggestedReplies
+        }
+    }
+
+    private func fallbackResponse(for transcript: String) -> AIResponseData {
+        if let cached = fallbackCache[transcript] {
+            return cached
+        }
+
+        let response = fallbackBuilder.buildResponse(for: transcript)
+        fallbackCache[transcript] = response
+        return response
+    }
+
+    private func requestRemoteTranslation(for transcript: String, apiKey: String) async throws -> String {
+        let systemPrompt = """
+        You are a bilingual translator helping Japanese learners understand English conversations.
+
+        Translate the user's English sentence into natural, conversational Japanese.
+
+        Respond only in valid JSON using this format:
+        {"translation":"日本語訳"}
+        """
+
+        let messages = [
+            ChatMessage(role: "system", content: systemPrompt),
+            ChatMessage(role: "user", content: transcript)
+        ]
+
+        let content = try await performChatRequest(
+            messages: messages,
+            apiKey: apiKey,
+            maxTokens: 256,
+            temperature: 0.2
+        )
+
+        guard let data = content.data(using: .utf8) else {
+            throw AIResponderError.invalidResponse
+        }
+
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        guard let payload = try? decoder.decode(TranslationPayload.self, from: data) else {
+            throw AIResponderError.invalidResponse
+        }
+
+        let trimmed = payload.translation.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { throw AIResponderError.invalidResponse }
+        return trimmed
+    }
+
+    private func requestRemoteReplies(for transcript: String, apiKey: String) async throws -> [AIReply] {
         let systemPrompt = """
         You are an English communication coach for Japanese learners.
 
@@ -133,8 +200,7 @@ actor AIResponder {
         The user will input an English sentence that someone else said to them.
         You must output a JSON object containing:
 
-        1. "japanese_translation": A natural Japanese translation of what the other person said.
-        2. "suggested_replies": An object containing 3 reply options with different tones:
+        1. "suggested_replies": An object containing 3 reply options with different tones:
             - "positive": a friendly, upbeat, or optimistic reply
             - "neutral": a balanced, calm, or typical reply
             - "negative": a reserved, tired, or slightly downbeat reply
@@ -151,7 +217,6 @@ actor AIResponder {
 
         Example format:
         {
-          "japanese_translation": "最近どうしてる？",
           "suggested_replies": {
             "positive": {
               "english": "I've been really good, thanks for asking!",
@@ -187,11 +252,57 @@ actor AIResponder {
             ChatMessage(role: "user", content: transcript)
         ]
 
+        let content = try await performChatRequest(
+            messages: messages,
+            apiKey: apiKey,
+            maxTokens: 512,
+            temperature: 0.7
+        )
+
+        guard let data = content.data(using: .utf8) else {
+            throw AIResponderError.invalidResponse
+        }
+
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        guard let payload = try? decoder.decode(SuggestedRepliesPayload.self, from: data) else {
+            throw AIResponderError.invalidResponse
+        }
+
+        let orderedTones: [ReplyTone] = [.positive, .neutral, .negative]
+        var replies: [AIReply] = []
+
+        for tone in orderedTones {
+            guard let reply = payload.suggestedReplies[tone.rawValue] else { continue }
+            replies.append(
+                AIReply(
+                    tone: tone,
+                    englishText: reply.english,
+                    japaneseTranslation: reply.japaneseTranslation,
+                    katakanaReading: reply.katakanaReading,
+                    explanation: reply.explanation
+                )
+            )
+        }
+
+        guard !replies.isEmpty else {
+            throw AIResponderError.invalidResponse
+        }
+
+        return replies
+    }
+
+    private func performChatRequest(
+        messages: [ChatMessage],
+        apiKey: String,
+        maxTokens: Int,
+        temperature: Double
+    ) async throws -> String {
         let requestBody = ChatRequest(
             model: "gpt-4o-mini",
             messages: messages,
-            maxTokens: 512,
-            temperature: 0.7
+            maxTokens: maxTokens,
+            temperature: temperature
         )
 
         var request = URLRequest(url: endpoint)
@@ -218,42 +329,33 @@ actor AIResponder {
             throw AIResponderError.invalidResponse
         }
 
-        guard let jsonData = content.data(using: .utf8),
-              let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
-              let japaneseTranslation = json["japanese_translation"] as? String,
-              let suggestedRepliesDict = json["suggested_replies"] as? [String: [String: Any]] else {
-            throw AIResponderError.invalidResponse
+        return content
+    }
+}
+
+private struct TranslationPayload: Decodable {
+    let translation: String
+}
+
+private struct SuggestedRepliesPayload: Decodable {
+    struct Reply: Decodable {
+        let english: String
+        let japaneseTranslation: String
+        let katakanaReading: String
+        let explanation: String
+
+        enum CodingKeys: String, CodingKey {
+            case english
+            case japaneseTranslation = "japanese_translation"
+            case katakanaReading = "katakana_reading"
+            case explanation
         }
+    }
 
-        var replies: [AIReply] = []
+    let suggestedReplies: [String: Reply]
 
-        for tone in ["positive", "neutral", "negative"] {
-            guard let replyDict = suggestedRepliesDict[tone],
-                  let englishText = replyDict["english"] as? String,
-                  let japaneseReply = replyDict["japanese_translation"] as? String,
-                  let katakana = replyDict["katakana_reading"] as? String,
-                  let explanation = replyDict["explanation"] as? String,
-                  let replyTone = ReplyTone(rawValue: tone) else {
-                continue
-            }
-
-            replies.append(AIReply(
-                tone: replyTone,
-                englishText: englishText,
-                japaneseTranslation: japaneseReply,
-                katakanaReading: katakana,
-                explanation: explanation
-            ))
-        }
-
-        guard !replies.isEmpty else {
-            throw AIResponderError.invalidResponse
-        }
-
-        return AIResponseData(
-            japaneseTranslation: japaneseTranslation,
-            suggestedReplies: replies
-        )
+    enum CodingKeys: String, CodingKey {
+        case suggestedReplies = "suggested_replies"
     }
 }
 

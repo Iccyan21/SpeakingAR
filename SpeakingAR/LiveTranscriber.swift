@@ -82,24 +82,26 @@ final class LiveTranscriber: ObservableObject {
         aiError = nil
 
         aiResponseTask = Task {
-            var streamingMessageID: UUID?
+            let messageID = UUID()
+            var didAppendMessage = false
             do {
-                let responseData = try await aiResponder.generateResponse(for: trimmed)
-                guard !Task.isCancelled else { return }
-                let messageID = UUID()
-                streamingMessageID = messageID
-                let isStreamingReplies = !responseData.suggestedReplies.isEmpty
+                let translation = try await aiResponder.generateTranslation(for: trimmed)
+                try Task.checkCancellation()
                 await MainActor.run {
                     self.isGeneratingAIResponse = false
                     self.aiError = nil
                     self.appendAITranslationMessage(
                         id: messageID,
-                        translation: responseData.japaneseTranslation,
-                        isStreamingReplies: isStreamingReplies
+                        translation: translation,
+                        isStreamingReplies: true
                     )
                 }
+                didAppendMessage = true
 
-                if responseData.suggestedReplies.isEmpty {
+                let replies = try await aiResponder.generateReplies(for: trimmed)
+                try Task.checkCancellation()
+
+                if replies.isEmpty {
                     await MainActor.run {
                         self.markRepliesComplete(for: messageID)
                         self.aiResponseTask = nil
@@ -107,17 +109,17 @@ final class LiveTranscriber: ObservableObject {
                     return
                 }
 
-                for (index, aiReply) in responseData.suggestedReplies.enumerated() {
+                for (index, reply) in replies.enumerated() {
                     try Task.checkCancellation()
                     try await Task.sleep(nanoseconds: replyRevealDelay)
+                    let keepStreaming = index < replies.count - 1
                     let suggestedReply = SuggestedReply(
-                        tone: aiReply.tone,
-                        englishText: aiReply.englishText,
-                        japaneseTranslation: aiReply.japaneseTranslation,
-                        katakanaReading: aiReply.katakanaReading,
-                        explanation: aiReply.explanation
+                        tone: reply.tone,
+                        englishText: reply.englishText,
+                        japaneseTranslation: reply.japaneseTranslation,
+                        katakanaReading: reply.katakanaReading,
+                        explanation: reply.explanation
                     )
-                    let keepStreaming = index < responseData.suggestedReplies.count - 1
                     await MainActor.run {
                         self.append(
                             reply: suggestedReply,
@@ -131,20 +133,26 @@ final class LiveTranscriber: ObservableObject {
                     self.aiResponseTask = nil
                 }
             } catch is CancellationError {
-                if let streamingMessageID {
-                    await MainActor.run {
-                        self.markRepliesComplete(for: streamingMessageID)
+                await MainActor.run {
+                    if !didAppendMessage {
+                        self.isGeneratingAIResponse = false
                     }
+                    if didAppendMessage {
+                        self.markRepliesComplete(for: messageID)
+                    }
+                    self.aiResponseTask = nil
                 }
                 return
             } catch {
                 let message = (error as? LocalizedError)?.errorDescription ?? "AI 応答の生成中にエラーが発生しました。"
                 await MainActor.run {
-                    self.isGeneratingAIResponse = false
+                    if !didAppendMessage {
+                        self.isGeneratingAIResponse = false
+                    }
                     self.aiError = message
                     self.aiResponseTask = nil
-                    if let streamingMessageID {
-                        self.markRepliesComplete(for: streamingMessageID)
+                    if didAppendMessage {
+                        self.markRepliesComplete(for: messageID)
                     }
                 }
             }
