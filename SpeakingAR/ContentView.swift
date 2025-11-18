@@ -383,18 +383,42 @@ private struct AIMessageBubble: View {
                     .fill(Color.white.opacity(0.1))
             )
 
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 6) {
-                    Image(systemName: "text.bubble")
-                        .font(.caption)
-                    Text("返し方の候補")
-                        .font(.caption.weight(.semibold))
-                }
-                .foregroundColor(.white.opacity(0.7))
-                .padding(.horizontal, 4)
+            if suggestedReplies.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.caption)
+                        Text("返し方の候補は生成されませんでした")
+                            .font(.caption.weight(.semibold))
+                    }
+                    .foregroundColor(.yellow.opacity(0.8))
 
-                ForEach(suggestedReplies) { reply in
-                    SuggestedReplyCard(reply: reply)
+                    Text("翻訳の確信度が低いため、提案を控えています。もう一度録音するか、ネットワーク状態を確認してください。")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.7))
+                        .padding(.horizontal, 4)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(Color.white.opacity(0.05))
+                )
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "text.bubble")
+                            .font(.caption)
+                        Text("返し方の候補")
+                            .font(.caption.weight(.semibold))
+                    }
+                    .foregroundColor(.white.opacity(0.7))
+                    .padding(.horizontal, 4)
+
+                    ForEach(suggestedReplies) { reply in
+                        SuggestedReplyCard(reply: reply)
+                    }
                 }
             }
 
