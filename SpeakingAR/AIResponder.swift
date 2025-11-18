@@ -90,7 +90,7 @@ actor AIResponder {
     private let fallbackBuilder = LocalResponseBuilder()
 
     init(
-        apiKey: String? = "API_KEY",
+        apiKey: String? = "OPENAI_API_KEY",
         endpoint: URL = URL(string: "https://api.openai.com/v1/chat/completions")!,
         urlSession: URLSession = .shared
     ) {
