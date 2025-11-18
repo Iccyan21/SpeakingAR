@@ -176,15 +176,7 @@ actor AIResponder {
             temperature: 0.2
         )
 
-        guard let data = content.data(using: .utf8) else {
-            throw AIResponderError.invalidResponse
-        }
-
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        guard let payload = try? decoder.decode(TranslationPayload.self, from: data) else {
-            throw AIResponderError.invalidResponse
-        }
+        let payload: TranslationPayload = try decodeJSONPayload(from: content)
 
         let trimmed = payload.translation.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { throw AIResponderError.invalidResponse }
@@ -258,38 +250,52 @@ actor AIResponder {
             maxTokens: 512,
             temperature: 0.7
         )
-
-        guard let data = content.data(using: .utf8) else {
-            throw AIResponderError.invalidResponse
-        }
-
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
-        guard let payload = try? decoder.decode(SuggestedRepliesPayload.self, from: data) else {
+        let data = try extractJSONData(from: content)
+
+        if let payload = try? decoder.decode(SuggestedRepliesPayload.self, from: data) {
+            let replies = payload.buildReplies()
+            if !replies.isEmpty {
+                return replies
+            }
+        }
+
+        if let arrayPayload = try? decoder.decode(SuggestedRepliesArrayPayload.self, from: data) {
+            let replies = try arrayPayload.buildReplies()
+            if !replies.isEmpty {
+                return replies
+            }
+        }
+
+        throw AIResponderError.invalidResponse
+    }
+
+    private func decodeJSONPayload<T: Decodable>(from content: String) throws -> T {
+        let data = try extractJSONData(from: content)
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return try decoder.decode(T.self, from: data)
+    }
+
+    private func extractJSONData(from content: String) throws -> Data {
+        var cleaned = content.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if cleaned.hasPrefix("```") {
+            cleaned = cleaned.replacingOccurrences(of: "```json", with: "")
+            cleaned = cleaned.replacingOccurrences(of: "```", with: "")
+            cleaned = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        if let start = cleaned.firstIndex(of: "{"), let end = cleaned.lastIndex(of: "}") {
+            cleaned = String(cleaned[start...end])
+        }
+
+        guard let data = cleaned.data(using: .utf8) else {
             throw AIResponderError.invalidResponse
         }
 
-        let orderedTones: [ReplyTone] = [.positive, .neutral, .negative]
-        var replies: [AIReply] = []
-
-        for tone in orderedTones {
-            guard let reply = payload.suggestedReplies[tone.rawValue] else { continue }
-            replies.append(
-                AIReply(
-                    tone: tone,
-                    englishText: reply.english,
-                    japaneseTranslation: reply.japaneseTranslation,
-                    katakanaReading: reply.katakanaReading,
-                    explanation: reply.explanation
-                )
-            )
-        }
-
-        guard !replies.isEmpty else {
-            throw AIResponderError.invalidResponse
-        }
-
-        return replies
+        return data
     }
 
     private func performChatRequest(
@@ -350,12 +356,217 @@ private struct SuggestedRepliesPayload: Decodable {
             case katakanaReading = "katakana_reading"
             case explanation
         }
+
+        func toAIReply(tone: ReplyTone) -> AIReply {
+            AIReply(
+                tone: tone,
+                englishText: english.trimmingCharacters(in: .whitespacesAndNewlines),
+                japaneseTranslation: japaneseTranslation.trimmingCharacters(in: .whitespacesAndNewlines),
+                katakanaReading: katakanaReading.trimmingCharacters(in: .whitespacesAndNewlines),
+                explanation: explanation.trimmingCharacters(in: .whitespacesAndNewlines)
+            )
+        }
     }
 
     let suggestedReplies: [String: Reply]
 
     enum CodingKeys: String, CodingKey {
-        case suggestedReplies = "suggested_replies"
+        case suggestedRepliesSnake = "suggested_replies"
+        case suggestedRepliesCamel = "suggestedReplies"
+        case replies
+    }
+
+    init(from decoder: Decoder) throws {
+        if let container = try? decoder.container(keyedBy: CodingKeys.self) {
+            if let replies = try container.decodeIfPresent([String: Reply].self, forKey: .suggestedRepliesSnake) {
+                self.suggestedReplies = replies
+                return
+            }
+
+            if let replies = try container.decodeIfPresent([String: Reply].self, forKey: .suggestedRepliesCamel) {
+                self.suggestedReplies = replies
+                return
+            }
+
+            if let replies = try container.decodeIfPresent([String: Reply].self, forKey: .replies) {
+                self.suggestedReplies = replies
+                return
+            }
+        }
+
+        self.suggestedReplies = try [String: Reply](from: decoder)
+    }
+
+    func buildReplies() -> [AIReply] {
+        var replies: [AIReply] = []
+        var consumedKeys: Set<String> = []
+
+        for tone in ReplyTone.orderedCases {
+            if let reply = suggestedReplies[tone.rawValue] {
+                replies.append(reply.toAIReply(tone: tone))
+                consumedKeys.insert(tone.rawValue)
+            }
+        }
+
+        if replies.count < ReplyTone.orderedCases.count {
+            let remainingKeys = suggestedReplies.keys
+                .filter { !consumedKeys.contains($0) }
+                .sorted()
+
+            for key in remainingKeys {
+                guard replies.count < ReplyTone.orderedCases.count else { break }
+                guard let reply = suggestedReplies[key] else { continue }
+                let inferredTone = ReplyTone(rawValue: key.lowercased()) ?? ReplyTone.orderedCases[replies.count]
+                replies.append(reply.toAIReply(tone: inferredTone))
+            }
+        }
+
+        return replies
+    }
+}
+
+private struct SuggestedRepliesArrayPayload: Decodable {
+    let entries: [LooseReply]
+
+    enum CodingKeys: String, CodingKey {
+        case suggestedRepliesSnake = "suggested_replies"
+        case suggestedRepliesCamel = "suggestedReplies"
+        case replies
+        case options
+    }
+
+    init(from decoder: Decoder) throws {
+        if let container = try? decoder.container(keyedBy: CodingKeys.self) {
+            if var nested = try? container.nestedUnkeyedContainer(forKey: .suggestedRepliesSnake) {
+                self.entries = try SuggestedRepliesArrayPayload.decodeEntries(from: &nested)
+                return
+            }
+
+            if var nested = try? container.nestedUnkeyedContainer(forKey: .suggestedRepliesCamel) {
+                self.entries = try SuggestedRepliesArrayPayload.decodeEntries(from: &nested)
+                return
+            }
+
+            if var nested = try? container.nestedUnkeyedContainer(forKey: .replies) {
+                self.entries = try SuggestedRepliesArrayPayload.decodeEntries(from: &nested)
+                return
+            }
+
+            if var nested = try? container.nestedUnkeyedContainer(forKey: .options) {
+                self.entries = try SuggestedRepliesArrayPayload.decodeEntries(from: &nested)
+                return
+            }
+        }
+
+        var unkeyed = try decoder.unkeyedContainer()
+        self.entries = try SuggestedRepliesArrayPayload.decodeEntries(from: &unkeyed)
+    }
+
+    private static func decodeEntries(from container: inout UnkeyedDecodingContainer) throws -> [LooseReply] {
+        var items: [LooseReply] = []
+        while !container.isAtEnd {
+            let entry = try container.decode(LooseReply.self)
+            items.append(entry)
+        }
+        return items
+    }
+
+    func buildReplies() throws -> [AIReply] {
+        guard !entries.isEmpty else { return [] }
+
+        var replies: [AIReply] = []
+        var usedIndices: Set<Int> = []
+
+        for tone in ReplyTone.orderedCases {
+            if let index = entries.firstIndex(where: { $0.matches(tone: tone) }) {
+                replies.append(try entries[index].toAIReply(defaultTone: tone))
+                usedIndices.insert(index)
+            }
+        }
+
+        for (index, entry) in entries.enumerated() where !usedIndices.contains(index) {
+            guard replies.count < ReplyTone.orderedCases.count else { break }
+            let tone = ReplyTone.orderedCases[replies.count]
+            replies.append(try entry.toAIReply(defaultTone: tone))
+        }
+
+        return replies
+    }
+}
+
+private struct LooseReply: Decodable {
+    let toneLabel: String?
+    let english: String?
+    let japaneseTranslation: String?
+    let katakanaReading: String?
+    let explanation: String?
+
+    enum CodingKeys: String, CodingKey {
+        case tone
+        case english
+        case englishText = "english_text"
+        case reply
+        case japaneseTranslation = "japanese_translation"
+        case japanese
+        case katakanaReading = "katakana_reading"
+        case katakana
+        case explanation
+        case note
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        toneLabel = try container.decodeIfPresent(String.self, forKey: .tone)
+        english = try container.decodeIfPresent(String.self, forKey: .english)
+            ?? container.decodeIfPresent(String.self, forKey: .englishText)
+            ?? container.decodeIfPresent(String.self, forKey: .reply)
+        japaneseTranslation = try container.decodeIfPresent(String.self, forKey: .japaneseTranslation)
+            ?? container.decodeIfPresent(String.self, forKey: .japanese)
+        katakanaReading = try container.decodeIfPresent(String.self, forKey: .katakanaReading)
+            ?? container.decodeIfPresent(String.self, forKey: .katakana)
+        explanation = try container.decodeIfPresent(String.self, forKey: .explanation)
+            ?? container.decodeIfPresent(String.self, forKey: .note)
+    }
+
+    func matches(tone: ReplyTone) -> Bool {
+        guard let label = toneLabel?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() else { return false }
+        return ReplyTone(looselyMatching: label) == tone
+    }
+
+    func toAIReply(defaultTone: ReplyTone) throws -> AIReply {
+        guard let englishText = trimmed(english),
+              let japaneseText = trimmed(japaneseTranslation) else {
+            throw AIResponderError.invalidResponse
+        }
+
+        let explanationText = trimmed(explanation) ?? "この返答のニュアンス: \(japaneseText)"
+        let katakanaText = trimmed(katakanaReading) ?? ""
+        let resolvedTone = toneLabel
+            .flatMap { ReplyTone(looselyMatching: $0.trimmingCharacters(in: .whitespacesAndNewlines)) }
+            ?? defaultTone
+
+        return AIReply(
+            tone: resolvedTone,
+            englishText: englishText,
+            japaneseTranslation: japaneseText,
+            katakanaReading: katakanaText,
+            explanation: explanationText
+        )
+    }
+
+    private func trimmed(_ text: String?) -> String? {
+        guard let trimmed = text?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty else {
+            return nil
+        }
+        return trimmed
+    }
+}
+
+private extension ReplyTone {
+    static var orderedCases: [ReplyTone] { [.positive, .neutral, .negative] }
+
+    init?(looselyMatching value: String) {
+        self.init(rawValue: value.lowercased())
     }
 }
 
