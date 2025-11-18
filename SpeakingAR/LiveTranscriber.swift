@@ -41,6 +41,7 @@ final class LiveTranscriber: ObservableObject {
     private let aiResponder: AIResponder
     private var aiResponseTask: Task<Void, Never>?
     private var lastAIInput: String = ""
+    private let replyRevealDelay: UInt64 = 350_000_000
 
     init(locale: Locale = Locale(identifier: "en-US")) {
         speechRecognizer = SFSpeechRecognizer(locale: locale)
@@ -81,39 +82,78 @@ final class LiveTranscriber: ObservableObject {
         aiError = nil
 
         aiResponseTask = Task {
+            let messageID = UUID()
+            var didAppendMessage = false
             do {
-                let responseData = try await aiResponder.generateResponse(for: trimmed)
-                guard !Task.isCancelled else { return }
+                let translation = try await aiResponder.generateTranslation(for: trimmed)
+                try Task.checkCancellation()
                 await MainActor.run {
                     self.isGeneratingAIResponse = false
-                    // AIメッセージを追加
-                    let aiMessage = Message(
-                        type: .ai(
-                            japaneseTranslation: responseData.japaneseTranslation,
-                            suggestedReplies: responseData.suggestedReplies.map { aiReply in
-                                SuggestedReply(
-                                    tone: ReplyTone(rawValue: aiReply.tone.rawValue) ?? .neutral,
-                                    englishText: aiReply.englishText,
-                                    japaneseTranslation: aiReply.japaneseTranslation,
-                                    katakanaReading: aiReply.katakanaReading,
-                                    explanation: aiReply.explanation
-                                )
-                            }
-                        )
-                    )
-                    self.messages.append(aiMessage)
-
                     self.aiError = nil
+                    self.appendAITranslationMessage(
+                        id: messageID,
+                        translation: translation,
+                        isStreamingReplies: true
+                    )
+                }
+                didAppendMessage = true
+
+                let replies = try await aiResponder.generateReplies(for: trimmed)
+                try Task.checkCancellation()
+
+                if replies.isEmpty {
+                    await MainActor.run {
+                        self.markRepliesComplete(for: messageID)
+                        self.aiResponseTask = nil
+                    }
+                    return
+                }
+
+                for (index, reply) in replies.enumerated() {
+                    try Task.checkCancellation()
+                    try await Task.sleep(nanoseconds: replyRevealDelay)
+                    let keepStreaming = index < replies.count - 1
+                    let suggestedReply = SuggestedReply(
+                        tone: reply.tone,
+                        englishText: reply.englishText,
+                        japaneseTranslation: reply.japaneseTranslation,
+                        katakanaReading: reply.katakanaReading,
+                        explanation: reply.explanation
+                    )
+                    await MainActor.run {
+                        self.append(
+                            reply: suggestedReply,
+                            toAIMessageWithID: messageID,
+                            keepStreamingFlag: keepStreaming
+                        )
+                    }
+                }
+
+                await MainActor.run {
                     self.aiResponseTask = nil
                 }
             } catch is CancellationError {
+                await MainActor.run {
+                    if !didAppendMessage {
+                        self.isGeneratingAIResponse = false
+                    }
+                    if didAppendMessage {
+                        self.markRepliesComplete(for: messageID)
+                    }
+                    self.aiResponseTask = nil
+                }
                 return
             } catch {
                 let message = (error as? LocalizedError)?.errorDescription ?? "AI 応答の生成中にエラーが発生しました。"
                 await MainActor.run {
-                    self.isGeneratingAIResponse = false
+                    if !didAppendMessage {
+                        self.isGeneratingAIResponse = false
+                    }
                     self.aiError = message
                     self.aiResponseTask = nil
+                    if didAppendMessage {
+                        self.markRepliesComplete(for: messageID)
+                    }
                 }
             }
         }
@@ -400,5 +440,50 @@ final class LiveTranscriber: ObservableObject {
     private func appendUserMessage(_ text: String) {
         let userMessage = Message(type: .user(text: text))
         messages.append(userMessage)
+    }
+
+    @MainActor
+    private func appendAITranslationMessage(id: UUID, translation: String, isStreamingReplies: Bool) {
+        let message = Message(
+            id: id,
+            type: .ai(
+                japaneseTranslation: translation,
+                suggestedReplies: [],
+                isStreamingReplies: isStreamingReplies
+            )
+        )
+        messages.append(message)
+    }
+
+    @MainActor
+    private func append(reply: SuggestedReply, toAIMessageWithID messageID: UUID, keepStreamingFlag: Bool) {
+        guard let index = messages.firstIndex(where: { $0.id == messageID }) else { return }
+        guard case let .ai(japaneseTranslation, existingReplies, _) = messages[index].type else { return }
+        var updatedReplies = existingReplies
+        updatedReplies.append(reply)
+        messages[index] = Message(
+            id: messages[index].id,
+            timestamp: messages[index].timestamp,
+            type: .ai(
+                japaneseTranslation: japaneseTranslation,
+                suggestedReplies: updatedReplies,
+                isStreamingReplies: keepStreamingFlag
+            )
+        )
+    }
+
+    @MainActor
+    private func markRepliesComplete(for messageID: UUID) {
+        guard let index = messages.firstIndex(where: { $0.id == messageID }) else { return }
+        guard case let .ai(japaneseTranslation, existingReplies, _) = messages[index].type else { return }
+        messages[index] = Message(
+            id: messages[index].id,
+            timestamp: messages[index].timestamp,
+            type: .ai(
+                japaneseTranslation: japaneseTranslation,
+                suggestedReplies: existingReplies,
+                isStreamingReplies: false
+            )
+        )
     }
 }
