@@ -30,7 +30,7 @@ struct ContentView: View {
     private var aiResponseCount: Int {
         transcriber.messages.reduce(0) { partialResult, message in
             switch message.type {
-            case .ai:
+            case .ai(_, _, _):
                 return partialResult + 1
             case .user:
                 return partialResult
@@ -313,11 +313,12 @@ private struct MessageRow: View {
                 UserMessageBubble(text: text, timestamp: message.timestamp)
                 Spacer(minLength: 50)
 
-            case .ai(let japaneseTranslation, let suggestedReplies):
+            case .ai(let japaneseTranslation, let suggestedReplies, let isStreamingReplies):
                 Spacer(minLength: 50)
                 AIMessageBubble(
                     japaneseTranslation: japaneseTranslation,
                     suggestedReplies: suggestedReplies,
+                    isStreamingReplies: isStreamingReplies,
                     timestamp: message.timestamp
                 )
             }
@@ -358,6 +359,7 @@ private struct UserMessageBubble: View {
 private struct AIMessageBubble: View {
     let japaneseTranslation: String
     let suggestedReplies: [SuggestedReply]
+    let isStreamingReplies: Bool
     let timestamp: Date
 
     var body: some View {
@@ -384,27 +386,51 @@ private struct AIMessageBubble: View {
             )
 
             if suggestedReplies.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "exclamationmark.triangle")
-                            .font(.caption)
-                        Text("返し方の候補は生成されませんでした")
-                            .font(.caption.weight(.semibold))
-                    }
-                    .foregroundColor(.yellow.opacity(0.8))
+                if isStreamingReplies {
+                    HStack(spacing: 12) {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .tint(.white.opacity(0.7))
 
-                    Text("翻訳の確信度が低いため、提案を控えています。もう一度録音するか、ネットワーク状態を確認してください。")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.7))
-                        .padding(.horizontal, 4)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("返し方を準備中…")
+                                .font(.caption.weight(.semibold))
+                                .foregroundColor(.white)
+                            Text("翻訳を先に表示しています。続いて3つの返答例が届きます。")
+                                .font(.caption2)
+                                .foregroundColor(.white.opacity(0.7))
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .fill(Color.white.opacity(0.05))
+                    )
+                } else {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "exclamationmark.triangle")
+                                .font(.caption)
+                            Text("返し方の候補は生成されませんでした")
+                                .font(.caption.weight(.semibold))
+                        }
+                        .foregroundColor(.yellow.opacity(0.8))
+
+                        Text("翻訳の確信度が低いため、提案を控えています。もう一度録音するか、ネットワーク状態を確認してください。")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.7))
+                            .padding(.horizontal, 4)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .fill(Color.white.opacity(0.05))
+                    )
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .fill(Color.white.opacity(0.05))
-                )
             } else {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 6) {
