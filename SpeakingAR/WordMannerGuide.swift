@@ -29,9 +29,9 @@ struct WordMannerCategory: Identifiable, Hashable {
 
 let wordMannerCategories: [WordMannerCategory] = [
     WordMannerCategory(
-        title: "Daily life",
-        subtitle: "Greetings and everyday courtesies",
-        overview: "In Japan, greetings come with a warm smile and often a slight bow. Having a few phrases ready helps you sound natural throughout the day.",
+        title: "日常のあいさつ",
+        subtitle: "朝・昼・夜の基本表現",
+        overview: "日本語でのあいさつに近い感覚で、短い英語フレーズを使うと自然に聞こえます。軽く会釈を添えると丁寧です。",
         systemImage: "sun.max.fill",
         accent: .orange,
         gradient: [Color.orange.opacity(0.8), Color.pink.opacity(0.6)],
@@ -39,37 +39,37 @@ let wordMannerCategories: [WordMannerCategory] = [
             .init(
                 english: "Good morning.",
                 japanese: "おはようございます。",
-                romaji: "Ohayou gozaimasu.",
-                scenario: "Use when greeting someone in the morning.",
-                etiquette: "Pair it with a small bow or nod to show respect."
+                romaji: "グッド・モーニング",
+                scenario: "朝に会った人へ最初に声をかけるとき。",
+                etiquette: "軽く会釈して、明るい声で伝えると丁寧。"
             ),
             .init(
                 english: "Good afternoon.",
                 japanese: "こんにちは。",
-                romaji: "Konnichiwa.",
-                scenario: "Use when greeting someone in the afternoon.",
-                etiquette: "Maintain light eye contact and a friendly tone."
+                romaji: "グッド・アフタヌーン",
+                scenario: "昼過ぎ～夕方前に会った相手への挨拶。",
+                etiquette: "穏やかなトーンで、笑顔を添えると印象がよい。"
             ),
             .init(
                 english: "Good evening.",
                 japanese: "こんばんは。",
-                romaji: "Konbanwa.",
-                scenario: "Use when greeting someone in the evening.",
-                etiquette: "A gentle smile helps set a relaxed mood."
+                romaji: "グッド・イブニング",
+                scenario: "夕方以降に会ったときの挨拶。",
+                etiquette: "声量は控えめにして、落ち着いた雰囲気で伝える。"
             ),
             .init(
                 english: "Thank you very much.",
                 japanese: "ありがとうございます。",
-                romaji: "Arigatou gozaimasu.",
-                scenario: "Use after receiving help, service, or a favor.",
-                etiquette: "Slightly bow or place a hand to your chest to show gratitude."
+                romaji: "サンキュー・ベリー・マッチ",
+                scenario: "助けてもらったり、サービスを受けたときのお礼。",
+                etiquette: "一礼したり、胸に手を当てて感謝を示すと丁寧。"
             )
         ]
     ),
     WordMannerCategory(
-        title: "Restaurant",
-        subtitle: "Useful phrases while eating out",
-        overview: "Restaurants value politeness. Calling staff with a clear voice and showing gratitude keeps service smooth.",
+        title: "レストラン",
+        subtitle: "注文・呼びかけ・会計で使う表現",
+        overview: "店員さんを呼ぶときや注文を伝えるときは、短くはっきり言うのがコツ。感謝のひと言を添えると好印象です。",
         systemImage: "fork.knife",
         accent: .red,
         gradient: [Color.red.opacity(0.8), Color.orange.opacity(0.7)],
@@ -77,37 +77,37 @@ let wordMannerCategories: [WordMannerCategory] = [
             .init(
                 english: "Excuse me (to call staff).",
                 japanese: "すみません。",
-                romaji: "Sumimasen.",
-                scenario: "Use to get a server's attention or when squeezing past someone.",
-                etiquette: "Raise your hand slightly; avoid shouting across the room."
+                romaji: "エクスキューズ・ミー",
+                scenario: "店員さんを呼びたいときや、人の横を通るとき。",
+                etiquette: "軽く手を上げ、店内で大声を出さないようにする。"
             ),
             .init(
                 english: "Do you have an English menu?",
                 japanese: "英語のメニューはありますか。",
-                romaji: "Eigo no menyuu wa arimasu ka?",
-                scenario: "Use when first seated to request an English menu.",
-                etiquette: "Ask politely before ordering to keep the flow easy."
+                romaji: "ドゥ・ユー・ハブ・アン・イングリッシュ・メニュー？",
+                scenario: "席についたときに英語メニューの有無を確認したいとき。",
+                etiquette: "注文前に落ち着いて尋ねるとスムーズ。"
             ),
             .init(
                 english: "This is delicious!",
                 japanese: "とてもおいしいです。",
-                romaji: "Totemo oishii desu.",
-                scenario: "Use after tasting a dish you enjoy.",
-                etiquette: "A smile while saying this shows appreciation to the chef."
+                romaji: "ディス・イズ・デリシャス！",
+                scenario: "料理を食べておいしいと感じたとき。",
+                etiquette: "笑顔で伝えると、シェフやスタッフに好意が伝わる。"
             ),
             .init(
                 english: "Check, please.",
                 japanese: "お会計をお願いします。",
-                romaji: "Okaikei wo onegaishimasu.",
-                scenario: "Use when you are ready to pay.",
-                etiquette: "Hand the server your tray or bill folder with both hands."
+                romaji: "チェック・プリーズ",
+                scenario: "会計をお願いするとき。",
+                etiquette: "伝票やトレイを両手で渡すと丁寧に見える。"
             )
         ]
     ),
     WordMannerCategory(
-        title: "Hotel",
-        subtitle: "Check-in, check-out, and requests",
-        overview: "A few considerate phrases make every stay smoother, from check-in to special requests.",
+        title: "ホテル",
+        subtitle: "チェックイン・荷物・お願いごと",
+        overview: "チェックイン時の一言や荷物の相談など、丁寧な言い回しで伝えると安心感を与えられます。",
         systemImage: "bed.double.fill",
         accent: .blue,
         gradient: [Color.blue.opacity(0.8), Color.purple.opacity(0.7)],
@@ -115,37 +115,37 @@ let wordMannerCategories: [WordMannerCategory] = [
             .init(
                 english: "I have a reservation.",
                 japanese: "予約しています。",
-                romaji: "Yoyaku shiteimasu.",
-                scenario: "Use when approaching the front desk to check in.",
-                etiquette: "Offer your passport and reservation name together."
+                romaji: "アイ・ハブ・ア・レザベーション",
+                scenario: "フロントでチェックインするときの最初のひと言。",
+                etiquette: "予約名とパスポートを一緒に見せるとスムーズ。"
             ),
             .init(
                 english: "Could you keep my luggage?",
                 japanese: "荷物を預かっていただけますか。",
-                romaji: "Nimotsu wo azukatte itadakemasu ka?",
-                scenario: "Use if you arrive early or want to store bags after check-out.",
-                etiquette: "Point to the luggage politely while asking."
+                romaji: "クッド・ユー・キープ・マイ・ラゲッジ？",
+                scenario: "早く着いたときやチェックアウト後に荷物を預けたいとき。",
+                etiquette: "荷物を指し示しながら、丁寧に依頼すると伝わりやすい。"
             ),
             .init(
                 english: "What time is breakfast?",
                 japanese: "朝食は何時ですか。",
-                romaji: "Choushoku wa nanji desu ka?",
-                scenario: "Use at check-in to confirm breakfast hours.",
-                etiquette: "Ask during check-in to avoid delaying the line later."
+                romaji: "ワット・タイム・イズ・ブレックファスト？",
+                scenario: "チェックインのときに朝食時間を確認するとき。",
+                etiquette: "チェックイン時にまとめて聞くと列を妨げずスマート。"
             ),
             .init(
                 english: "Please call a taxi.",
                 japanese: "タクシーを呼んでください。",
-                romaji: "Takushii wo yonde kudasai.",
-                scenario: "Use at the lobby when you need a taxi.",
-                etiquette: "Share your destination on your phone to avoid mishearing."
+                romaji: "プリーズ・コール・ア・タクシー",
+                scenario: "ロビーでタクシーを呼んでもらいたいとき。",
+                etiquette: "行き先をスマホで見せると聞き間違いを防げる。"
             )
         ]
     ),
     WordMannerCategory(
-        title: "Traffic",
-        subtitle: "On trains, buses, and streets",
-        overview: "Public transit is quiet and orderly. Short, clear phrases help you navigate without disrupting others.",
+        title: "交通・移動",
+        subtitle: "電車・バス・道を尋ねるとき",
+        overview: "公共交通では短く静かなやり取りが基本。道を聞くときも周囲の通行を妨げない位置で声をかけましょう。",
         systemImage: "tram.fill",
         accent: .green,
         gradient: [Color.green.opacity(0.8), Color.teal.opacity(0.7)],
@@ -153,30 +153,30 @@ let wordMannerCategories: [WordMannerCategory] = [
             .init(
                 english: "Where can I buy a ticket?",
                 japanese: "切符はどこで買えますか。",
-                romaji: "Kippu wa doko de kaemasu ka?",
-                scenario: "Use inside a station when you need a ticket machine or counter.",
-                etiquette: "Keep to the side so you don't block the walkway."
+                romaji: "ウェア・キャン・アイ・バイ・ア・チケット？",
+                scenario: "駅で券売機や窓口の場所を聞きたいとき。",
+                etiquette: "通路をふさがないよう端に寄ってから尋ねる。"
             ),
             .init(
                 english: "Which line goes to Shibuya?",
                 japanese: "渋谷行きはどの線ですか。",
-                romaji: "Shibuya yuki wa dono sen desu ka?",
-                scenario: "Use when confirming the correct platform or train.",
-                etiquette: "Step aside from the gate while asking to avoid blocking."
+                romaji: "ウィッチ・ライン・ゴーズ・トゥ・シブヤ？",
+                scenario: "目的地に向かう路線・ホームを確認したいとき。",
+                etiquette: "改札や通路をふさがず、少し離れた場所で聞く。"
             ),
             .init(
                 english: "Is this seat free?",
                 japanese: "この席は空いていますか。",
-                romaji: "Kono seki wa aiteimasu ka?",
-                scenario: "Use before sitting next to someone or taking an empty seat.",
-                etiquette: "Speak softly and wait for a nod before sitting."
+                romaji: "イズ・ディス・シート・フリー？",
+                scenario: "座ってよいか確認したいとき。",
+                etiquette: "声は小さめに、相手の反応を待ってから座る。"
             ),
             .init(
                 english: "Please go ahead.",
                 japanese: "どうぞお先に。",
-                romaji: "Douzo osaki ni.",
-                scenario: "Use when letting someone board or exit before you.",
-                etiquette: "A small hand gesture shows you are yielding politely."
+                romaji: "プリーズ・ゴー・アヘッド",
+                scenario: "順番を譲るときや先に行ってもらうとき。",
+                etiquette: "軽く手で促すジェスチャーを添えると親切さが伝わる。"
             )
         ]
     )

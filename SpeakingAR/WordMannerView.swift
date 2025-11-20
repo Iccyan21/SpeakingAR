@@ -33,29 +33,29 @@ struct WordMannerCatalogView: View {
             .navigationDestination(for: WordMannerCategory.self) { category in
                 WordMannerDetailView(category: category)
             }
-            .navigationTitle("Word・Manner")
+            .navigationTitle("ワード・マナー")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Daily life Word Manner")
+            Text("日常で使えるワード・マナー")
                 .font(.title.weight(.bold))
                 .foregroundStyle(.primary)
 
-            Text("It can be used in daily life here. I will introduce you to word manners!")
+            Text("日常生活ですぐに使える英語フレーズとマナーをまとめました。")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
             HStack(spacing: 12) {
-                Label("Greetings", systemImage: "hand.wave.fill")
+                Label("あいさつ", systemImage: "hand.wave.fill")
                     .font(.caption.weight(.semibold))
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
                     .background(Color.blue.opacity(0.1), in: Capsule())
 
-                Label("Manners", systemImage: "heart.fill")
+                Label("マナー", systemImage: "heart.fill")
                     .font(.caption.weight(.semibold))
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
@@ -120,7 +120,7 @@ private struct WordMannerDetailView: View {
                 hero
 
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Phrases & Manners")
+                    Text("フレーズとマナー")
                         .font(.headline)
                         .foregroundStyle(.primary)
 

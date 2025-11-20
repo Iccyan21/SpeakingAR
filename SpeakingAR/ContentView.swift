@@ -20,13 +20,13 @@ struct ContentView: View {
             ChatExperienceView()
                 .tag(Tab.chat)
                 .tabItem {
-                    Label("Chat", systemImage: "bubble.left.and.bubble.right.fill")
+                    Label("チャット", systemImage: "bubble.left.and.bubble.right.fill")
                 }
 
             WordMannerCatalogView()
                 .tag(Tab.guide)
                 .tabItem {
-                    Label("Word", systemImage: "book.closed.fill")
+                    Label("ワード・マナー", systemImage: "book.closed.fill")
                 }
         }
     }
