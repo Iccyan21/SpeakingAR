@@ -42,6 +42,8 @@ struct ChatExperienceView: View {
     @State private var showSubscriptionSheet = false
     @State private var showLearningPlanSheet = false
 
+    @State private var hasSeenDailyCoach = false
+
     @State private var hasDismissedLimitedNotice = false
     @State private var hasDismissedProBanner = false
 
@@ -93,6 +95,26 @@ struct ChatExperienceView: View {
                 )
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
+
+                SessionGuidanceView(
+                    isRecording: transcriber.isRecording,
+                    hasMessages: !transcriber.messages.isEmpty,
+                    streakCount: weeklyStreak,
+                    onOpenTutorial: { showTutorialSheet = true }
+                )
+                .padding(.horizontal, 16)
+                .padding(.bottom, 6)
+
+                DailyGoalProgressCard(
+                    goalMinutes: dailyGoalMinutes,
+                    practicedMinutes: practicedMinutesToday,
+                    streakCount: weeklyStreak,
+                    onOpenPlan: { showLearningPlanSheet = true },
+                    onDismissCoach: { hasSeenDailyCoach = true }
+                )
+                .padding(.horizontal, 16)
+                .padding(.bottom, 6)
+                .opacity(hasSeenDailyCoach ? 0.65 : 1)
 
 
                 if !isProUser,
@@ -294,6 +316,8 @@ private struct ChatHeader: View {
 
 // MARK: - Empty State
 private struct EmptyStateView: View {
+    @State private var showMicroAction = false
+
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "waveform.circle.fill")
@@ -304,6 +328,43 @@ private struct EmptyStateView: View {
                 .font(.body)
                 .foregroundColor(.white.opacity(0.6))
                 .multilineTextAlignment(.center)
+
+            Button {
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                    showMicroAction.toggle()
+                }
+            } label: {
+                Label("録音の流れを確認", systemImage: "lightbulb")
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(Color.white.opacity(0.08), in: Capsule())
+            }
+            .buttonStyle(.plain)
+
+            if showMicroAction {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "1.circle.fill")
+                        Text("マイクをタップして、相手の声を数秒聞き取ります")
+                    }
+                    HStack(spacing: 8) {
+                        Image(systemName: "2.circle.fill")
+                        Text("字幕が出たら、AI の返答例を声に出して真似します")
+                    }
+                    HStack(spacing: 8) {
+                        Image(systemName: "3.circle.fill")
+                        Text("良かった返しをそのまま会話に使いましょう")
+                    }
+                }
+                .font(.caption)
+                .foregroundColor(.white.opacity(0.75))
+                .padding(12)
+                .frame(maxWidth: 320)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Color.white.opacity(0.06))
+                )
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 60)
@@ -783,6 +844,176 @@ private struct ProFeatureBanner: View {
                 }
                 .buttonStyle(.plain)
             }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(Color.white.opacity(0.04))
+        )
+    }
+}
+
+// MARK: - Session Guidance
+private struct SessionGuidanceView: View {
+    let isRecording: Bool
+    let hasMessages: Bool
+    let streakCount: Int
+    var onOpenTutorial: () -> Void
+
+    private var guidanceTitle: String {
+        if isRecording {
+            return "今の発話を聞いています"
+        }
+        if hasMessages {
+            return "次の一言を声に出してみましょう"
+        }
+        return "マイクを押して、相手の声をキャッチ"
+    }
+
+    private var guidanceMessage: String {
+        if isRecording {
+            return "姿勢を楽にして、相手の話を自然に待ちましょう。聞き取りが終わるとすぐ字幕が表示されます。"
+        }
+        if hasMessages {
+            return "AI が提示した例文の中から 1 つ選んで、ゆっくりでも声に出すと会話の定着が早くなります。"
+        }
+        return "最初の 10 秒だけ聞き取れば OK。小さな成功を積み上げましょう。"
+    }
+
+    private var streakNote: String {
+        streakCount >= 5 ? "連続 \(streakCount) 日。よく続いています！" : "今日が \(streakCount) 日目。まずは 3 日連続を目指しましょう。"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 12) {
+                Image(systemName: isRecording ? "waveform" : "sparkle.magnifyingglass")
+                    .font(.title3)
+                    .foregroundColor(.cyan)
+                    .frame(width: 32, height: 32)
+                    .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(guidanceTitle)
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Text(guidanceMessage)
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.75))
+                }
+            }
+
+            HStack {
+                Label(streakNote, systemImage: "flame.fill")
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(.orange.opacity(0.9))
+
+                Spacer()
+
+                Button(action: onOpenTutorial) {
+                    Text("使い方を確認")
+                        .font(.caption.bold())
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color.white.opacity(0.08), in: Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [Color(red: 0.14, green: 0.19, blue: 0.36), Color(red: 0.08, green: 0.1, blue: 0.22)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)
+                )
+        )
+    }
+}
+
+// MARK: - Daily Goal Progress
+private struct DailyGoalProgressCard: View {
+    let goalMinutes: Double
+    let practicedMinutes: Double
+    let streakCount: Int
+    var onOpenPlan: () -> Void
+    var onDismissCoach: () -> Void
+
+    private var progress: Double {
+        guard goalMinutes > 0 else { return 0 }
+        return min(practicedMinutes / goalMinutes, 1)
+    }
+
+    private var progressHeadline: String {
+        if progress >= 1 {
+            return "今日の目標達成！"
+        } else if progress >= 0.5 {
+            return "あと少しで折り返し"
+        } else {
+            return "最初の一歩を積み上げましょう"
+        }
+    }
+
+    private var progressDetail: String {
+        if progress >= 1 {
+            return "\(Int(practicedMinutes)) 分の練習を完了。好きなフレーズを繰り返して定着させましょう。"
+        }
+        return "目標 \(Int(goalMinutes)) 分のうち \(Int(practicedMinutes)) 分完了。短いセッションでも効果があります。"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(progressHeadline)
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Text(progressDetail)
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.7))
+                }
+
+                Spacer()
+
+                Button(action: onDismissCoach) {
+                    Image(systemName: "chevron.down")
+                        .font(.caption.bold())
+                        .foregroundColor(.white.opacity(0.7))
+                        .padding(6)
+                        .background(Color.white.opacity(0.06), in: Circle())
+                }
+                .buttonStyle(.plain)
+            }
+
+            VStack(spacing: 8) {
+                ProgressView(value: progress)
+                    .tint(.cyan)
+                HStack {
+                    Label("目標 \(Int(goalMinutes)) 分", systemImage: "target")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundColor(.white.opacity(0.8))
+                    Spacer()
+                    Label("連続 \(streakCount) 日", systemImage: "calendar")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundColor(.white.opacity(0.8))
+                }
+            }
+
+            Button(action: onOpenPlan) {
+                Text("Learning Plan を調整")
+                    .font(.caption.bold())
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            }
+            .buttonStyle(.plain)
         }
         .padding(16)
         .background(
