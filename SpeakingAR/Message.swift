@@ -31,7 +31,7 @@ struct Message: Identifiable, Codable {
 
     enum MessageType: Codable {
         case user(text: String)
-        case ai(japaneseTranslation: String, suggestedReplies: [SuggestedReply])
+        case ai(japaneseTranslation: String, suggestedReplies: [SuggestedReply], isStreamingReplies: Bool)
     }
 
     init(id: UUID = UUID(), timestamp: Date = Date(), type: MessageType) {
