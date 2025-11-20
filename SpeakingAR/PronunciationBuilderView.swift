@@ -2,106 +2,19 @@
 //  PronunciationBuilderView.swift
 //  SpeakingAR
 //
-//  Created to convert Japanese text into simple English phrases with katakana guides.
+//  Converts Japanese text into English with katakana pronunciation.
 //
 
 import SwiftUI
-
-struct PronunciationSuggestion: Equatable {
-    let english: String
-    let katakana: String
-    let tip: String
-}
-
-actor PronunciationCoach {
-    private struct Rule {
-        let keywords: [String]
-        let english: String
-        let tip: String
-    }
-
-    private let rules: [Rule] = [
-        .init(
-            keywords: ["おはよう", "朝"],
-            english: "Good morning!",
-            tip: "朝の挨拶は明るい声で、笑顔を添えると自然です。"
-        ),
-        .init(
-            keywords: ["こんにちは", "昼"],
-            english: "Good afternoon!",
-            tip: "初対面でも使いやすいシンプルな挨拶です。"
-        ),
-        .init(
-            keywords: ["こんばんは", "夜"],
-            english: "Good evening!",
-            tip: "夜の場面では落ち着いたトーンで伝えましょう。"
-        ),
-        .init(
-            keywords: ["ありがとう", "感謝"],
-            english: "Thank you so much!",
-            tip: "感謝を強調したいときの定番表現です。"
-        ),
-        .init(
-            keywords: ["すみません", "ごめん"],
-            english: "I'm sorry.",
-            tip: "軽い謝罪なら I'm sorry.、丁寧に伝えたいときは I apologize. も使えます。"
-        ),
-        .init(
-            keywords: ["お願いします", "頼む", "お願い"],
-            english: "Could you help me, please?",
-            tip: "依頼をするときは please を添えると丁寧です。"
-        ),
-        .init(
-            keywords: ["どこ", "場所", "道"],
-            english: "Where can I find this?",
-            tip: "地図や写真を見せながら聞くと伝わりやすくなります。"
-        ),
-        .init(
-            keywords: ["いくら", "値段"],
-            english: "How much is this?",
-            tip: "指差しや商品名を添えるとスムーズです。"
-        ),
-        .init(
-            keywords: ["できる", "可能"],
-            english: "Is it possible?",
-            tip: "相談するときのやわらかい聞き方です。"
-        )
-    ]
-
-    func buildSuggestion(from japanese: String) async -> PronunciationSuggestion? {
-        let trimmed = japanese.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return nil }
-
-        let matchedRule = rules.first { rule in
-            rule.keywords.contains { keyword in trimmed.contains(keyword) }
-        }
-
-        let english = matchedRule?.english ?? fallbackEnglish(from: trimmed)
-        let katakana = english
-            .applyingTransform(.latinToKatakana, reverse: false)?
-            .replacingOccurrences(of: "・", with: "・") ?? english
-        let tip = matchedRule?.tip ?? "シンプルな英語に言い換えて、はっきり発音してみましょう。"
-
-        return PronunciationSuggestion(english: english, katakana: katakana, tip: tip)
-    }
-
-    private func fallbackEnglish(from japanese: String) -> String {
-        switch japanese.count {
-        case 1...8:
-            return "Let's say it simply in English."
-        default:
-            return "Let's put that into simple English."
-        }
-    }
-}
 
 struct PronunciationBuilderView: View {
     @State private var inputText: String = ""
     @State private var suggestion: PronunciationSuggestion?
     @State private var isLoading = false
     @State private var showResult = false
+    @State private var errorMessage: String?
 
-    private let coach = PronunciationCoach()
+    private let translator = PronunciationTranslator()
 
     var body: some View {
         ScrollView {
@@ -118,10 +31,10 @@ struct PronunciationBuilderView: View {
 
     private var hero: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("日本語の文章を英語とカタカナで表示")
+            Text("日本語の文章をAIが英語とカタカナで表示")
                 .font(.title2.weight(.bold))
                 .foregroundStyle(.primary)
-            Text("入力した日本語をシンプルな英語に変換し、発音の目安となるカタカナ表記を提案します。")
+            Text("入力した日本語をAIが英語に翻訳し、発音の目安となるカタカナ表記とワンポイントを提案します。")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
@@ -192,6 +105,13 @@ struct PronunciationBuilderView: View {
                 .padding(14)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color(.secondarySystemBackground)))
+            } else if let errorMessage {
+                Text(errorMessage)
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.red)
+                    .padding(14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Color.red.opacity(0.5)))
             } else {
                 Text("変換結果がここに表示されます。")
                     .foregroundStyle(.secondary)
@@ -216,13 +136,30 @@ struct PronunciationBuilderView: View {
     private func generateSuggestion() {
         isLoading = true
         showResult = false
+        errorMessage = nil
 
         Task {
-            let result = await coach.buildSuggestion(from: inputText)
-            await MainActor.run {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                    suggestion = result
-                    showResult = result != nil
+            do {
+                let result = try await translator.translate(japaneseText: inputText)
+                await MainActor.run {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        suggestion = result
+                        showResult = true
+                    }
+                    isLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        suggestion = nil
+                        showResult = false
+                    }
+                    if let localizedError = error as? LocalizedError,
+                       let description = localizedError.errorDescription {
+                        errorMessage = description
+                    } else {
+                        errorMessage = "英訳と発音の生成に失敗しました。もう一度お試しください。"
+                    }
                     isLoading = false
                 }
             }
