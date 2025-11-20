@@ -8,6 +8,31 @@
 import SwiftUI
 
 struct ContentView: View {
+    private enum Tab {
+        case chat
+        case guide
+    }
+
+    @State private var selectedTab: Tab = .chat
+
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            ChatExperienceView()
+                .tag(Tab.chat)
+                .tabItem {
+                    Label("Chat", systemImage: "bubble.left.and.bubble.right.fill")
+                }
+
+            WordMannerCatalogView()
+                .tag(Tab.guide)
+                .tabItem {
+                    Label("Word", systemImage: "book.closed.fill")
+                }
+        }
+    }
+}
+
+struct ChatExperienceView: View {
     @StateObject private var transcriber = LiveTranscriber()
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("isProUser") private var isProUser = false
