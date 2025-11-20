@@ -19,6 +19,13 @@ struct WordMannerCatalogView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     header
 
+                    NavigationLink {
+                        PronunciationBuilderView()
+                    } label: {
+                        PronunciationShortcutCard()
+                    }
+                    .buttonStyle(.plain)
+
                     LazyVGrid(columns: columns, spacing: 16) {
                         ForEach(wordMannerCategories) { category in
                             NavigationLink(value: category) {
@@ -62,6 +69,47 @@ struct WordMannerCatalogView: View {
                     .background(Color.orange.opacity(0.12), in: Capsule())
             }
         }
+    }
+}
+
+private struct PronunciationShortcutCard: View {
+    var body: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.blue.opacity(0.16))
+                    .frame(width: 58, height: 58)
+                Image(systemName: "waveform.and.mic")
+                    .font(.title2.weight(.bold))
+                    .foregroundStyle(.blue)
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("日本語から英語＆カタカナを作成")
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(.primary)
+                Text("文章を入力すると、英語フレーズと発音の目安をすぐ表示します。")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(.secondary)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                )
+        )
+        .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 6)
     }
 }
 
