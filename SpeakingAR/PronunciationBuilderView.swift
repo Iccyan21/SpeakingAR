@@ -15,29 +15,65 @@ struct PronunciationBuilderView: View {
     @State private var errorMessage: String?
 
     private let translator = PronunciationTranslator()
+    private let samples = [
+        "道に迷いました、助けてください",
+        "タクシーを呼んでもらえますか",
+        "クレジットカードは使えますか",
+        "予約している◯◯です"
+    ]
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 24) {
                 hero
+                statusCard
                 inputSection
+                helperChips
                 outputSection
             }
             .padding(20)
         }
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("日本語→英語＆カタカナ")
         .navigationBarTitleDisplayMode(.inline)
     }
 
     private var hero: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("日本語の文章をAIが英語とカタカナで表示")
+            Text("誰でも迷わず使える翻訳サポート")
                 .font(.title2.weight(.bold))
                 .foregroundStyle(.primary)
-            Text("入力した日本語をAIが英語に翻訳し、発音の目安となるカタカナ表記とワンポイントを提案します。")
+            Text("日本語を入れるだけで、すぐに通じる短い英語とカタカナの読み方を提案。準備や学習なしで、今すぐ伝えたい気持ちに応えます。")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
+    }
+
+    private var statusCard: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: "sparkles")
+                .font(.title3.weight(.bold))
+                .foregroundStyle(.blue)
+                .frame(width: 36, height: 36)
+                .background(Circle().fill(Color.blue.opacity(0.12)))
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("AIが短く自然な表現に整えます")
+                    .font(.subheadline.weight(.semibold))
+                Text("敬語や長い文章でも安心。アプリがやさしい英語にまとめ、カタカナで発音の目安も表示します。")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+        }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(.white)
+                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 6)
+        )
     }
 
     private var inputSection: some View {
@@ -53,6 +89,7 @@ struct PronunciationBuilderView: View {
                 }
                 TextEditor(text: $inputText)
                     .frame(minHeight: 120)
+                    .textInputAutocapitalization(.never)
                     .padding(12)
                     .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color(.secondarySystemBackground)))
             }
@@ -122,6 +159,34 @@ struct PronunciationBuilderView: View {
         }
     }
 
+    private var helperChips: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("すぐ使える例")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            FlowLayout(alignment: .leading, spacing: 8) {
+                ForEach(samples, id: \.self) { text in
+                    Button {
+                        inputText = text
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "bolt.fill")
+                            Text(text)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(
+                            Capsule(style: .continuous)
+                                .fill(Color.blue.opacity(0.12))
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
     private func resultRow(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
@@ -171,6 +236,48 @@ struct PronunciationBuilderView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             PronunciationBuilderView()
+        }
+    }
+}
+
+// MARK: - Flow layout utility for chips
+struct FlowLayout<Content: View>: View {
+    let alignment: HorizontalAlignment
+    let spacing: CGFloat
+    @ViewBuilder var content: Content
+
+    init(alignment: HorizontalAlignment = .leading, spacing: CGFloat = 8, @ViewBuilder content: () -> Content) {
+        self.alignment = alignment
+        self.spacing = spacing
+        self.content = content()
+    }
+
+    var body: some View {
+        GeometryReader { geometry in
+            self.generateContent(in: geometry)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func generateContent(in geometry: GeometryProxy) -> some View {
+        var width = CGFloat.zero
+        var height = CGFloat.zero
+
+        return ZStack(alignment: Alignment(horizontal: alignment, vertical: .top)) {
+            content
+                .alignmentGuide(.leading) { dimension in
+                    if width + dimension.width > geometry.size.width {
+                        width = 0
+                        height -= dimension.height + spacing
+                    }
+                    let result = width
+                    width += dimension.width + spacing
+                    return result
+                }
+                .alignmentGuide(.top) { _ in
+                    let result = height
+                    return result
+                }
         }
     }
 }

@@ -18,6 +18,7 @@ struct WordMannerCatalogView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     header
+                    reassuranceCard
 
                     NavigationLink {
                         PronunciationBuilderView()
@@ -47,14 +48,14 @@ struct WordMannerCatalogView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("日常で使えるワード・マナー")
+            Text("すぐ伝わるワードとマナー")
                 .font(.title.weight(.bold))
                 .foregroundStyle(.primary)
 
-            Text("日常生活ですぐに使える英語フレーズとマナーをまとめました。")
+            Text("学習準備は不要。場面ごとに短い英語と振る舞いをまとめました。迷ったら翻訳タブからそのまま入力すればOKです。")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-
+                
             HStack(spacing: 12) {
                 Label("あいさつ", systemImage: "hand.wave.fill")
                     .font(.caption.weight(.semibold))
@@ -69,6 +70,32 @@ struct WordMannerCatalogView: View {
                     .background(Color.orange.opacity(0.12), in: Capsule())
             }
         }
+    }
+
+    private var reassuranceCard: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "hand.thumbsup.fill")
+                .font(.title3.weight(.bold))
+                .foregroundStyle(.green)
+                .frame(width: 40, height: 40)
+                .background(Circle().fill(Color.green.opacity(0.12)))
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("誰でもそのまま使えるシンプル設計")
+                    .font(.subheadline.weight(.semibold))
+                Text("長い説明を覚える必要はありません。短いフレーズと振る舞いのポイントだけを並べました。")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(.white)
+                .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 6)
+        )
     }
 }
 
@@ -85,10 +112,10 @@ private struct PronunciationShortcutCard: View {
             }
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("日本語から英語＆カタカナを作成")
+                Text("その場で翻訳して即コミュニケーション")
                     .font(.headline.weight(.semibold))
                     .foregroundStyle(.primary)
-                Text("文章を入力すると、英語フレーズと発音の目安をすぐ表示します。")
+                Text("日本語を入れるだけで、短い英語とカタカナ発音をAIが提案。英語が苦手でもすぐ話せます。")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
@@ -254,15 +281,19 @@ private struct WordMannerEntryCard: View {
             Divider()
 
             VStack(alignment: .leading, spacing: 6) {
-                Label(entry.scenario, systemImage: "hand.point.right.fill")
+                Label("シーン", systemImage: "hand.point.right.fill")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Text(entry.scenario)
                     .font(.footnote)
                     .foregroundStyle(.primary)
-                    .labelStyle(.titleAndIcon)
 
-                Label(entry.etiquette, systemImage: "sparkles")
-                    .font(.footnote)
+                Label("気をつけるポイント", systemImage: "sparkles")
+                    .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
-                    .labelStyle(.titleAndIcon)
+                Text(entry.etiquette)
+                    .font(.footnote)
+                    .foregroundStyle(.primary)
             }
         }
         .padding(16)
