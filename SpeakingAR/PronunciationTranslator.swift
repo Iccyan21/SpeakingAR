@@ -88,7 +88,7 @@ actor PronunciationTranslator {
     private let fallbackBuilder = LocalPronunciationFallback()
 
     init(
-        apiKey: String? = "OPENAI_API_KEY",
+        apiKey: String? = "API_KEY",
         endpoint: URL = URL(string: "https://api.openai.com/v1/chat/completions")!,
         urlSession: URLSession = .shared
     ) {
