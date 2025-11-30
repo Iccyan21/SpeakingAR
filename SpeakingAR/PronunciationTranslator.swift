@@ -30,7 +30,7 @@ extension PronunciationTranslatorError: LocalizedError {
     }
 }
 
-struct PronunciationSuggestion: Equatable {
+struct PronunciationSuggestion: Codable, Equatable {
     let english: String
     let katakana: String
     let tip: String
