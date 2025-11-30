@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct PronunciationBuilderView: View {
     @State private var inputText: String = ""
@@ -13,6 +14,8 @@ struct PronunciationBuilderView: View {
     @State private var isLoading = false
     @State private var showResult = false
     @State private var errorMessage: String?
+
+    @StateObject private var historyStore = PronunciationHistoryStore()
 
     private let translator = PronunciationTranslator()
 
@@ -22,6 +25,7 @@ struct PronunciationBuilderView: View {
                 hero
                 inputSection
                 outputSection
+                historySection
             }
             .padding(20)
         }
@@ -122,6 +126,30 @@ struct PronunciationBuilderView: View {
         }
     }
 
+    private var historySection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("履歴")
+                    .font(.headline)
+                Spacer()
+            }
+
+            if historyStore.items.isEmpty {
+                Text("変換したフレーズの履歴がここに表示されます。")
+                    .foregroundStyle(.secondary)
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Color.secondary.opacity(0.25)))
+            } else {
+                VStack(spacing: 12) {
+                    ForEach(historyStore.items) { entry in
+                        historyRow(for: entry)
+                    }
+                }
+            }
+        }
+    }
+
     private func resultRow(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
@@ -131,6 +159,64 @@ struct PronunciationBuilderView: View {
                 .font(.title3.weight(.bold))
                 .foregroundStyle(.primary)
         }
+    }
+
+    private func historyRow(for entry: PronunciationHistoryItem) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(entry.inputText)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+
+                    Text(entry.suggestion.english)
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                    Text(entry.suggestion.katakana)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text(entry.suggestion.tip)
+                        .font(.footnote)
+                        .foregroundStyle(.primary)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 8) {
+                    Button(action: { copyEntry(entry) }) {
+                        Label("コピー", systemImage: "doc.on.doc")
+                            .labelStyle(.iconOnly)
+                    }
+                    .accessibilityLabel(Text("履歴をコピー: \(entry.inputText)"))
+
+                    ShareLink(item: shareText(for: entry)) {
+                        Label("共有", systemImage: "square.and.arrow.up")
+                            .labelStyle(.iconOnly)
+                    }
+                    .accessibilityLabel(Text("履歴を共有: \(entry.inputText)"))
+
+                    Button(role: .destructive, action: { historyStore.delete(entry) }) {
+                        Label("削除", systemImage: "trash")
+                            .labelStyle(.iconOnly)
+                    }
+                    .accessibilityLabel(Text("履歴を削除"))
+                }
+                .buttonStyle(.borderless)
+            }
+
+            Text(entry.createdAt, style: .date)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color(.secondarySystemBackground)))
+    }
+
+    private func shareText(for entry: PronunciationHistoryItem) -> String {
+        "入力: \(entry.inputText)\nEnglish: \(entry.suggestion.english)\nカタカナ: \(entry.suggestion.katakana)\nワンポイント: \(entry.suggestion.tip)"
+    }
+
+    private func copyEntry(_ entry: PronunciationHistoryItem) {
+        UIPasteboard.general.string = shareText(for: entry)
     }
 
     private func generateSuggestion() {
@@ -146,6 +232,7 @@ struct PronunciationBuilderView: View {
                         suggestion = result
                         showResult = true
                     }
+                    historyStore.addEntry(inputText: inputText.trimmingCharacters(in: .whitespacesAndNewlines), suggestion: result)
                     isLoading = false
                 }
             } catch {
