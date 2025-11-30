@@ -14,7 +14,11 @@ final class LiveTranscriber: ObservableObject {
     @Published var recordPermission: AVAudioSession.RecordPermission = .undetermined
 
     // チャット履歴
-    @Published var messages: [Message] = []
+    @Published var messages: [Message] = [] {
+        didSet {
+            persistChatHistory()
+        }
+    }
 
     // 一時的な状態（録音中の表示用）
     @Published var currentTranscript: String = ""
@@ -42,6 +46,7 @@ final class LiveTranscriber: ObservableObject {
     private var aiResponseTask: Task<Void, Never>?
     private var lastAIInput: String = ""
     private let replyRevealDelay: UInt64 = 350_000_000
+    private let chatHistoryStore = ChatHistoryStore()
 
     init(locale: Locale = Locale(identifier: "en-US")) {
         speechRecognizer = SFSpeechRecognizer(locale: locale)
@@ -54,6 +59,14 @@ final class LiveTranscriber: ObservableObject {
             #if canImport(Translation)
             await translator.preloadDefaultLanguagePairs()
             #endif
+        }
+
+        Task { [weak self] in
+            guard let self else { return }
+            let storedMessages = await chatHistoryStore.load()
+            await MainActor.run {
+                self.messages = storedMessages
+            }
         }
     }
 
@@ -477,5 +490,11 @@ final class LiveTranscriber: ObservableObject {
                 isStreamingReplies: false
             )
         )
+    }
+
+    private func persistChatHistory() {
+        Task {
+            await chatHistoryStore.save(messages)
+        }
     }
 }
