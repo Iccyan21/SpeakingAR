@@ -81,92 +81,120 @@ let wordMannerCategories: [WordMannerCategory] = [
                 english: "Excuse me (to call staff).",
                 japanese: "すみません。",
                 romaji: "エクスキューズ・ミー",
-                scenario: "店員さんを呼びたいときや、人の横を通るとき。",
-                etiquette: "軽く手を上げ、店内で大声を出さないようにする。"
+                scenario: "店員さんに声をかけたいとき。",
+                etiquette: "軽く手を上げて静かに呼ぶ。"
             ),
             .init(
-                english: "Do you have an English menu?",
-                japanese: "英語のメニューはありますか。",
-                romaji: "ドゥ・ユー・ハブ・アン・イングリッシュ・メニュー？",
-                scenario: "席についたときに英語メニューの有無を確認したいとき。",
-                etiquette: "注文前に落ち着いて尋ねるとスムーズ。"
+                english: "A table for one, please.",
+                japanese: "1人です。",
+                romaji: "ア・テイブル・フォー・ワン・プリーズ",
+                scenario: "入店時に人数を伝えるとき。",
+                etiquette: "人数を変えて two / three とも言い換えられる。"
+            ),
+            .init(
+                english: "I'd like an iced coffee.",
+                japanese: "アイスコーヒーをお願いします。",
+                romaji: "アイド・ライク・アン・アイスド・コーヒー",
+                scenario: "ドリンクを注文するとき。",
+                etiquette: "メニューを指し示すと確実。"
+            ),
+            .init(
+                english: "I’d like a medium iced coffee.",
+                japanese: "ミディアムのアイスコーヒーをください。",
+                romaji: "アイド・ライク・ア・ミディアム・アイスド・コーヒー",
+                scenario: "サイズを指定して注文するとき。",
+                etiquette: "small や large に置き換えても使える。"
+            ),
+            .init(
+                english: "Could you recommend something?",
+                japanese: "おすすめはありますか。",
+                romaji: "クッド・ユー・レコメンド・サムシング？",
+                scenario: "何を頼むか迷ったとき。",
+                etiquette: "好みを一言添えると伝わりやすい。"
+            ),
+            .init(
+                english: "Can I get the same thing as that?",
+                japanese: "あれと同じものをください。",
+                romaji: "キャナイ・ゲット・ザ・セイム・シング・アズ・ザット？",
+                scenario: "他の人が頼んだものを注文したいとき。",
+                etiquette: "指を差さず、軽く示す程度にする。"
+            ),
+            .init(
+                english: "Iced, please.",
+                japanese: "アイスで。",
+                romaji: "アイス・プリーズ",
+                scenario: "ホットかアイスかを聞かれたとき。",
+                etiquette: "短く伝えて OK。"
             ),
             .init(
                 english: "This is delicious!",
                 japanese: "とてもおいしいです。",
                 romaji: "ディス・イズ・デリシャス！",
-                scenario: "料理を食べておいしいと感じたとき。",
-                etiquette: "笑顔で伝えると、シェフやスタッフに好意が伝わる。"
+                scenario: "食事をほめたいとき。",
+                etiquette: "笑顔で伝えると好印象。"
             ),
             .init(
                 english: "Check, please.",
                 japanese: "お会計をお願いします。",
                 romaji: "チェック・プリーズ",
                 scenario: "会計をお願いするとき。",
-                etiquette: "伝票やトレイを両手で渡すと丁寧に見える。"
-            ),
-            .init(
-                english: "A table for one, please.",
-                japanese: "1人です。",
-                romaji: "ア・テイブル・フォー・ワン・プリーズ",
-                scenario: "入店して人数を伝えるとき。",
-                etiquette: "人数だけでも OK。two / three に変えて使い回せる。"
-            ),
-            .init(
-                english: "Can I sit at the bar?",
-                japanese: "カウンター席でも大丈夫です。",
-                romaji: "キャン・アイ・シット・アット・ザ・バー？",
-                scenario: "混んでいるときにカウンターでもいいと伝えるとき。",
-                etiquette: "一人での利用では、カウンターを希望すると通されやすい。"
-            ),
-            .init(
-                english: "I'd like this one, please.",
-                japanese: "これをお願いします。",
-                romaji: "アイド・ライク・ディス・ワン・プリーズ",
-                scenario: "メニューを指さしながら注文するとき。",
-                etiquette: "読み方が分からない料理は、指さし＋このフレーズで十分。"
-            ),
-            .init(
-                english: "Could you recommend something?",
-                japanese: "おすすめはありますか。",
-                romaji: "クッド・ユー・レコメンド・サムシング？",
-                scenario: "何を頼むか迷ったときに、おすすめを聞きたいとき。",
-                etiquette: "辛さや量など、軽く希望を付け加えるとミスマッチが減る。"
-            ),
-            .init(
-                english: "Could I get some water, please?",
-                japanese: "お水をいただけますか。",
-                romaji: "クダイ・ゲット・サム・ウォーター・プリーズ？",
-                scenario: "水が欲しいとき（アメリカでも店によっては自分で頼む必要がある）。",
-                etiquette: "グラスを少し持ち上げてお願いすると伝わりやすい。"
-            ),
-            .init(
-                english: "Can I have it to go?",
-                japanese: "持ち帰りにしてもらえますか。",
-                romaji: "キャン・アイ・ハブ・イット・トゥ・ゴウ？",
-                scenario: "残った料理をテイクアウト用にしてもらいたいとき。",
-                etiquette: "アメリカでは食べ残しを持ち帰るのはごく普通の文化。"
+                etiquette: "軽く手を上げて伝える。"
             ),
             .init(
                 english: "Can I pay by card?",
                 japanese: "カードで支払えますか。",
                 romaji: "キャン・アイ・ペイ・バイ・カード？",
-                scenario: "会計時にクレジットカードが使えるか確認したいとき。",
-                etiquette: "レジやテーブル会計どちらでも、会計前に一言聞いておくと安心。"
+                scenario: "支払い方法を確認するとき。",
+                etiquette: "会計前に聞いておくとスムーズ。"
             ),
             .init(
-                english: "Can we split the bill?",
-                japanese: "割り勘にできますか。",
-                romaji: "キャン・ウィ・スプリット・ザ・ビル？",
-                scenario: "友達と一緒に食事をして、割り勘にしたいとき。",
-                etiquette: "人数が多い場合は、会計の前に早めに伝えておくと店側も助かる。"
+                english: "Thanks, it was great!",
+                japanese: "ありがとう、美味しかったです！",
+                romaji: "サンクス、イト・ワズ・グレイト",
+                scenario: "食後に感想を伝えるとき。",
+                etiquette: "目を見て笑顔で伝える。"
             ),
             .init(
-                english: "I'm allergic to nuts.",
-                japanese: "ナッツにアレルギーがあります。",
-                romaji: "アイム・アレルジック・トゥ・ナッツ",
-                scenario: "アレルギーを事前に伝えたいとき。",
-                etiquette: "nuts を shrimp / dairy などに変えても使える。メニューを開いた最初のタイミングで伝えると安全。"
+                english: "That’s all, thank you.",
+                japanese: "以上です、ありがとう。",
+                romaji: "ザッツ・オール、サンキュー",
+                scenario: "注文が終わったことを伝えるとき。",
+                etiquette: "メニューを閉じて渡すと分かりやすい。"
+            ),
+            .init(
+                english: "Oh, for here, please.",
+                japanese: "店内でお願いします。",
+                romaji: "オー、フォー・ヒア、プリーズ",
+                scenario: "テイクアウトか店内利用か聞かれたとき。",
+                etiquette: "落ち着いて短く答える。"
+            ),
+            .init(
+                english: "Either the counter or a table is fine.",
+                japanese: "カウンターでもテーブルでも大丈夫",
+                romaji: "アイザー・ザ・カウンター・オア・ア・テイブル・イズ・ファイン",
+                scenario: "席の希望を聞かれたとき。",
+                etiquette: "どちらでも良いと伝えると案内が早い。"
+            ),
+            .init(
+                english: "I’m ready to pay.",
+                japanese: "お会計お願いします。",
+                romaji: "アイム・レディ・トゥ・ペイ",
+                scenario: "支払いの準備ができたとき。",
+                etiquette: "店員さんと目が合ったタイミングで伝える。"
+            ),
+            .init(
+                english: "Can I pay with a card?",
+                japanese: "カードで払えますか？",
+                romaji: "キャン・アイ・ペイ・ウィズ・ア・カード？",
+                scenario: "カード決済の可否を確認したいとき。",
+                etiquette: "タッチ決済の可否も合わせて聞ける。"
+            ),
+            .init(
+                english: "Is it okay if I sit here?",
+                japanese: "ここに座ってもいいですか。",
+                romaji: "イズ・イット・オーケー・イフ・アイ・シット・ヒア？",
+                scenario: "空いている席を使ってよいか確認するとき。",
+                etiquette: "隣の人や店員に軽く声をかける。"
             )
         ]
     ),
@@ -547,61 +575,123 @@ let wordMannerCategories: [WordMannerCategory] = [
         gradient: [Color.brown.opacity(0.8), Color.orange.opacity(0.6)],
         entries: [
             .init(
-                english: "Can I have a medium coffee, please?",
-                japanese: "Mサイズのコーヒーをください。",
-                romaji: "キャン・アイ・ハブ・ア・ミディアム・コーヒー・プリーズ？",
-                scenario: "レジでサイズを指定して注文するとき。",
-                etiquette: "最後の please が丁寧さを出す。"
+                english: "Excuse me (to call staff).",
+                japanese: "すみません。",
+                romaji: "エクスキューズ・ミー",
+                scenario: "スタッフを呼ぶとき。",
+                etiquette: "声は控えめに。"
             ),
             .init(
-                english: "Is there a power outlet I can use?",
-                japanese: "使えるコンセントはありますか。",
-                romaji: "イズ・ゼア・ア・パワー・アウトレット・アイ・キャン・ユーズ？",
-                scenario: "PCやスマホの充電をしたいとき。",
-                etiquette: "混雑時は長時間の占有は避ける。"
+                english: "A table for one, please.",
+                japanese: "1人です。",
+                romaji: "ア・テイブル・フォー・ワン・プリーズ",
+                scenario: "座席案内で人数を伝えるとき。",
+                etiquette: "人数だけ伝えてもOK。"
             ),
             .init(
-                english: "Can I get it to go?",
-                japanese: "テイクアウトでお願いします。",
-                romaji: "キャン・アイ・ゲット・イット・トゥ・ゴウ？",
-                scenario: "持ち帰りにしたいとき。",
-                etiquette: "注文時に先に言うと伝わりやすい。"
+                english: "I'd like an iced coffee.",
+                japanese: "アイスコーヒーをお願いします。",
+                romaji: "アイド・ライク・アン・アイスド・コーヒー",
+                scenario: "コーヒーを注文するとき。",
+                etiquette: "はっきりと伝える。"
+            ),
+            .init(
+                english: "I’d like a medium iced coffee.",
+                japanese: "ミディアムのアイスコーヒーをください。",
+                romaji: "アイド・ライク・ア・ミディアム・アイスド・コーヒー",
+                scenario: "サイズ指定で注文するとき。",
+                etiquette: "サイズだけ変えて応用可能。"
+            ),
+            .init(
+                english: "Could you recommend something?",
+                japanese: "おすすめはありますか。",
+                romaji: "クッド・ユー・レコメンド・サムシング？",
+                scenario: "メニュー選びに迷ったとき。",
+                etiquette: "好みを伝えるとより適切。"
+            ),
+            .init(
+                english: "Can I get the same thing as that?",
+                japanese: "あれと同じものをください。",
+                romaji: "キャナイ・ゲット・ザ・セイム・シング・アズ・ザット？",
+                scenario: "他の人と同じ注文をしたいとき。",
+                etiquette: "指差しは控えめに。"
+            ),
+            .init(
+                english: "Iced, please.",
+                japanese: "アイスで。",
+                romaji: "アイス・プリーズ",
+                scenario: "ホットかアイスかを聞かれたとき。",
+                etiquette: "短く答えてOK。"
+            ),
+            .init(
+                english: "This is delicious!",
+                japanese: "とてもおいしいです。",
+                romaji: "ディス・イズ・デリシャス！",
+                scenario: "味をほめたいとき。",
+                etiquette: "笑顔で伝えると喜ばれる。"
+            ),
+            .init(
+                english: "Check, please.",
+                japanese: "お会計をお願いします。",
+                romaji: "チェック・プリーズ",
+                scenario: "会計をお願いするとき。",
+                etiquette: "合図して静かに伝える。"
+            ),
+            .init(
+                english: "Can I pay by card?",
+                japanese: "カードで支払えますか。",
+                romaji: "キャン・アイ・ペイ・バイ・カード？",
+                scenario: "支払い方法を確認したいとき。",
+                etiquette: "会計前に質問する。"
+            ),
+            .init(
+                english: "Thanks, it was great!",
+                japanese: "ありがとう、美味しかったです！",
+                romaji: "サンクス、イト・ワズ・グレイト",
+                scenario: "食後に感想を伝えるとき。",
+                etiquette: "笑顔と一緒に伝える。"
+            ),
+            .init(
+                english: "That’s all, thank you.",
+                japanese: "以上です、ありがとう。",
+                romaji: "ザッツ・オール、サンキュー",
+                scenario: "注文が終わったことを伝えるとき。",
+                etiquette: "メニューを閉じると伝わりやすい。"
+            ),
+            .init(
+                english: "Oh, for here, please.",
+                japanese: "店内でお願いします。",
+                romaji: "オー、フォー・ヒア、プリーズ",
+                scenario: "イートインかテイクアウトか聞かれたとき。",
+                etiquette: "落ち着いて答える。"
+            ),
+            .init(
+                english: "Either the counter or a table is fine.",
+                japanese: "カウンターでもテーブルでも大丈夫",
+                romaji: "アイザー・ザ・カウンター・オア・ア・テイブル・イズ・ファイン",
+                scenario: "席の種類を聞かれたとき。",
+                etiquette: "どちらでも良いと伝えて柔軟さを示す。"
+            ),
+            .init(
+                english: "I’m ready to pay.",
+                japanese: "お会計お願いします。",
+                romaji: "アイム・レディ・トゥ・ペイ",
+                scenario: "支払いの準備ができたとき。",
+                etiquette: "店員さんに合図して伝える。"
+            ),
+            .init(
+                english: "Can I pay with a card?",
+                japanese: "カードで払えますか？",
+                romaji: "キャン・アイ・ペイ・ウィズ・ア・カード？",
+                scenario: "カード利用の可否を確認したいとき。",
+                etiquette: "事前に確認するとスムーズ。"
             ),
             .init(
                 english: "Is it okay if I sit here?",
                 japanese: "ここに座ってもいいですか。",
                 romaji: "イズ・イット・オーケー・イフ・アイ・シット・ヒア？",
-                scenario: "他の人の隣に座るとき。",
-                etiquette: "椅子を指して軽く聞く。"
-            ),
-            // --- 追加 ---
-            .init(
-                english: "Can I have your Wi-Fi password?",
-                japanese: "Wi-Fiのパスワードを教えてください。",
-                romaji: "キャン・アイ・ハブ・ユア・ワイファイ・パスワード？",
-                scenario: "Wi-Fiが必要なとき。",
-                etiquette: "レシートに書いてある場合も多い。"
-            ),
-            .init(
-                english: "What do you recommend?",
-                japanese: "おすすめはありますか？",
-                romaji: "ワット・ドゥ・ユー・レコメンド？",
-                scenario: "飲み物選びに迷ったとき。",
-                etiquette: "甘い系・苦い系など軽く好みを添えると◎"
-            ),
-            .init(
-                english: "Can I get a refill?",
-                japanese: "おかわりをいただけますか。",
-                romaji: "キャン・アイ・ゲット・ア・リフィル？",
-                scenario: "アメリカではドリンクはリフィル可能なことが多い。",
-                etiquette: "レシートを持っていくと確認が早い。"
-            ),
-            .init(
-                english: "Can you write my name as Itsuki?",
-                japanese: "名前はItsukiでお願いします。",
-                romaji: "キャン・ユー・ライト・マイ・ネーム・アズ・イツキ？",
-                scenario: "スタバでカップに名前を書かれるとき。",
-                etiquette: "ゆっくり名前を発音すると親切。"
+                scenario: "席を使ってよいか確認するとき。",
+                etiquette: "周囲に配慮して静かに聞く。"
             )
         ]
     ),
