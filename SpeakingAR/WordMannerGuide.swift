@@ -68,6 +68,805 @@ let wordMannerCategories: [WordMannerCategory] = [
         ]
     ),
 
+    WordMannerCategory(
+        title: "エンジニア雑談",
+        subtitle: "ミートアップでのカジュアル質問",
+        overview: "初対面のエンジニア同士でも気軽に聞ける質問フレーズをまとめました。ベイエリアのイベントや雑談で、そのまま投げかけて会話のきっかけに。",
+        systemImage: "person.2.wave.2.fill",
+        accent: .teal,
+        gradient: [Color.teal.opacity(0.85), Color.blue.opacity(0.65)],
+        entries: [
+            .init(
+                english: "What brings you here today?",
+                japanese: "今日はどうしてここに来たのですか？",
+                romaji: "ワット・ブリングス・ユー・ヒア・トゥデイ？",
+                scenario: "自己紹介のきっかけとして、参加目的を聞くとき。",
+                etiquette: "笑顔で軽く質問し、興味を示す相づちを入れる。"
+            ),
+            .init(
+                english: "Is this your first time in the Bay Area?",
+                japanese: "ベイエリアは初めてですか？",
+                romaji: "イズ・ディス・ユア・ファースト・タイム・イン・ザ・ベイエリア？",
+                scenario: "相手が地元か旅行者かを知りたいとき。",
+                etiquette: "続けておすすめスポットを共有すると話が広がる。"
+            ),
+            .init(
+                english: "What kind of projects are you into lately?",
+                japanese: "最近どんなプロジェクトにハマっていますか？",
+                romaji: "ワット・カインド・オブ・プロジェクツ・アー・ユー・イントゥ・レイトリー？",
+                scenario: "近況の開発テーマを尋ねたいとき。",
+                etiquette: "自分の例も軽く添えて、双方向の会話にする。"
+            ),
+            .init(
+                english: "Are you working on anything exciting now?",
+                japanese: "今何かワクワクすることに取り組んでいますか？",
+                romaji: "アー・ユー・ワーキング・オン・エニシング・エキサイティング・ナウ？",
+                scenario: "相手のモチベーションや注力テーマを探るとき。",
+                etiquette: "答えに興味を示し、具体例を引き出すようにリアクションする。"
+            ),
+            .init(
+                english: "Which company are you with?",
+                japanese: "どちらの会社で働いていますか？",
+                romaji: "ウィッチ・カンパニー・アー・ユー・ウィズ？",
+                scenario: "所属を尋ねてバックグラウンドを知りたいとき。",
+                etiquette: "名刺交換やSNS交換の前に軽く聞く程度に留める。"
+            ),
+            .init(
+                english: "Are you here with your team?",
+                japanese: "チームの方と来ていますか？",
+                romaji: "アー・ユー・ヒア・ウィズ・ユア・チーム？",
+                scenario: "一人参加かグループかを確認したいとき。",
+                etiquette: "周囲のメンバーも巻き込めるよう、紹介をお願いしてみる。"
+            ),
+            .init(
+                english: "What kind of role do you have?",
+                japanese: "どんな役割を担当されていますか？",
+                romaji: "ワット・カインド・オブ・ロール・ドゥ・ユー・ハブ？",
+                scenario: "職種や担当領域を知りたいとき。",
+                etiquette: "相手の説明を遮らず、関わり方に理解を示す。"
+            ),
+            .init(
+                english: "How did you get into engineering?",
+                japanese: "どうやってエンジニアになったんですか？",
+                romaji: "ハウ・ディド・ユー・ゲット・イントゥ・エンジニアリング？",
+                scenario: "キャリアのきっかけを聞きたいとき。",
+                etiquette: "興味本位になりすぎないよう、感謝を込めて尋ねる。"
+            ),
+            .init(
+                english: "Are you building something right now?",
+                japanese: "今何かプロダクトを作っていますか？",
+                romaji: "アー・ユー・ビルディング・サムシング・ライトナウ？",
+                scenario: "現在進行中の開発を知りたいとき。",
+                etiquette: "守秘義務がある可能性に配慮し、話しやすい範囲でと添える。"
+            ),
+            .init(
+                english: "What's your main programming language?",
+                japanese: "メインの言語は何ですか？",
+                romaji: "ワッツ・ユア・メイン・プログラミング・ランゲージ？",
+                scenario: "技術スタックの入り口として使用言語を聞くとき。",
+                etiquette: "好みを尊重し、批評的にならないようにする。"
+            ),
+            .init(
+                english: "Do you usually work remotely?",
+                japanese: "普段はリモート勤務ですか？",
+                romaji: "ドゥ・ユー・ユージュアリー・ワーク・リモートリー？",
+                scenario: "働き方や勤務形態について話題にしたいとき。",
+                etiquette: "自分の働き方も共有して共通点を探す。"
+            ),
+            .init(
+                english: "Where do you usually work from?",
+                japanese: "普段はどこで仕事しているんですか？",
+                romaji: "ホェア・ドゥ・ユー・ユージュアリー・ワーク・フロム？",
+                scenario: "オフィスか自宅か、よく行く場所を聞くとき。",
+                etiquette: "プライベートな質問になりすぎないよう軽いトーンで聞く。"
+            ),
+            .init(
+                english: "What do you think about the event today?",
+                japanese: "今日のイベントどう思いますか？",
+                romaji: "ワット・ドゥ・ユー・シンク・アバウト・ジ・イベント・トゥデイ？",
+                scenario: "イベントの感想をシェアして会話を広げたいとき。",
+                etiquette: "自分の感想もセットで伝え、共通点を探す。"
+            ),
+            .init(
+                english: "Have you been to other meetups here?",
+                japanese: "他のミートアップにも参加したことありますか？",
+                romaji: "ハブ・ユー・ビーン・トゥ・アザー・ミートアップス・ヒア？",
+                scenario: "常連かどうかを知り、おすすめを聞きたいとき。",
+                etiquette: "紹介されたイベントには感謝を伝える。"
+            ),
+            .init(
+                english: "Do you live around here?",
+                japanese: "この辺りに住んでいますか？",
+                romaji: "ドゥ・ユー・リブ・アラウンド・ヒア？",
+                scenario: "居住エリアを軽く確認したいとき。",
+                etiquette: "個人情報なので深掘りしすぎないようにする。"
+            ),
+            .init(
+                english: "Are you originally from the US?",
+                japanese: "元々アメリカ出身ですか？",
+                romaji: "アー・ユー・オリジナリー・フロム・ジ・ユーエス？",
+                scenario: "出身地について軽く尋ねたいとき。",
+                etiquette: "国籍や文化に関する質問なので、敬意を持って聞く。"
+            ),
+            .init(
+                english: "How do you like living in the Bay Area?",
+                japanese: "ベイエリアでの生活はどうですか？",
+                romaji: "ハウ・ドゥ・ユー・ライク・リビング・イン・ザ・ベイエリア？",
+                scenario: "生活面の印象を聞いて共通の話題を探したいとき。",
+                etiquette: "自分の経験やお気に入りスポットも共有すると盛り上がる。"
+            ),
+            .init(
+                english: "Which meetup groups do you recommend?",
+                japanese: "オススメのミートアップってありますか？",
+                romaji: "ウィッチ・ミートアップ・グループス・ドゥ・ユー・レコメンド？",
+                scenario: "良いコミュニティやイベントを紹介してもらいたいとき。",
+                etiquette: "紹介されたらメモを取り、感謝を伝える。"
+            ),
+            .init(
+                english: "Do you go to hackathons often?",
+                japanese: "ハッカソンにはよく参加されていますか？",
+                romaji: "ドゥ・ユー・ゴー・トゥ・ハッカソンズ・オフトン？",
+                scenario: "参加頻度や興味度合いを知りたいとき。",
+                etiquette: "自分の参加経験も簡単に共有して会話をつなぐ。"
+            ),
+            .init(
+                english: "Are you working on AI stuff too?",
+                japanese: "AI関連のこともやっていますか？",
+                romaji: "アー・ユー・ワーキング・オン・エーアイ・スタッフ・トゥー？",
+                scenario: "相手がAI領域に関わっているか確認したいとき。",
+                etiquette: "専門度を測るために、興味や活用範囲を広く聞く。"
+            ),
+            .init(
+                english: "What’s your favorite part of engineering?",
+                japanese: "エンジニアリングのどんなところが好きですか？",
+                romaji: "ワッツ・ユア・フェイバリット・パート・オブ・エンジニアリング？",
+                scenario: "モチベーションや価値観を知りたいとき。",
+                etiquette: "共感できるポイントを見つけてリアクションする。"
+            ),
+            .init(
+                english: "Do you have any side projects?",
+                japanese: "サイドプロジェクトはありますか？",
+                romaji: "ドゥ・ユー・ハブ・エニー・サイド・プロジェクツ？",
+                scenario: "本業以外の取り組みを聞きたいとき。",
+                etiquette: "興味を持ったら詳細をお願いし、無理に聞き出さない。"
+            ),
+            .init(
+                english: "Have you visited Japan before?",
+                japanese: "日本に来たことはありますか？",
+                romaji: "ハブ・ユー・ビジティッド・ジャパン・ビフォア？",
+                scenario: "日本への訪問経験をきっかけに話題を広げたいとき。",
+                etiquette: "行ったことがなくても、興味があればおすすめを共有する。"
+            ),
+            .init(
+                english: "What’s your dream project?",
+                japanese: "夢のプロジェクトってありますか？",
+                romaji: "ワッツ・ユア・ドリーム・プロジェクト？",
+                scenario: "将来的にやりたいことやビジョンを聞くとき。",
+                etiquette: "大きな夢でも否定せず、ポジティブに受け止める。"
+            ),
+            .init(
+                english: "Would you be open to collaborating sometime?",
+                japanese: "いつか一緒に何かやりませんか？",
+                romaji: "ウドゥ・ユー・ビー・オープン・トゥ・コラボレイティング・サムタイム？",
+                scenario: "今後の協業や共同作業に興味があるか探るとき。",
+                etiquette: "無理強いせず、軽い提案として伝える。"
+            ),
+            .init(
+                english: "Mind if I ask what your company is building?",
+                japanese: "会社ではどんなものを作っているんですか？",
+                romaji: "マインド・イフ・アイ・アスク・ワット・ユア・カンパニー・イズ・ビルディング？",
+                scenario: "プロダクト内容を知りたいとき。",
+                etiquette: "守秘性に配慮し、話せる範囲だけで大丈夫と添える。"
+            ),
+            .init(
+                english: "Is your company hiring right now?",
+                japanese: "今、採用していますか？",
+                romaji: "イズ・ユア・カンパニー・ハイアリング・ライトナウ？",
+                scenario: "採用状況を確認したいとき。",
+                etiquette: "紹介や応募の意図があるなら、背景を簡潔に伝える。"
+            ),
+            .init(
+                english: "Do you prefer startups or big tech?",
+                japanese: "スタートアップと大企業どっちが好きですか？",
+                romaji: "ドゥ・ユー・プリファー・スタートアップス・オア・ビッグテック？",
+                scenario: "キャリア志向や職場タイプの好みを聞くとき。",
+                etiquette: "価値観の違いを尊重し、否定的な反応を避ける。"
+            ),
+            .init(
+                english: "That's something I'd love to learn more about.",
+                japanese: "その話もっと聞きたいです。",
+                romaji: "ザッツ・サムシング・アイド・ラブ・トゥ・ラーン・モア・アバウト",
+                scenario: "相手の話題に興味を示し、詳しく聞きたいとき。",
+                etiquette: "好奇心を伝えつつ、聞き手に回る姿勢を示す。"
+            ),
+            .init(
+                english: "I’d love to hear more if you have time.",
+                japanese: "もし時間あればもっと聞きたいです。",
+                romaji: "アイド・ラブ・トゥ・ヒア・モア・イフ・ユー・ハブ・タイム",
+                scenario: "会話を深めたいときや次の予定を確認したいとき。",
+                etiquette: "時間がなければ遠慮なく教えてほしいと伝え、相手の都合を尊重する。"
+            )
+        ]
+    ),
+
+    WordMannerCategory(
+        title: "雑談",
+        subtitle: "カジュアルなリアクションと誘い",
+        overview: "友人や近しい人との雑談でよく使うフレーズを集めました。ライトなリアクションとちょっとした誘いを覚えると、会話が続けやすくなります。",
+        systemImage: "bubble.left.and.bubble.right.fill",
+        accent: .purple,
+        gradient: [Color.purple.opacity(0.8), Color.pink.opacity(0.65)],
+        entries: [
+            .init(
+                english: "Hey, what's up?",
+                japanese: "やあ、元気？",
+                romaji: "ヘイ、ワッツアップ？",
+                scenario: "カジュアルに声をかけて会話を始めたいとき。",
+                etiquette: "親しい間柄向けのくだけた表現なので、距離感に注意する。"
+            ),
+            .init(
+                english: "Oh yeah, I get that.",
+                japanese: "あ〜わかる",
+                romaji: "オー・イェア、アイ・ゲット・ザット",
+                scenario: "相手の気持ちや状況に共感したいとき。",
+                etiquette: "相づちとして軽く添え、話の腰を折らない。"
+            ),
+            .init(
+                english: "How's it going?",
+                japanese: "調子どう？",
+                romaji: "ハウズ・イット・ゴーイン？",
+                scenario: "近況をフランクにたずねるとき。",
+                etiquette: "砕けた聞き方なので、カジュアルな場で使う。"
+            ),
+            .init(
+                english: "Yeah, totally.",
+                japanese: "ほんとそれ",
+                romaji: "イェア、トーリリー",
+                scenario: "強く同意したいときの相づちとして。",
+                etiquette: "相手の発言を肯定しつつ、自分の意見も続けると会話が弾む。"
+            ),
+            .init(
+                english: "What are you up to today?",
+                japanese: "今日は何してるの？",
+                romaji: "ワッタ・ユー・アップ・トゥデイ？",
+                scenario: "その日の予定や過ごし方を聞きたいとき。",
+                etiquette: "軽い雑談として使い、踏み込みすぎない。"
+            ),
+            .init(
+                english: "I know, right?",
+                japanese: "だよね？",
+                romaji: "アイ・ノウ、ライト？",
+                scenario: "共感と同意をシンプルに返したいとき。",
+                etiquette: "言い過ぎると軽く聞こえるので、要所で使う。"
+            ),
+            .init(
+                english: "How was your day?",
+                japanese: "今日どうだった？",
+                romaji: "ハウ・ワズ・ユア・デイ？",
+                scenario: "一日の振り返りをゆるく聞きたいとき。",
+                etiquette: "リラックスしたトーンで、聞きっぱなしにならないよう自分の話も少し共有する。"
+            ),
+            .init(
+                english: "That makes sense.",
+                japanese: "なるほどね",
+                romaji: "ザット・メイクス・センス",
+                scenario: "相手の説明に納得したとき。",
+                etiquette: "理解したことを伝えたうえで、疑問があれば続けて質問する。"
+            ),
+            .init(
+                english: "That's awesome!",
+                japanese: "すげえ！",
+                romaji: "ザッツ・オーサム！",
+                scenario: "相手の良い報告にリアクションしたいとき。",
+                etiquette: "大げさすぎない明るいトーンで伝えると好印象。"
+            ),
+            .init(
+                english: "For sure.",
+                japanese: "確かにね",
+                romaji: "フォー・シュア",
+                scenario: "同意を短く返したいとき。",
+                etiquette: "うなずきながら返して、会話の流れを止めない。"
+            ),
+            .init(
+                english: "What did you have for lunch?",
+                japanese: "昼ごはん何食べた？",
+                romaji: "ワット・ディジュ・ハブ・フォー・ランチ？",
+                scenario: "雑談のきっかけとして食事の話題を出すとき。",
+                etiquette: "軽い話題なので、答えやすい雰囲気で聞く。"
+            ),
+            .init(
+                english: "Oh really?",
+                japanese: "そうなんだ？",
+                romaji: "オー・リアリー？",
+                scenario: "意外な話や新情報に軽く驚きを示すとき。",
+                etiquette: "少しトーンを上げて、興味を示す表情を添える。"
+            ),
+            .init(
+                english: "No way!",
+                japanese: "うそでしょ！",
+                romaji: "ノーウェイ！",
+                scenario: "驚きをカジュアルに表現したいとき。",
+                etiquette: "親しい相手向けのリアクション。大げさに言いすぎない。"
+            ),
+            .init(
+                english: "No way!",
+                japanese: "まじで？",
+                romaji: "ノー・ウェイ！",
+                scenario: "同じ驚きをもう一度強調したいとき。",
+                etiquette: "聞き返しを兼ねて使い、相手の話を促す。"
+            ),
+            .init(
+                english: "That sounds fun!",
+                japanese: "楽しそう！",
+                romaji: "ザット・サウンズ・ファン！",
+                scenario: "相手の予定やアイデアを褒めるとき。",
+                etiquette: "笑顔で返し、興味があれば参加の意思も添える。"
+            ),
+            .init(
+                english: "That's awesome.",
+                japanese: "それいいね",
+                romaji: "ザッツ・オーサム",
+                scenario: "ちょっとした提案や報告をポジティブに受け止めるとき。",
+                etiquette: "さらっと返し、具体的な感想を続けると会話が深まる。"
+            ),
+            .init(
+                english: "Seriously?",
+                japanese: "本当に？",
+                romaji: "シアリアスリー？",
+                scenario: "驚きや確認をしたいとき。",
+                etiquette: "疑いではなく好奇心として伝わるよう、柔らかい声で。"
+            ),
+            .init(
+                english: "That's interesting.",
+                japanese: "おもしろいね",
+                romaji: "ザッツ・インタレスティング",
+                scenario: "話題を肯定しつつ、詳しく聞きたいとき。",
+                etiquette: "続けて具体例をお願いすると自然に会話が広がる。"
+            ),
+            .init(
+                english: "Really? Tell me more.",
+                japanese: "まじ？もっと教えて。",
+                romaji: "リアリー？ テル・ミー・モア。",
+                scenario: "興味を持って詳しく聞き出したいとき。",
+                etiquette: "相手のペースに合わせ、食い気味にならない。"
+            ),
+            .init(
+                english: "I see what you mean.",
+                japanese: "言いたいことわかるよ",
+                romaji: "アイ・シー・ワット・ユー・ミーン",
+                scenario: "相手の意図を理解したと伝えたいとき。",
+                etiquette: "要約して返すと、理解が伝わりやすい。"
+            ),
+            .init(
+                english: "Same here.",
+                japanese: "俺も同じ。",
+                romaji: "セイム・ヒア。",
+                scenario: "同じ状況や感情を共有していると伝えたいとき。",
+                etiquette: "カジュアルな場で使い、共感を示したら簡単な理由も添える。"
+            ),
+            .init(
+                english: "Got it.",
+                japanese: "了解",
+                romaji: "ガッティット",
+                scenario: "指示や説明を理解したときに簡潔に返す。",
+                etiquette: "短く返したあと、必要なら復唱して確認すると確実。"
+            ),
+            .init(
+                english: "I feel you.",
+                japanese: "わかるよその気持ち。",
+                romaji: "アイ・フィール・ユー。",
+                scenario: "相手の気持ちに寄り添って共感を示すとき。",
+                etiquette: "真剣な話題では軽く聞こえないよう、落ち着いたトーンで。"
+            ),
+            .init(
+                english: "I feel the same way.",
+                japanese: "同じ気持ちだよ",
+                romaji: "アイ・フィール・ザ・セイム・ウェイ",
+                scenario: "自分も同じ感情を持っていると伝えたいとき。",
+                etiquette: "共感を伝えたあと、少し理由を共有すると深まる。"
+            ),
+            .init(
+                english: "For real?",
+                japanese: "マジで？",
+                romaji: "フォー・リアル？",
+                scenario: "驚きや確認を軽く入れたいとき。",
+                etiquette: "砕けた驚きなので、友人同士の場面で使う。"
+            ),
+            .init(
+                english: "Oh, that’s cool.",
+                japanese: "いいじゃん",
+                romaji: "オー、ザッツ・クール",
+                scenario: "相手のアイデアや行動をポジティブに受け止めるとき。",
+                etiquette: "さらっと言って、興味があれば質問を続ける。"
+            ),
+            .init(
+                english: "I totally get you.",
+                japanese: "めっちゃ分かる。",
+                romaji: "アイ・トータリー・ゲッ・ユー。",
+                scenario: "強く共感を示したいとき。",
+                etiquette: "オーバーになりすぎないよう、表情も合わせて伝える。"
+            ),
+            .init(
+                english: "Sounds good.",
+                japanese: "いいね〜",
+                romaji: "サウンズ・グッド",
+                scenario: "提案や予定に賛成するとき。",
+                etiquette: "OKのサインとして短く返し、具体的な段取りに進む。"
+            ),
+            .init(
+                english: "Hold on a sec.",
+                japanese: "ちょっと待って。",
+                romaji: "ホールド・オン・ア・セック。",
+                scenario: "作業や会話を一時停止してもらいたいとき。",
+                etiquette: "手を軽く上げてお願いすると伝わりやすい。"
+            ),
+            .init(
+                english: "That’s nice.",
+                japanese: "いいねそれ",
+                romaji: "ザッツ・ナイス",
+                scenario: "相手のちょっとした提案を褒めるとき。",
+                etiquette: "落ち着いたトーンで、具体的に何が良いか続けると丁寧。"
+            ),
+            .init(
+                english: "Give me a sec.",
+                japanese: "ちょっと待って。",
+                romaji: "ギブ・ミー・ア・セック。",
+                scenario: "準備や確認に少し時間がほしいとき。",
+                etiquette: "待ってもらう理由を軽く添えると親切。"
+            ),
+            .init(
+                english: "Oh wow, really?",
+                japanese: "え、ほんと？",
+                romaji: "オー・ワオ、リアリー？",
+                scenario: "意外な話に驚きを示したいとき。",
+                etiquette: "大げさにしすぎず、興味を込めて返す。"
+            ),
+            .init(
+                english: "That makes sense.",
+                japanese: "なるほどね。",
+                romaji: "ザット・メイクス・センス。",
+                scenario: "説明に納得したときの短いリアクション。",
+                etiquette: "うなずきながら返し、必要なら次の話題を振る。"
+            ),
+            .init(
+                english: "Yeah, I’ve been there.",
+                japanese: "わかるよ、その感じ",
+                romaji: "イェア、アイヴ・ビーン・ゼア",
+                scenario: "同じ経験があると伝え、共感したいとき。",
+                etiquette: "自分の体験を手短に添えると親近感が伝わる。"
+            ),
+            .init(
+                english: "Good to know.",
+                japanese: "覚えておくよ。",
+                romaji: "グッド・トゥ・ノウ。",
+                scenario: "役立つ情報を聞いてありがたみを示すとき。",
+                etiquette: "教えてくれたことに感謝の一言を添える。"
+            ),
+            .init(
+                english: "I get what you’re saying.",
+                japanese: "言ってること理解した",
+                romaji: "アイ・ゲット・ワット・ユー・セイング",
+                scenario: "相手の説明を把握したと伝えたいとき。",
+                etiquette: "誤解がないよう、要点を少しだけ復唱すると丁寧。"
+            ),
+            .init(
+                english: "By the way...",
+                japanese: "ところで…",
+                romaji: "バイ・ザ・ウェイ…",
+                scenario: "話題を切り替えたいときの前置きとして。",
+                etiquette: "唐突になりすぎないよう、軽い声色でつなぐ。"
+            ),
+            .init(
+                english: "Thanks for telling me.",
+                japanese: "教えてくれてありがとう",
+                romaji: "サンクス・フォー・テリング・ミー",
+                scenario: "情報を共有してもらったあとにお礼を伝えるとき。",
+                etiquette: "感謝を示したあと、相手の時間を取っていないか気遣うと良い。"
+            ),
+            .init(
+                english: "Guess what?",
+                japanese: "ねえ、聞いて！（プチ話題）",
+                romaji: "ゲス・ワット？",
+                scenario: "小ネタやニュースを切り出したいとき。",
+                etiquette: "相手が聞けるタイミングか確認し、短めに始める。"
+            ),
+            .init(
+                english: "Good to know.",
+                japanese: "知れてよかった",
+                romaji: "グッド・トゥ・ノウ",
+                scenario: "役立つ情報に対して感謝を伝えたいとき。",
+                etiquette: "同じ話題で重複した場合は軽く笑顔で返す程度にする。"
+            ),
+            .init(
+                english: "I'm just joking.",
+                japanese: "冗談だよ。",
+                romaji: "アイム・ジャスト・ジョーキン。",
+                scenario: "軽い冗談だと伝えて場を和ませたいとき。",
+                etiquette: "相手が戸惑っていたらすぐフォローする。"
+            ),
+            .init(
+                english: "That happens sometimes.",
+                japanese: "そういう時あるよね",
+                romaji: "ザット・ハップンズ・サムタイムズ",
+                scenario: "失敗やハプニングに対して慰めたいとき。",
+                etiquette: "落ち込みすぎないよう、軽く励ますトーンで。"
+            ),
+            .init(
+                english: "Just kidding.",
+                japanese: "冗談、冗談。",
+                romaji: "ジャスト・キディング。",
+                scenario: "冗談だったとすぐ訂正したいとき。",
+                etiquette: "誤解を招かないよう、笑顔で伝える。"
+            ),
+            .init(
+                english: "I can imagine.",
+                japanese: "想像つくよ",
+                romaji: "アイ・キャン・イマジン",
+                scenario: "相手の状況を理解・共感していると伝えたいとき。",
+                etiquette: "相手が共有した気持ちを否定せず、寄り添う。"
+            ),
+            .init(
+                english: "Let me think…",
+                japanese: "ちょっと考えるね…",
+                romaji: "レット・ミー・シンク…",
+                scenario: "答えを出す前に少し考えたいとき。",
+                etiquette: "間を取りたいときに使い、少し静かにしてもらうよう穏やかに伝える。"
+            ),
+            .init(
+                english: "Oh yeah, true.",
+                japanese: "確かにね",
+                romaji: "オー・イェア、トゥルー",
+                scenario: "相手の意見に納得して同意を示すとき。",
+                etiquette: "相手の発言を肯定しつつ、次の話題につなげる。"
+            ),
+            .init(
+                english: "I'm not sure yet.",
+                japanese: "まだわかんない。",
+                romaji: "アイム・ノット・シュア・イェット。",
+                scenario: "決めかねていることを伝えるとき。",
+                etiquette: "結論を急かされた場合も、検討中であることを落ち着いて伝える。"
+            ),
+            .init(
+                english: "I’m with you on that.",
+                japanese: "同意だわ",
+                romaji: "アイム・ウィズ・ユー・オン・ザット",
+                scenario: "相手の意見に賛成であることを示したいとき。",
+                etiquette: "賛同の理由を軽く添えると説得力が出る。"
+            ),
+            .init(
+                english: "Maybe.",
+                japanese: "たぶん。",
+                romaji: "メイビー。",
+                scenario: "はっきり言えないときに曖昧な回答をしたいとき。",
+                etiquette: "相手が判断できるよう、理由や条件を少し足すと親切。"
+            ),
+            .init(
+                english: "That’s fair.",
+                japanese: "まぁ確かにね",
+                romaji: "ザッツ・フェア",
+                scenario: "相手の主張がもっともだと認めたいとき。",
+                etiquette: "納得したポイントを一言添えると誠実に聞こえる。"
+            ),
+            .init(
+                english: "Not really.",
+                japanese: "別に… / そうでもない。",
+                romaji: "ナット・リアリー。",
+                scenario: "期待とは違うときや否定したいとき。",
+                etiquette: "きつく聞こえないよう、表情は柔らかくする。"
+            ),
+            .init(
+                english: "I get the idea.",
+                japanese: "なんとなくわかる",
+                romaji: "アイ・ゲット・ジ・アイディア",
+                scenario: "大まかに理解したと伝えたいとき。",
+                etiquette: "詳細確認が必要なら続けて質問する。"
+            ),
+            .init(
+                english: "Probably not.",
+                japanese: "多分違うと思う。",
+                romaji: "プロバブリー・ナット。",
+                scenario: "否定寄りの意見をやわらかく伝えたいとき。",
+                etiquette: "断定を避け、代替案があれば提案する。"
+            ),
+            .init(
+                english: "Right, exactly.",
+                japanese: "そうそう、その通り",
+                romaji: "ライト、イグザクトリー",
+                scenario: "強く同意したいときに強調して返す。",
+                etiquette: "相手の言葉を繰り返すとより伝わる。"
+            ),
+            .init(
+                english: "I'm down.",
+                japanese: "いいよ！行こう！",
+                romaji: "アイム・ダウン。",
+                scenario: "誘いに乗りたいときや参加の意思を示すとき。",
+                etiquette: "カジュアルな場面で使い、具体的な予定確認につなげる。"
+            ),
+            .init(
+                english: "That’s one way to see it.",
+                japanese: "そういう見方もあるね",
+                romaji: "ザッツ・ワン・ウェイ・トゥ・シー・イット",
+                scenario: "別の視点を認めつつ会話を進めたいとき。",
+                etiquette: "異なる意見でも尊重し、対立を避けるトーンで。"
+            ),
+            .init(
+                english: "I'm in.",
+                japanese: "参加する！",
+                romaji: "アイム・イン。",
+                scenario: "グループへの参加意思を簡潔に伝えるとき。",
+                etiquette: "賛同後は日程や役割など具体的な確認をする。"
+            ),
+            .init(
+                english: "Yeah, I think so too.",
+                japanese: "自分もそう思う",
+                romaji: "イェア、アイ・シンク・ソー・トゥー",
+                scenario: "相手の意見に賛成するとき。",
+                etiquette: "共通点を見つけたことを軽く伝えると良い。"
+            ),
+            .init(
+                english: "Sounds good.",
+                japanese: "いいね！",
+                romaji: "サウンズ・グッド。",
+                scenario: "提案や予定に賛成するときのシンプルな返答。",
+                etiquette: "OKのサインとして短く返し、確認事項があれば続けて聞く。"
+            ),
+            .init(
+                english: "True, true.",
+                japanese: "確かに確かに",
+                romaji: "トゥルー、トゥルー",
+                scenario: "相手の発言にリズムよく同意したいとき。",
+                etiquette: "相づちの一部として軽く使い、過剰にならないようにする。"
+            ),
+            .init(
+                english: "I'm good, thanks.",
+                japanese: "大丈夫、ありがとう。",
+                romaji: "アイム・グッド、サンクス。",
+                scenario: "オファーを受けたが丁寧に断りたいとき。",
+                etiquette: "感謝を添えて断ると角が立たない。"
+            ),
+            .init(
+                english: "I'm kind of busy.",
+                japanese: "ちょっと忙しい。",
+                romaji: "アイム・カインダ・ビジー。",
+                scenario: "今は時間が取れないことを伝えたいとき。",
+                etiquette: "後で空く時間があれば合わせて伝えると親切。"
+            ),
+            .init(
+                english: "Let's hang out soon.",
+                japanese: "また遊ぼうよ。",
+                romaji: "レッツ・ハングアウト・スーン。",
+                scenario: "近いうちに会いたいと誘うとき。",
+                etiquette: "日程の目安を軽く提案すると予定が立てやすい。"
+            ),
+            .init(
+                english: "Let me know.",
+                japanese: "また知らせて。",
+                romaji: "レット・ミー・ノウ。",
+                scenario: "相手の予定や決定を教えてほしいとき。",
+                etiquette: "急ぎなら期限を添え、余裕があるなら柔らかく伝える。"
+            ),
+            .init(
+                english: "Where are you now?",
+                japanese: "今どこ？",
+                romaji: "ウェア・アー・ユー・ナウ？",
+                scenario: "待ち合わせや現在地を確認したいとき。",
+                etiquette: "急かさないトーンで聞き、返信を待つ。"
+            ),
+            .init(
+                english: "I'm on my way.",
+                japanese: "今向かってる。",
+                romaji: "アイム・オン・マイ・ウェイ。",
+                scenario: "移動中で到着予定を伝えるとき。",
+                etiquette: "遅れそうなら到着予定時刻も添える。"
+            ),
+            .init(
+                english: "I'm almost there.",
+                japanese: "もうすぐ着く。",
+                romaji: "アイム・オールモスト・ゼア。",
+                scenario: "目的地に近いことを知らせるとき。",
+                etiquette: "具体的な残り時間を伝えると相手が安心する。"
+            ),
+            .init(
+                english: "Do you wanna grab coffee?",
+                japanese: "コーヒーでも行く？",
+                romaji: "ドゥユワナ・グラブ・コーヒー？",
+                scenario: "軽くお茶に誘いたいとき。",
+                etiquette: "気軽な誘いなので、時間が合わなくても気にしない姿勢を見せる。"
+            ),
+            .init(
+                english: "Do you wanna walk around?",
+                japanese: "ちょっと散歩する？",
+                romaji: "ドゥユワナ・ウォーク・アラウンド？",
+                scenario: "一緒に外を歩きながら話したいとき。",
+                etiquette: "相手の都合と体力を気遣い、無理強いしない。"
+            ),
+            .init(
+                english: "What are your plans for tomorrow?",
+                japanese: "明日の予定は？",
+                romaji: "ワッタ・ユア・プランズ・フォー・トゥモロー？",
+                scenario: "翌日の予定を確認したいとき。",
+                etiquette: "予定を聞いたら、自分の予定や誘いの意図も伝える。"
+            ),
+            .init(
+                english: "Let’s chill.",
+                japanese: "まったりしよう。",
+                romaji: "レッツ・チル。",
+                scenario: "のんびり過ごそうと誘うとき。",
+                etiquette: "相手の気分を尊重し、無理に予定を詰めない。"
+            ),
+            .init(
+                english: "Take your time.",
+                japanese: "ゆっくりでいいよ。",
+                romaji: "テイク・ユア・タイム。",
+                scenario: "急がなくて良いと伝えて安心させたいとき。",
+                etiquette: "本当に余裕があるときに使い、相手をリラックスさせる。"
+            ),
+            .init(
+                english: "That's hilarious.",
+                japanese: "超おもしろいじゃん。",
+                romaji: "ザッツ・ヒラリアス。",
+                scenario: "とても面白い話やジョークに反応するとき。",
+                etiquette: "大げさすぎない笑い方で場を和ませる。"
+            ),
+            .init(
+                english: "I'm so tired.",
+                japanese: "めっちゃ疲れた…",
+                romaji: "アイム・ソー・タイアード。",
+                scenario: "疲れている状態を正直に伝えたいとき。",
+                etiquette: "愚痴っぽくならないよう、休む意図も合わせて伝える。"
+            ),
+            .init(
+                english: "I'm starving.",
+                japanese: "めっちゃ腹減った…",
+                romaji: "アイム・スターヴィン。",
+                scenario: "お腹が空いたことを強調したいとき。",
+                etiquette: "食事に誘う際は相手の予定や好みも聞く。"
+            ),
+            .init(
+                english: "I'm bored.",
+                japanese: "暇だなあ…",
+                romaji: "アイム・ボード。",
+                scenario: "暇を持て余していることを伝えたいとき。",
+                etiquette: "誘いを期待する場合でも押し付けず、軽く提案する程度にする。"
+            ),
+            .init(
+                english: "Good luck!",
+                japanese: "頑張って！",
+                romaji: "グッド・ラック！",
+                scenario: "相手が何かに挑む前に励ましたいとき。",
+                etiquette: "笑顔で短く声をかけ、応援の気持ちを込める。"
+            ),
+            .init(
+                english: "You've got this.",
+                japanese: "君ならできるよ！",
+                romaji: "ユーヴ・ガッ・ディス。",
+                scenario: "相手を勇気づけたいとき。",
+                etiquette: "目を見て力強く伝え、サポートする姿勢を示す。"
+            ),
+            .init(
+                english: "Take care.",
+                japanese: "気を付けてね。",
+                romaji: "テイク・ケア。",
+                scenario: "別れ際や体調を気遣うとき。",
+                etiquette: "優しいトーンで、相手の状況に合わせて使う。"
+            ),
+            .init(
+                english: "See you later!",
+                japanese: "また後で！",
+                romaji: "シーユー・レイター！",
+                scenario: "近いうちにまた会う予定があるときの別れ際。",
+                etiquette: "明るい声で手を振るなど、フレンドリーに伝える。"
+            ),
+            .init(
+                english: "Talk to you soon.",
+                japanese: "また連絡するね。",
+                romaji: "トーク・トゥ・ユー・スーン。",
+                scenario: "連絡を続けたいことを伝えつつ別れるとき。",
+                etiquette: "いつ頃連絡するか軽く伝えると親切。"
+            )
+        ]
+    ),
+
     // MARK: - レストラン
     WordMannerCategory(
         title: "レストラン",
@@ -864,6 +1663,157 @@ let wordMannerCategories: [WordMannerCategory] = [
                 romaji: "イフ・アイ・ハブ・エニー・トラブル、フー・シュッド・アイ・コンタクト？",
                 scenario: "チェックインや説明のときに、連絡先を確認しておきたいとき。",
                 etiquette: "ホテルやイベント受付で事前に確認しておくと安心。"
+            )
+        ]
+    ),
+
+    WordMannerCategory(
+        title: "Sway",
+        subtitle: "音楽×ロケーションSNSを紹介するとき",
+        overview: "Swayの特徴や安全性、開発背景を英語で説明できるピッチ用フレーズをまとめました。プロダクト紹介やカジュアルな会話でそのまま使えます。",
+        systemImage: "music.note.map.fill",
+        accent: .pink,
+        gradient: [Color.pink.opacity(0.85), Color.indigo.opacity(0.65)],
+        entries: [
+            .init(
+                english: "Sway is a music-and-location sharing app that lets you express your \"right-now vibe.\"",
+                japanese: "音楽 × ロケーションで“いまの雰囲気”をリアルタイムにシェアできるアプリ。",
+                romaji: "スウェイ・イズ・ア・ミュージック・アンド・ロケーション・シェアリング・アプリ・ザット・レッツ・ユー・エクスプレス・ユア『ライト・ナウ・バイブ』",
+                scenario: "Swayのメイン機能を一言で紹介したいとき。",
+                etiquette: "サービス概要の前置きとして、明るいトーンで伝える。"
+            ),
+            .init(
+                english: "Connect naturally with friends — and even with people you cross paths with — in this real-world-driven social app.",
+                japanese: "友達はもちろん、すれ違った人とも自然につながれる、リアル志向のSNS。",
+                romaji: "コネクト・ナチュラリー・ウィズ・フレンズ、アンド・イーブン・ウィズ・ピープル・ユー・クロス・パスズ・ウィズ・イン・ディス・リアル・ワールド・ドリブン・ソーシャル・アップ",
+                scenario: "リアルなつながりを強調したいとき。",
+                etiquette: "オフライン連動をアピールしつつ、落ち着いた口調で説明する。"
+            ),
+            .init(
+                english: "Now Sway has a smartphone-based UI, but we’re developing an AR-glasses experience where you can literally see what the person in front of you is listening to.",
+                japanese: "いまはスマホのマップがメインですが、次のステップとしてARグラス越しに“すれ違った人の今の曲”がその場で見える世界を開発しています。",
+                romaji: "スウェイ・ナウ・プロバイズ・ア・スマートフォン・ベイスト・ユーアイ・バット・ウィアー・デベロッピング・アン・エーアールグラス・エクスペリエンス・ウェア・ユー・キャン・リテラリー・シー・ワット・ザ・パーソン・イン・フロント・オブ・ユー・イズ・リスニング・トゥ",
+                scenario: "将来のビジョンやAR開発について語るとき。",
+                etiquette: "未来像を語るときはワクワク感を込めて伝える。"
+            ),
+            .init(
+                english: "Sway is a music app that lets you discover what people around you are listening to by crossing paths with them.",
+                japanese: "Swayは周りとすれ違うことで人が聴いている音楽を知ることができる音楽アプリです。",
+                romaji: "スウェイ・イズ・ア・ミュージック・アップ・ザット・レッツ・ユー・ディスカバー・ワット・ピープル・アラウンド・ユー・アー・リスニング・トゥ・バイ・クロッシング・パスズ・ウィズ・ゼム",
+                scenario: "どんな仕組みで発見できるか説明したいとき。",
+                etiquette: "歩きながら使えることをジェスチャーで示すと伝わりやすい。"
+            ),
+            .init(
+                english: "It creates a personal sound map of your everyday life.",
+                japanese: "あなたの日常の「サウンドマップ」を作ってくれます。",
+                romaji: "イット・クリエイツ・ア・パーソナル・サウンド・マップ・オブ・ユア・エブリデイ・ライフ",
+                scenario: "サウンドマップの体験価値を伝えたいとき。",
+                etiquette: "地図を描くような手振りを添えるとイメージしやすい。"
+            ),
+            .init(
+                english: "You can find people who share similar music tastes.",
+                japanese: "自分と似た音楽の好みを持つ人を見つけられます。",
+                romaji: "ユー・キャン・ファインド・ピープル・フー・シェア・シミラー・ミュージック・テイツツ",
+                scenario: "マッチングのメリットを伝えるとき。",
+                etiquette: "コミュニティ性を強調し、柔らかいトーンで紹介する。"
+            ),
+            .init(
+                english: "The app automatically detects users you cross paths with.",
+                japanese: "すれ違ったユーザーをアプリが自動で検出します。",
+                romaji: "ジ・アップ・オートマティカリー・ディテクツ・ユーザーズ・ユー・クロス・パスズ・ウィズ",
+                scenario: "自動検出の仕組みを説明したいとき。",
+                etiquette: "手間いらずである点を強調し、安心感を伝える。"
+            ),
+            .init(
+                english: "You can view users' playlists and favorite tracks.",
+                japanese: "ユーザーのプレイリストやお気に入り曲を見ることができます。",
+                romaji: "ユー・キャン・ビュー・ユーザーズ・プレイリスツ・アンド・フェイバリット・トラックス",
+                scenario: "音楽データの共有部分を紹介するとき。",
+                etiquette: "プライバシー設定にも触れるとより安心してもらえる。"
+            ),
+            .init(
+                english: "It's designed for people who want to easily share their music world with others.",
+                japanese: "自分の音楽の世界を簡単にシェアしたい人のために作られています。",
+                romaji: "イッツ・デザインド・フォー・ピープル・フー・ウォント・トゥ・イージリー・シェア・ゼア・ミュージック・ワールド・ウィズ・アザース",
+                scenario: "ターゲットユーザー像を説明したいとき。",
+                etiquette: "ユーザー像を語るときは共感を込めて伝える。"
+            ),
+            .init(
+                english: "I work as a product manager and backend engineer.",
+                japanese: "私はプロダクトマネージャー兼バックエンドエンジニアとして働いています。",
+                romaji: "アイ・ワーク・アズ・ア・プロダクト・マネージャー・アンド・バックエンド・エンジニア",
+                scenario: "自己紹介で役割を伝えるとき。",
+                etiquette: "肩書きを述べたあとに、何を担当しているか一言添えると丁寧。"
+            ),
+            .init(
+                english: "With Sway, you can learn about someone you find interesting without having to talk to them first.",
+                japanese: "Swayを入れていれば、気になる人に声をかけなくても、その人の情報を知ることができます。",
+                romaji: "ウィズ・スウェイ、ユー・キャン・ラーン・アバウト・サムワン・ユー・ファインド・インタレスティング・ウィズアウト・ハビング・トゥ・トーク・トゥ・ゼム・ファースト",
+                scenario: "声をかける前に情報を得られる利点を伝えたいとき。",
+                etiquette: "プライバシーに配慮して、安心して使えると補足すると良い。"
+            ),
+            .init(
+                english: "Sway uses GPS to let you see information about people nearby.",
+                japanese: "SwayはGPSを使って近くにいる人の情報を見ることができます。",
+                romaji: "スウェイ・ユーズィズ・ジー・ピー・エス・トゥ・レット・ユー・シー・インフォメーション・アバウト・ピープル・ニアバイ",
+                scenario: "位置情報連動を説明するとき。",
+                etiquette: "位置共有は許可制であることを一緒に伝えると安心感が増す。"
+            ),
+            .init(
+                english: "Sway doesn’t require you to make posts like other social media apps.",
+                japanese: "Swayは他のSNSみたいに投稿する必要はありません。",
+                romaji: "スウェイ・ダズント・リクワイア・ユー・トゥ・メイク・ポスツ・ライク・アザー・ソーシャル・ミーディア・アップス",
+                scenario: "投稿レスで使える点を強調したいとき。",
+                etiquette: "手間がかからないことをアピールし、導入のハードルが低いと伝える。"
+            ),
+            .init(
+                english: "Everything works automatically, so users don’t need to do anything.",
+                japanese: "ユーザーが操作する必要はなく、すべて自動です。",
+                romaji: "エブリシング・ワークス・オートマティカリー、ソー・ユーザーズ・ドント・ニード・トゥ・ドゥ・エニシング",
+                scenario: "自動で動く仕組みを説明したいとき。",
+                etiquette: "操作レスで使えることを短く強調する。"
+            ),
+            .init(
+                english: "Your name and contact information are never shared without your permission.",
+                japanese: "名前・連絡先は勝手に公開されません。",
+                romaji: "ユア・ネーム・アンド・コンタクト・インフォメーション・アー・ネヴァー・シェアド・ウィズアウト・ユア・パーミッション",
+                scenario: "個人情報の扱いについて安心させたいとき。",
+                etiquette: "セキュリティやプライバシーへの配慮を強調する。"
+            ),
+            .init(
+                english: "You don’t need to make posts, and the amount of personal information you provide is minimal.",
+                japanese: "投稿する必要はなく、個人情報の入力も最小限です。",
+                romaji: "ユー・ドント・ニード・トゥ・メイク・ポスツ、アンド・ジ・アマウント・オブ・パーソナル・インフォメーション・ユー・プロヴァイド・イズ・ミニマル",
+                scenario: "利用開始の手軽さを伝えたいとき。",
+                etiquette: "最小限の情報で始められることを丁寧に伝える。"
+            ),
+            .init(
+                english: "No one can track you in real time on Sway.",
+                japanese: "第三者にリアルタイム追跡されることはありません。",
+                romaji: "ノー・ワン・キャン・トラック・ユー・イン・リアル・タイム・オン・スウェイ",
+                scenario: "リアルタイム追跡の不安を払拭したいとき。",
+                etiquette: "安全性を強調し、安心して使えると伝える。"
+            ),
+            .init(
+                english: "Our backend is built on Firestore and Cloud Functions, which allows us to scale easily.",
+                japanese: "バックエンドは Firestore と Cloud Functions を使っており、スケールが容易です。",
+                romaji: "アワ・バックエンド・イズ・ビルト・オン・ファイアストア・アンド・クラウド・ファンクションズ、ウィッチ・アラウズ・アス・トゥ・スケール・イージリー",
+                scenario: "技術スタックやスケーラビリティを説明するとき。",
+                etiquette: "技術者同士の会話では、採用理由やメリットも一緒に伝える。"
+            ),
+            .init(
+                english: "Sway works in the background even when the app is not open.",
+                japanese: "アプリを開いていなくてもバックグラウンドで動作します。",
+                romaji: "スウェイ・ワークス・イン・ザ・バックグラウンド・イーブン・ウェン・ジ・アップ・イズ・ノット・オープン",
+                scenario: "バックグラウンド動作を説明したいとき。",
+                etiquette: "省電力やプライバシー設定についても触れると親切。"
+            ),
+            .init(
+                english: "Music you encounter is visualized on a map as your personal Sound Map.",
+                japanese: "地図上で音楽が可視化され、あなた専用のサウンドマップが作られます。",
+                romaji: "ミュージック・ユー・エンカウンター・イズ・ヴィジュアライズド・オン・ア・マップ・アズ・ユア・パーソナル・サウンド・マップ",
+                scenario: "サウンドマップの見え方を説明したいとき。",
+                etiquette: "デモ画面を見せながら話すとイメージしてもらいやすい。"
             )
         ]
     ),
