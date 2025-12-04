@@ -68,6 +68,227 @@ let wordMannerCategories: [WordMannerCategory] = [
         ]
     ),
 
+    WordMannerCategory(
+        title: "エンジニア雑談",
+        subtitle: "ミートアップでのカジュアル質問",
+        overview: "初対面のエンジニア同士でも気軽に聞ける質問フレーズをまとめました。ベイエリアのイベントや雑談で、そのまま投げかけて会話のきっかけに。",
+        systemImage: "person.2.wave.2.fill",
+        accent: .teal,
+        gradient: [Color.teal.opacity(0.85), Color.blue.opacity(0.65)],
+        entries: [
+            .init(
+                english: "What brings you here today?",
+                japanese: "今日はどうしてここに来たのですか？",
+                romaji: "ワット・ブリングス・ユー・ヒア・トゥデイ？",
+                scenario: "自己紹介のきっかけとして、参加目的を聞くとき。",
+                etiquette: "笑顔で軽く質問し、興味を示す相づちを入れる。"
+            ),
+            .init(
+                english: "Is this your first time in the Bay Area?",
+                japanese: "ベイエリアは初めてですか？",
+                romaji: "イズ・ディス・ユア・ファースト・タイム・イン・ザ・ベイエリア？",
+                scenario: "相手が地元か旅行者かを知りたいとき。",
+                etiquette: "続けておすすめスポットを共有すると話が広がる。"
+            ),
+            .init(
+                english: "What kind of projects are you into lately?",
+                japanese: "最近どんなプロジェクトにハマっていますか？",
+                romaji: "ワット・カインド・オブ・プロジェクツ・アー・ユー・イントゥ・レイトリー？",
+                scenario: "近況の開発テーマを尋ねたいとき。",
+                etiquette: "自分の例も軽く添えて、双方向の会話にする。"
+            ),
+            .init(
+                english: "Are you working on anything exciting now?",
+                japanese: "今何かワクワクすることに取り組んでいますか？",
+                romaji: "アー・ユー・ワーキング・オン・エニシング・エキサイティング・ナウ？",
+                scenario: "相手のモチベーションや注力テーマを探るとき。",
+                etiquette: "答えに興味を示し、具体例を引き出すようにリアクションする。"
+            ),
+            .init(
+                english: "Which company are you with?",
+                japanese: "どちらの会社で働いていますか？",
+                romaji: "ウィッチ・カンパニー・アー・ユー・ウィズ？",
+                scenario: "所属を尋ねてバックグラウンドを知りたいとき。",
+                etiquette: "名刺交換やSNS交換の前に軽く聞く程度に留める。"
+            ),
+            .init(
+                english: "Are you here with your team?",
+                japanese: "チームの方と来ていますか？",
+                romaji: "アー・ユー・ヒア・ウィズ・ユア・チーム？",
+                scenario: "一人参加かグループかを確認したいとき。",
+                etiquette: "周囲のメンバーも巻き込めるよう、紹介をお願いしてみる。"
+            ),
+            .init(
+                english: "What kind of role do you have?",
+                japanese: "どんな役割を担当されていますか？",
+                romaji: "ワット・カインド・オブ・ロール・ドゥ・ユー・ハブ？",
+                scenario: "職種や担当領域を知りたいとき。",
+                etiquette: "相手の説明を遮らず、関わり方に理解を示す。"
+            ),
+            .init(
+                english: "How did you get into engineering?",
+                japanese: "どうやってエンジニアになったんですか？",
+                romaji: "ハウ・ディド・ユー・ゲット・イントゥ・エンジニアリング？",
+                scenario: "キャリアのきっかけを聞きたいとき。",
+                etiquette: "興味本位になりすぎないよう、感謝を込めて尋ねる。"
+            ),
+            .init(
+                english: "Are you building something right now?",
+                japanese: "今何かプロダクトを作っていますか？",
+                romaji: "アー・ユー・ビルディング・サムシング・ライトナウ？",
+                scenario: "現在進行中の開発を知りたいとき。",
+                etiquette: "守秘義務がある可能性に配慮し、話しやすい範囲でと添える。"
+            ),
+            .init(
+                english: "What's your main programming language?",
+                japanese: "メインの言語は何ですか？",
+                romaji: "ワッツ・ユア・メイン・プログラミング・ランゲージ？",
+                scenario: "技術スタックの入り口として使用言語を聞くとき。",
+                etiquette: "好みを尊重し、批評的にならないようにする。"
+            ),
+            .init(
+                english: "Do you usually work remotely?",
+                japanese: "普段はリモート勤務ですか？",
+                romaji: "ドゥ・ユー・ユージュアリー・ワーク・リモートリー？",
+                scenario: "働き方や勤務形態について話題にしたいとき。",
+                etiquette: "自分の働き方も共有して共通点を探す。"
+            ),
+            .init(
+                english: "Where do you usually work from?",
+                japanese: "普段はどこで仕事しているんですか？",
+                romaji: "ホェア・ドゥ・ユー・ユージュアリー・ワーク・フロム？",
+                scenario: "オフィスか自宅か、よく行く場所を聞くとき。",
+                etiquette: "プライベートな質問になりすぎないよう軽いトーンで聞く。"
+            ),
+            .init(
+                english: "What do you think about the event today?",
+                japanese: "今日のイベントどう思いますか？",
+                romaji: "ワット・ドゥ・ユー・シンク・アバウト・ジ・イベント・トゥデイ？",
+                scenario: "イベントの感想をシェアして会話を広げたいとき。",
+                etiquette: "自分の感想もセットで伝え、共通点を探す。"
+            ),
+            .init(
+                english: "Have you been to other meetups here?",
+                japanese: "他のミートアップにも参加したことありますか？",
+                romaji: "ハブ・ユー・ビーン・トゥ・アザー・ミートアップス・ヒア？",
+                scenario: "常連かどうかを知り、おすすめを聞きたいとき。",
+                etiquette: "紹介されたイベントには感謝を伝える。"
+            ),
+            .init(
+                english: "Do you live around here?",
+                japanese: "この辺りに住んでいますか？",
+                romaji: "ドゥ・ユー・リブ・アラウンド・ヒア？",
+                scenario: "居住エリアを軽く確認したいとき。",
+                etiquette: "個人情報なので深掘りしすぎないようにする。"
+            ),
+            .init(
+                english: "Are you originally from the US?",
+                japanese: "元々アメリカ出身ですか？",
+                romaji: "アー・ユー・オリジナリー・フロム・ジ・ユーエス？",
+                scenario: "出身地について軽く尋ねたいとき。",
+                etiquette: "国籍や文化に関する質問なので、敬意を持って聞く。"
+            ),
+            .init(
+                english: "How do you like living in the Bay Area?",
+                japanese: "ベイエリアでの生活はどうですか？",
+                romaji: "ハウ・ドゥ・ユー・ライク・リビング・イン・ザ・ベイエリア？",
+                scenario: "生活面の印象を聞いて共通の話題を探したいとき。",
+                etiquette: "自分の経験やお気に入りスポットも共有すると盛り上がる。"
+            ),
+            .init(
+                english: "Which meetup groups do you recommend?",
+                japanese: "オススメのミートアップってありますか？",
+                romaji: "ウィッチ・ミートアップ・グループス・ドゥ・ユー・レコメンド？",
+                scenario: "良いコミュニティやイベントを紹介してもらいたいとき。",
+                etiquette: "紹介されたらメモを取り、感謝を伝える。"
+            ),
+            .init(
+                english: "Do you go to hackathons often?",
+                japanese: "ハッカソンにはよく参加されていますか？",
+                romaji: "ドゥ・ユー・ゴー・トゥ・ハッカソンズ・オフトン？",
+                scenario: "参加頻度や興味度合いを知りたいとき。",
+                etiquette: "自分の参加経験も簡単に共有して会話をつなぐ。"
+            ),
+            .init(
+                english: "Are you working on AI stuff too?",
+                japanese: "AI関連のこともやっていますか？",
+                romaji: "アー・ユー・ワーキング・オン・エーアイ・スタッフ・トゥー？",
+                scenario: "相手がAI領域に関わっているか確認したいとき。",
+                etiquette: "専門度を測るために、興味や活用範囲を広く聞く。"
+            ),
+            .init(
+                english: "What’s your favorite part of engineering?",
+                japanese: "エンジニアリングのどんなところが好きですか？",
+                romaji: "ワッツ・ユア・フェイバリット・パート・オブ・エンジニアリング？",
+                scenario: "モチベーションや価値観を知りたいとき。",
+                etiquette: "共感できるポイントを見つけてリアクションする。"
+            ),
+            .init(
+                english: "Do you have any side projects?",
+                japanese: "サイドプロジェクトはありますか？",
+                romaji: "ドゥ・ユー・ハブ・エニー・サイド・プロジェクツ？",
+                scenario: "本業以外の取り組みを聞きたいとき。",
+                etiquette: "興味を持ったら詳細をお願いし、無理に聞き出さない。"
+            ),
+            .init(
+                english: "Have you visited Japan before?",
+                japanese: "日本に来たことはありますか？",
+                romaji: "ハブ・ユー・ビジティッド・ジャパン・ビフォア？",
+                scenario: "日本への訪問経験をきっかけに話題を広げたいとき。",
+                etiquette: "行ったことがなくても、興味があればおすすめを共有する。"
+            ),
+            .init(
+                english: "What’s your dream project?",
+                japanese: "夢のプロジェクトってありますか？",
+                romaji: "ワッツ・ユア・ドリーム・プロジェクト？",
+                scenario: "将来的にやりたいことやビジョンを聞くとき。",
+                etiquette: "大きな夢でも否定せず、ポジティブに受け止める。"
+            ),
+            .init(
+                english: "Would you be open to collaborating sometime?",
+                japanese: "いつか一緒に何かやりませんか？",
+                romaji: "ウドゥ・ユー・ビー・オープン・トゥ・コラボレイティング・サムタイム？",
+                scenario: "今後の協業や共同作業に興味があるか探るとき。",
+                etiquette: "無理強いせず、軽い提案として伝える。"
+            ),
+            .init(
+                english: "Mind if I ask what your company is building?",
+                japanese: "会社ではどんなものを作っているんですか？",
+                romaji: "マインド・イフ・アイ・アスク・ワット・ユア・カンパニー・イズ・ビルディング？",
+                scenario: "プロダクト内容を知りたいとき。",
+                etiquette: "守秘性に配慮し、話せる範囲だけで大丈夫と添える。"
+            ),
+            .init(
+                english: "Is your company hiring right now?",
+                japanese: "今、採用していますか？",
+                romaji: "イズ・ユア・カンパニー・ハイアリング・ライトナウ？",
+                scenario: "採用状況を確認したいとき。",
+                etiquette: "紹介や応募の意図があるなら、背景を簡潔に伝える。"
+            ),
+            .init(
+                english: "Do you prefer startups or big tech?",
+                japanese: "スタートアップと大企業どっちが好きですか？",
+                romaji: "ドゥ・ユー・プリファー・スタートアップス・オア・ビッグテック？",
+                scenario: "キャリア志向や職場タイプの好みを聞くとき。",
+                etiquette: "価値観の違いを尊重し、否定的な反応を避ける。"
+            ),
+            .init(
+                english: "That's something I'd love to learn more about.",
+                japanese: "その話もっと聞きたいです。",
+                romaji: "ザッツ・サムシング・アイド・ラブ・トゥ・ラーン・モア・アバウト",
+                scenario: "相手の話題に興味を示し、詳しく聞きたいとき。",
+                etiquette: "好奇心を伝えつつ、聞き手に回る姿勢を示す。"
+            ),
+            .init(
+                english: "I’d love to hear more if you have time.",
+                japanese: "もし時間あればもっと聞きたいです。",
+                romaji: "アイド・ラブ・トゥ・ヒア・モア・イフ・ユー・ハブ・タイム",
+                scenario: "会話を深めたいときや次の予定を確認したいとき。",
+                etiquette: "時間がなければ遠慮なく教えてほしいと伝え、相手の都合を尊重する。"
+            )
+        ]
+    ),
+
     // MARK: - レストラン
     WordMannerCategory(
         title: "レストラン",
