@@ -391,6 +391,253 @@ let wordMannerCategories: [WordMannerCategory] = [
     ),
 
 
+    // MARK: - 入国審査
+    WordMannerCategory(
+        title: "入国審査",
+        subtitle: "聞かれることと回答例",
+        overview: "渡航目的や滞在先などを端的に伝え、パスポートや予約画面をすぐ見せられるようにしておくとスムーズです。",
+        systemImage: "checkmark.shield",
+        accent: .teal,
+        gradient: [Color.teal.opacity(0.8), Color.blue.opacity(0.6)],
+        entries: [
+            // 聞かれること
+            .init(
+                english: "What is the purpose of your visit?",
+                japanese: "訪問の目的は何ですか？",
+                romaji: "ワット・イズ・ザ・パーパス・オブ・ユア・ビジット？",
+                scenario: "入国審査官から渡航目的を尋ねられたとき。",
+                etiquette: "観光や仕事など一言で答えられるようにしておく。"
+            ),
+            .init(
+                english: "Are you here for business or sightseeing?",
+                japanese: "仕事ですか？観光ですか？",
+                romaji: "アー・ユー・ヒア・フォー・ビジネス・オア・サイトシーイング？",
+                scenario: "目的が仕事か観光かを確認されたとき。",
+                etiquette: "どちらか一語で即答するとスムーズ。"
+            ),
+            .init(
+                english: "How long will you be staying?",
+                japanese: "どれくらい滞在しますか？",
+                romaji: "ハウ・ロング・ウィル・ユー・ビー・ステイング？",
+                scenario: "滞在日数を聞かれたとき。",
+                etiquette: "日数を数字で答え、指で示すと確実。"
+            ),
+            .init(
+                english: "Where will you be staying?",
+                japanese: "どこに滞在しますか？",
+                romaji: "ウェア・ウィル・ユー・ビー・ステイング？",
+                scenario: "宿泊先を確認されたとき。",
+                etiquette: "ホテル名や住所を予約画面で見せると安心。"
+            ),
+            .init(
+                english: "Do you have a return ticket?",
+                japanese: "帰りの航空券はありますか？",
+                romaji: "ドゥ・ユー・ハヴ・ア・リターン・チケット？",
+                scenario: "往復航空券の有無を確認されたとき。",
+                etiquette: "eチケットをすぐ提示できるように準備する。"
+            ),
+            .init(
+                english: "When will you leave the United States?",
+                japanese: "いつアメリカを出国しますか？",
+                romaji: "ウェン・ウィル・ユー・リーヴ・ザ・ユナイテッド・ステイツ？",
+                scenario: "出国日を聞かれたとき。",
+                etiquette: "日付を明確に伝え、必要なら航空券を提示する。"
+            ),
+            .init(
+                english: "Have you visited the U.S. before?",
+                japanese: "アメリカに来たことはありますか？",
+                romaji: "ハヴ・ユー・ビジテッド・ザ・ユーエス・ビフォア？",
+                scenario: "渡航歴の有無を確認されたとき。",
+                etiquette: "初めてなら \"No, it's my first time.\" と簡潔に。"
+            ),
+            .init(
+                english: "Is this your first time in the U.S.?",
+                japanese: "アメリカは初めてですか？",
+                romaji: "イズ・ディス・ユア・ファースト・タイム・イン・ザ・ユーエス？",
+                scenario: "初訪問かどうかを確認されたとき。",
+                etiquette: "Yes / No で短く返答する。"
+            ),
+            .init(
+                english: "Are you traveling alone?",
+                japanese: "一人で旅行していますか？",
+                romaji: "アー・ユー・トラベリング・アローン？",
+                scenario: "同行者がいるか確認されたとき。",
+                etiquette: "人数や関係性を簡潔に付け加えると丁寧。"
+            ),
+            .init(
+                english: "Who are you traveling with?",
+                japanese: "誰と旅行していますか？",
+                romaji: "フー・アー・ユー・トラベリング・ウィズ？",
+                scenario: "同行者の詳細を聞かれたとき。",
+                etiquette: "家族や友人など関係を一言で伝える。"
+            ),
+            .init(
+                english: "Do you have any checked bags?",
+                japanese: "預け荷物はありますか？",
+                romaji: "ドゥ・ユー・ハヴ・エニー・チェックト・バッグス？",
+                scenario: "預け荷物の有無を確認されたとき。",
+                etiquette: "数を答え、必要ならタグを見せる。"
+            ),
+            .init(
+                english: "Are you carrying any food?",
+                japanese: "食べ物を持っていますか？",
+                romaji: "アー・ユー・キャリング・エニー・フード？",
+                scenario: "食品の持ち込みについて聞かれたとき。",
+                etiquette: "持っている場合は正直に申告する。"
+            ),
+            .init(
+                english: "Are you bringing any restricted items?",
+                japanese: "禁止されている物を持っていますか？",
+                romaji: "アー・ユー・ブリンギング・エニー・リストリクテッド・アイテムズ？",
+                scenario: "持ち込み禁止品について確認されたとき。",
+                etiquette: "No と明確に答え、疑問があれば聞き返す。"
+            ),
+            .init(
+                english: "Do you have ESTA?",
+                japanese: "ESTAは持っていますか？",
+                romaji: "ドゥ・ユー・ハヴ・エスタ？",
+                scenario: "ビザやESTAの有無を確認されたとき。",
+                etiquette: "申請済みなら Yes と答え、番号を控えておく。"
+            ),
+            .init(
+                english: "What do you do for work?",
+                japanese: "仕事は何をしていますか？",
+                romaji: "ワット・ドゥ・ユー・ドゥ・フォー・ワーク？",
+                scenario: "職業を聞かれたとき。",
+                etiquette: "職種名をシンプルに伝える。"
+            ),
+            .init(
+                english: "Where do you plan to visit during your stay?",
+                japanese: "滞在中どこを訪れる予定ですか？",
+                romaji: "ウェア・ドゥ・ユー・プラン・トゥ・ビジット・デュアリング・ユア・ステイ？",
+                scenario: "観光予定地を尋ねられたとき。",
+                etiquette: "主要都市名をいくつか挙げると伝わりやすい。"
+            ),
+            .init(
+                english: "How much cash are you carrying?",
+                japanese: "どれくらい現金を持っていますか？",
+                romaji: "ハウ・マッチ・キャッシュ・アー・ユー・キャリング？",
+                scenario: "所持金額を確認されたとき。",
+                etiquette: "金額を即答できるよう事前に把握しておく。"
+            ),
+            .init(
+                english: "Do you have travel insurance?",
+                japanese: "旅行保険には加入していますか？",
+                romaji: "ドゥ・ユー・ハヴ・トラベル・インシュランス？",
+                scenario: "保険加入の有無を尋ねられたとき。",
+                etiquette: "加入していれば Yes と答え、証明書を準備。"
+            ),
+            .init(
+                english: "Can I see your hotel reservation?",
+                japanese: "ホテル予約を見せてもらえますか？",
+                romaji: "キャン・アイ・シー・ユア・ホテル・リザベーション？",
+                scenario: "予約確認の提示を求められたとき。",
+                etiquette: "スマホで即座に表示できるようにしておく。"
+            ),
+            .init(
+                english: "Can I see your return ticket?",
+                japanese: "帰りの航空券を見せてもらえますか？",
+                romaji: "キャン・アイ・シー・ユア・リターン・チケット？",
+                scenario: "復路チケットの提示を求められたとき。",
+                etiquette: "eチケット画面を準備し、パスポートと一緒に見せる。"
+            ),
+
+            // 回答例
+            .init(
+                english: "Here’s my passport.",
+                japanese: "こちらが私のパスポートです。",
+                romaji: "ヒアズ・マイ・パスポート",
+                scenario: "パスポートの提示を求められたとき。",
+                etiquette: "カバーを外してすぐ開ける状態で渡す。"
+            ),
+            .init(
+                english: "Could you repeat that, please?",
+                japanese: "もう一度言っていただけますか？",
+                romaji: "クッド・ユー・リピート・ザット・プリーズ？",
+                scenario: "質問を聞き取れなかったとき。",
+                etiquette: "落ち着いて聞き返すのは失礼ではない。"
+            ),
+            .init(
+                english: "I'm here for sightseeing.",
+                japanese: "観光が目的です。",
+                romaji: "アイム・ヒア・フォー・サイトシーイング",
+                scenario: "観光目的であることを伝えるとき。",
+                etiquette: "笑顔で簡潔に答える。"
+            ),
+            .init(
+                english: "I'll stay for five days.",
+                japanese: "5日間滞在します。",
+                romaji: "アイル・ステイ・フォー・ファイブ・デイズ",
+                scenario: "滞在日数を答えるとき。",
+                etiquette: "指で日数を示すとより確実。"
+            ),
+            .init(
+                english: "I’ll stay in Los Angeles for two days, and I’ll be staying at the Freehand Los Angeles hotel.",
+                japanese: "ロサンゼルスには2日間滞在し、Freehand Los Angelesホテルに泊まります。",
+                romaji: "アイル・ステイ・イン・ロサンゼルス・フォー・トゥー・デイズ・アンド・アイル・ビー・ステイング・アット・ザ・フリーハンド・ロサンゼルス・ホテル",
+                scenario: "最初の滞在都市とホテルを説明するとき。",
+                etiquette: "ホテル予約画面を見せながら答えると安心。"
+            ),
+            .init(
+                english: "For the remaining three days, I’ll stay in San Jose at an Airbnb.",
+                japanese: "残りの3日間はサンノゼでAirbnbに泊まります。",
+                romaji: "フォー・ザ・リメイニング・スリー・デイズ、アイル・ステイ・イン・サンノゼ・アット・アン・エアビーアンドビー",
+                scenario: "別都市での滞在予定を伝えるとき。",
+                etiquette: "住所や予約ページをすぐ提示できるとスムーズ。"
+            ),
+            .init(
+                english: "I'm traveling alone.",
+                japanese: "一人で旅行しています。",
+                romaji: "アイム・トラベリング・アローン",
+                scenario: "同行者がいないことを伝えるとき。",
+                etiquette: "落ち着いてシンプルに答える。"
+            ),
+            .init(
+                english: "I work as a software engineer.",
+                japanese: "ソフトウェアエンジニアとして働いています。",
+                romaji: "アイ・ワーク・アズ・ア・ソフトウェア・エンジニア",
+                scenario: "職業を聞かれたときの回答。",
+                etiquette: "会社名を添えるとより丁寧。"
+            ),
+            .init(
+                english: "Yes, I have ESTA.",
+                japanese: "はい、ESTAを取得しています。",
+                romaji: "イエス、アイ・ハヴ・エスタ",
+                scenario: "ESTA保有の確認に答えるとき。",
+                etiquette: "申請番号や有効期限を控えておくと安心。"
+            ),
+            .init(
+                english: "No, this is my first time visiting the U.S.",
+                japanese: "いいえ、アメリカは初めてです。",
+                romaji: "ノー、ディス・イズ・マイ・ファースト・タイム・ビジティング・ジ・ユーエス",
+                scenario: "初渡航かどうかの質問に答えるとき。",
+                etiquette: "初めてであることを素直に伝える。"
+            ),
+            .init(
+                english: "I have no checked bags.",
+                japanese: "預け荷物はありません。",
+                romaji: "アイ・ハヴ・ノー・チェックト・バッグス",
+                scenario: "預け荷物の有無を答えるとき。",
+                etiquette: "必要なら手荷物のみと付け加える。"
+            ),
+            .init(
+                english: "I only have carry-on luggage.",
+                japanese: "機内持ち込みのみです。",
+                romaji: "アイ・オンリー・ハヴ・キャリーオン・ラゲッジ",
+                scenario: "持ち込み荷物だけであると伝えるとき。",
+                etiquette: "荷物検査で取り出しやすいようまとめておく。"
+            ),
+            .init(
+                english: "I will leave the U.S. on December 9th.",
+                japanese: "12月9日に出国します。",
+                romaji: "アイ・ウィル・リーヴ・ザ・ユーエス・オン・ディセンバー・ナインス",
+                scenario: "具体的な出国日を伝えるとき。",
+                etiquette: "日付をはっきり言い、チケットを見せられるよう準備する。"
+            )
+        ]
+    ),
+
+
     // MARK: - 空港・入国審査
     WordMannerCategory(
         title: "空港・入国審査",
@@ -864,6 +1111,137 @@ let wordMannerCategories: [WordMannerCategory] = [
                 romaji: "イフ・アイ・ハブ・エニー・トラブル、フー・シュッド・アイ・コンタクト？",
                 scenario: "チェックインや説明のときに、連絡先を確認しておきたいとき。",
                 etiquette: "ホテルやイベント受付で事前に確認しておくと安心。"
+            )
+        ]
+    ),
+
+    // MARK: - Meta デモ・購入
+    WordMannerCategory(
+        title: "Meta (Ray-Ban Display)",
+        subtitle: "デモ予約・在庫確認・購入のフレーズ",
+        overview: "デモ受付や購入相談では、予約時間・モデル名・希望する確認事項を簡潔に伝えるとスムーズです。実機を触らせてもらうときはスタッフの指示に従いましょう。",
+        systemImage: "eyeglasses",
+        accent: .indigo,
+        gradient: [Color.indigo.opacity(0.8), Color.blue.opacity(0.6)],
+        entries: [
+            .init(
+                english: "I have a demo appointment at 1 p.m.",
+                japanese: "13時からデモの予約をしています。",
+                romaji: "アイ・ハブ・ア・デモ・アポイントメント・アット・ワン・ピーエム",
+                scenario: "Meta Store の受付でデモ予約時間を伝えるとき。",
+                etiquette: "予約画面を一緒に提示すると案内が早い。"
+            ),
+            .init(
+                english: "My name is Itsuki Mizuhara.",
+                japanese: "名前は Itsuki Mizuhara です。",
+                romaji: "マイ・ネーム・イズ・イツキ・ミズハラ",
+                scenario: "受付で氏名を確認されたとき。",
+                etiquette: "名字をゆっくり発音し、予約名と同じ表記を示す。"
+            ),
+            .init(
+                english: "I'm here for the Ray-Ban Display demo.",
+                japanese: "Ray-Ban Display のデモで来ました。",
+                romaji: "アイム・ヒア・フォー・ザ・レイバン・ディスプレイ・デモ",
+                scenario: "来店理由としてデモ参加を伝えるとき。",
+                etiquette: "デモ対象モデルをはっきり伝える。"
+            ),
+            .init(
+                english: "Do you have it in stock today?",
+                japanese: "今日は在庫ありますか？",
+                romaji: "ドゥ・ユー・ハブ・イット・イン・ストック・トゥデイ？",
+                scenario: "当日購入できるか在庫を確認したいとき。",
+                etiquette: "モデルやカラーを指差しながら尋ねる。"
+            ),
+            .init(
+                english: "Is this the newest model?",
+                japanese: "これは最新モデルですか。",
+                romaji: "イズ・ディス・ザ・ニューイスト・モデル？",
+                scenario: "展示されている機種が最新か確認したいとき。",
+                etiquette: "発売日も気になる場合は続けて尋ねると良い。"
+            ),
+            .init(
+                english: "Can I buy the Display model after the demo?",
+                japanese: "デモ後に Display モデルを購入できますか？",
+                romaji: "キャン・アイ・バイ・ザ・ディスプレイ・モデル・アフター・ザ・デモ？",
+                scenario: "デモ参加後に購入可能か確認するとき。",
+                etiquette: "購入希望を早めに伝えると在庫を確保してもらいやすい。"
+            ),
+            .init(
+                english: "Does the Display support all features in Japan?",
+                japanese: "日本でもすべての機能が使えますか？",
+                romaji: "ダズ・ザ・ディスプレイ・サポート・オール・フィーチャーズ・イン・ジャパン？",
+                scenario: "日本での機能制限がないか確認したいとき。",
+                etiquette: "具体的な機能名（通話、通知など）も合わせて尋ねると確実。"
+            ),
+            .init(
+                english: "I'll take this one.",
+                japanese: "これを購入します。",
+                romaji: "アイル・テイク・ディス・ワン",
+                scenario: "購入意思を伝えるとき。",
+                etiquette: "カラーやサイズを指差しで示すと間違いを防げる。"
+            ),
+            .init(
+                english: "Can I pair this with my iPhone here?",
+                japanese: "iPhoneとここでペアリングできますか。",
+                romaji: "キャン・アイ・ペア・ディス・ウィズ・マイ・アイフォーン・ヒア？",
+                scenario: "その場でiPhoneと接続できるか確認したいとき。",
+                etiquette: "スタッフの指示に従い、Wi-FiやBluetooth設定を開いておく。"
+            ),
+            .init(
+                english: "How long is the battery life with the display on?",
+                japanese: "ディスプレイを使った場合のバッテリー持ちはどれくらいですか。",
+                romaji: "ハウ・ロング・イズ・ザ・バッテリー・ライフ・ウィズ・ザ・ディスプレイ・オン？",
+                scenario: "ディスプレイ使用時の稼働時間を確認したいとき。",
+                etiquette: "利用時間の目安と充電方法も合わせて聞くと安心。"
+            ),
+            .init(
+                english: "Can I see notifications from my iPhone on the display?",
+                japanese: "iPhoneの通知をディスプレイに表示できますか。",
+                romaji: "キャン・アイ・シー・ノーティフィケーションズ・フロム・マイ・アイフォーン・オン・ザ・ディスプレイ？",
+                scenario: "通知連携が可能か確認したいとき。",
+                etiquette: "実演をお願いする場合は画面を見せてもらうよう頼む。"
+            ),
+            .init(
+                english: "What voice commands are supported?",
+                japanese: "どの音声コマンドが使えますか。",
+                romaji: "ワット・ヴォイス・コマンズ・アー・サポーテッド？",
+                scenario: "利用できる音声操作の一覧を知りたいとき。",
+                etiquette: "代表的なコマンドを教えてもらい、復唱して確認する。"
+            ),
+            .init(
+                english: "How durable is this model?",
+                japanese: "このモデルの耐久性はどれくらいですか。",
+                romaji: "ハウ・デュラブル・イズ・ディス・モデル？",
+                scenario: "強度や防水性能が気になるとき。",
+                etiquette: "落下や雨天での使用可否など具体例を添える。"
+            ),
+            .init(
+                english: "Does this support third-party apps or APIs?",
+                japanese: "サードパーティアプリやAPIはサポートしていますか。",
+                romaji: "ダズ・ディス・サポート・サードパーティー・アプス・オア・エーピーアイズ？",
+                scenario: "外部アプリ連携や開発可能性を確認したいとき。",
+                etiquette: "開発目的を簡潔に伝えると詳しい担当につないでもらいやすい。"
+            ),
+            .init(
+                english: "Is there a developer mode available?",
+                japanese: "開発者向けモードはありますか。",
+                romaji: "イズ・ゼア・ア・デベロッパー・モード・アベイラブル？",
+                scenario: "デベロッパー向け設定の有無を確認したいとき。",
+                etiquette: "必要ならどのように有効化するかも聞いておく。"
+            ),
+            .init(
+                english: "Do you have any information about the upcoming SDK?",
+                japanese: "今後提供予定のSDKについて情報はありますか。",
+                romaji: "ドゥ・ユー・ハブ・エニー・インフォメーション・アバウト・ジ・アップカミング・エスディーケー？",
+                scenario: "公開予定のSDKの情報を確認したいとき。",
+                etiquette: "非公開情報がある場合もあるので、聞き方は丁寧に。"
+            ),
+            .init(
+                english: "Can I test the display navigation or UI here?",
+                japanese: "ディスプレイのナビゲーションやUIをここで試せますか。",
+                romaji: "キャン・アイ・テスト・ザ・ディスプレイ・ナビゲーション・オア・ユーアイ・ヒア？",
+                scenario: "実機でUI操作を体験したいとき。",
+                etiquette: "スタッフの案内を受けながら安全に触る。"
             )
         ]
     ),
