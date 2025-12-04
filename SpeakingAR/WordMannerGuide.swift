@@ -867,4 +867,155 @@ let wordMannerCategories: [WordMannerCategory] = [
             )
         ]
     ),
+
+    WordMannerCategory(
+        title: "Sway",
+        subtitle: "音楽×ロケーションSNSを紹介するとき",
+        overview: "Swayの特徴や安全性、開発背景を英語で説明できるピッチ用フレーズをまとめました。プロダクト紹介やカジュアルな会話でそのまま使えます。",
+        systemImage: "music.note.map.fill",
+        accent: .pink,
+        gradient: [Color.pink.opacity(0.85), Color.indigo.opacity(0.65)],
+        entries: [
+            .init(
+                english: "Sway is a music-and-location sharing app that lets you express your \"right-now vibe.\"",
+                japanese: "音楽 × ロケーションで“いまの雰囲気”をリアルタイムにシェアできるアプリ。",
+                romaji: "スウェイ・イズ・ア・ミュージック・アンド・ロケーション・シェアリング・アプリ・ザット・レッツ・ユー・エクスプレス・ユア『ライト・ナウ・バイブ』",
+                scenario: "Swayのメイン機能を一言で紹介したいとき。",
+                etiquette: "サービス概要の前置きとして、明るいトーンで伝える。"
+            ),
+            .init(
+                english: "Connect naturally with friends — and even with people you cross paths with — in this real-world-driven social app.",
+                japanese: "友達はもちろん、すれ違った人とも自然につながれる、リアル志向のSNS。",
+                romaji: "コネクト・ナチュラリー・ウィズ・フレンズ、アンド・イーブン・ウィズ・ピープル・ユー・クロス・パスズ・ウィズ・イン・ディス・リアル・ワールド・ドリブン・ソーシャル・アップ",
+                scenario: "リアルなつながりを強調したいとき。",
+                etiquette: "オフライン連動をアピールしつつ、落ち着いた口調で説明する。"
+            ),
+            .init(
+                english: "Now Sway has a smartphone-based UI, but we’re developing an AR-glasses experience where you can literally see what the person in front of you is listening to.",
+                japanese: "いまはスマホのマップがメインですが、次のステップとしてARグラス越しに“すれ違った人の今の曲”がその場で見える世界を開発しています。",
+                romaji: "スウェイ・ナウ・プロバイズ・ア・スマートフォン・ベイスト・ユーアイ・バット・ウィアー・デベロッピング・アン・エーアールグラス・エクスペリエンス・ウェア・ユー・キャン・リテラリー・シー・ワット・ザ・パーソン・イン・フロント・オブ・ユー・イズ・リスニング・トゥ",
+                scenario: "将来のビジョンやAR開発について語るとき。",
+                etiquette: "未来像を語るときはワクワク感を込めて伝える。"
+            ),
+            .init(
+                english: "Sway is a music app that lets you discover what people around you are listening to by crossing paths with them.",
+                japanese: "Swayは周りとすれ違うことで人が聴いている音楽を知ることができる音楽アプリです。",
+                romaji: "スウェイ・イズ・ア・ミュージック・アップ・ザット・レッツ・ユー・ディスカバー・ワット・ピープル・アラウンド・ユー・アー・リスニング・トゥ・バイ・クロッシング・パスズ・ウィズ・ゼム",
+                scenario: "どんな仕組みで発見できるか説明したいとき。",
+                etiquette: "歩きながら使えることをジェスチャーで示すと伝わりやすい。"
+            ),
+            .init(
+                english: "It creates a personal sound map of your everyday life.",
+                japanese: "あなたの日常の「サウンドマップ」を作ってくれます。",
+                romaji: "イット・クリエイツ・ア・パーソナル・サウンド・マップ・オブ・ユア・エブリデイ・ライフ",
+                scenario: "サウンドマップの体験価値を伝えたいとき。",
+                etiquette: "地図を描くような手振りを添えるとイメージしやすい。"
+            ),
+            .init(
+                english: "You can find people who share similar music tastes.",
+                japanese: "自分と似た音楽の好みを持つ人を見つけられます。",
+                romaji: "ユー・キャン・ファインド・ピープル・フー・シェア・シミラー・ミュージック・テイツツ",
+                scenario: "マッチングのメリットを伝えるとき。",
+                etiquette: "コミュニティ性を強調し、柔らかいトーンで紹介する。"
+            ),
+            .init(
+                english: "The app automatically detects users you cross paths with.",
+                japanese: "すれ違ったユーザーをアプリが自動で検出します。",
+                romaji: "ジ・アップ・オートマティカリー・ディテクツ・ユーザーズ・ユー・クロス・パスズ・ウィズ",
+                scenario: "自動検出の仕組みを説明したいとき。",
+                etiquette: "手間いらずである点を強調し、安心感を伝える。"
+            ),
+            .init(
+                english: "You can view users' playlists and favorite tracks.",
+                japanese: "ユーザーのプレイリストやお気に入り曲を見ることができます。",
+                romaji: "ユー・キャン・ビュー・ユーザーズ・プレイリスツ・アンド・フェイバリット・トラックス",
+                scenario: "音楽データの共有部分を紹介するとき。",
+                etiquette: "プライバシー設定にも触れるとより安心してもらえる。"
+            ),
+            .init(
+                english: "It's designed for people who want to easily share their music world with others.",
+                japanese: "自分の音楽の世界を簡単にシェアしたい人のために作られています。",
+                romaji: "イッツ・デザインド・フォー・ピープル・フー・ウォント・トゥ・イージリー・シェア・ゼア・ミュージック・ワールド・ウィズ・アザース",
+                scenario: "ターゲットユーザー像を説明したいとき。",
+                etiquette: "ユーザー像を語るときは共感を込めて伝える。"
+            ),
+            .init(
+                english: "I work as a product manager and backend engineer.",
+                japanese: "私はプロダクトマネージャー兼バックエンドエンジニアとして働いています。",
+                romaji: "アイ・ワーク・アズ・ア・プロダクト・マネージャー・アンド・バックエンド・エンジニア",
+                scenario: "自己紹介で役割を伝えるとき。",
+                etiquette: "肩書きを述べたあとに、何を担当しているか一言添えると丁寧。"
+            ),
+            .init(
+                english: "With Sway, you can learn about someone you find interesting without having to talk to them first.",
+                japanese: "Swayを入れていれば、気になる人に声をかけなくても、その人の情報を知ることができます。",
+                romaji: "ウィズ・スウェイ、ユー・キャン・ラーン・アバウト・サムワン・ユー・ファインド・インタレスティング・ウィズアウト・ハビング・トゥ・トーク・トゥ・ゼム・ファースト",
+                scenario: "声をかける前に情報を得られる利点を伝えたいとき。",
+                etiquette: "プライバシーに配慮して、安心して使えると補足すると良い。"
+            ),
+            .init(
+                english: "Sway uses GPS to let you see information about people nearby.",
+                japanese: "SwayはGPSを使って近くにいる人の情報を見ることができます。",
+                romaji: "スウェイ・ユーズィズ・ジー・ピー・エス・トゥ・レット・ユー・シー・インフォメーション・アバウト・ピープル・ニアバイ",
+                scenario: "位置情報連動を説明するとき。",
+                etiquette: "位置共有は許可制であることを一緒に伝えると安心感が増す。"
+            ),
+            .init(
+                english: "Sway doesn’t require you to make posts like other social media apps.",
+                japanese: "Swayは他のSNSみたいに投稿する必要はありません。",
+                romaji: "スウェイ・ダズント・リクワイア・ユー・トゥ・メイク・ポスツ・ライク・アザー・ソーシャル・ミーディア・アップス",
+                scenario: "投稿レスで使える点を強調したいとき。",
+                etiquette: "手間がかからないことをアピールし、導入のハードルが低いと伝える。"
+            ),
+            .init(
+                english: "Everything works automatically, so users don’t need to do anything.",
+                japanese: "ユーザーが操作する必要はなく、すべて自動です。",
+                romaji: "エブリシング・ワークス・オートマティカリー、ソー・ユーザーズ・ドント・ニード・トゥ・ドゥ・エニシング",
+                scenario: "自動で動く仕組みを説明したいとき。",
+                etiquette: "操作レスで使えることを短く強調する。"
+            ),
+            .init(
+                english: "Your name and contact information are never shared without your permission.",
+                japanese: "名前・連絡先は勝手に公開されません。",
+                romaji: "ユア・ネーム・アンド・コンタクト・インフォメーション・アー・ネヴァー・シェアド・ウィズアウト・ユア・パーミッション",
+                scenario: "個人情報の扱いについて安心させたいとき。",
+                etiquette: "セキュリティやプライバシーへの配慮を強調する。"
+            ),
+            .init(
+                english: "You don’t need to make posts, and the amount of personal information you provide is minimal.",
+                japanese: "投稿する必要はなく、個人情報の入力も最小限です。",
+                romaji: "ユー・ドント・ニード・トゥ・メイク・ポスツ、アンド・ジ・アマウント・オブ・パーソナル・インフォメーション・ユー・プロヴァイド・イズ・ミニマル",
+                scenario: "利用開始の手軽さを伝えたいとき。",
+                etiquette: "最小限の情報で始められることを丁寧に伝える。"
+            ),
+            .init(
+                english: "No one can track you in real time on Sway.",
+                japanese: "第三者にリアルタイム追跡されることはありません。",
+                romaji: "ノー・ワン・キャン・トラック・ユー・イン・リアル・タイム・オン・スウェイ",
+                scenario: "リアルタイム追跡の不安を払拭したいとき。",
+                etiquette: "安全性を強調し、安心して使えると伝える。"
+            ),
+            .init(
+                english: "Our backend is built on Firestore and Cloud Functions, which allows us to scale easily.",
+                japanese: "バックエンドは Firestore と Cloud Functions を使っており、スケールが容易です。",
+                romaji: "アワ・バックエンド・イズ・ビルト・オン・ファイアストア・アンド・クラウド・ファンクションズ、ウィッチ・アラウズ・アス・トゥ・スケール・イージリー",
+                scenario: "技術スタックやスケーラビリティを説明するとき。",
+                etiquette: "技術者同士の会話では、採用理由やメリットも一緒に伝える。"
+            ),
+            .init(
+                english: "Sway works in the background even when the app is not open.",
+                japanese: "アプリを開いていなくてもバックグラウンドで動作します。",
+                romaji: "スウェイ・ワークス・イン・ザ・バックグラウンド・イーブン・ウェン・ジ・アップ・イズ・ノット・オープン",
+                scenario: "バックグラウンド動作を説明したいとき。",
+                etiquette: "省電力やプライバシー設定についても触れると親切。"
+            ),
+            .init(
+                english: "Music you encounter is visualized on a map as your personal Sound Map.",
+                japanese: "地図上で音楽が可視化され、あなた専用のサウンドマップが作られます。",
+                romaji: "ミュージック・ユー・エンカウンター・イズ・ヴィジュアライズド・オン・ア・マップ・アズ・ユア・パーソナル・サウンド・マップ",
+                scenario: "サウンドマップの見え方を説明したいとき。",
+                etiquette: "デモ画面を見せながら話すとイメージしてもらいやすい。"
+            )
+        ]
+    ),
 ]
