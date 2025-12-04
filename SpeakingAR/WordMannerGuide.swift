@@ -2005,6 +2005,136 @@ let wordMannerCategories: [WordMannerCategory] = [
     ),
 
     WordMannerCategory(
+        title: "Meta (Ray-Ban Display)",
+        subtitle: "デモ予約・在庫確認・購入のフレーズ",
+        overview: "デモ受付や購入相談では、予約時間・モデル名・希望する確認事項を簡潔に伝えるとスムーズです。実機を触らせてもらうときはスタッフの指示に従いましょう。",
+        systemImage: "eyeglasses",
+        accent: .indigo,
+        gradient: [Color.indigo.opacity(0.8), Color.blue.opacity(0.6)],
+        entries: [
+            .init(
+                english: "I have a demo appointment at 1 p.m.",
+                japanese: "13時からデモの予約をしています。",
+                romaji: "アイ・ハブ・ア・デモ・アポイントメント・アット・ワン・ピーエム",
+                scenario: "Meta Store の受付でデモ予約時間を伝えるとき。",
+                etiquette: "予約画面を一緒に提示すると案内が早い。"
+            ),
+            .init(
+                english: "My name is Itsuki Mizuhara.",
+                japanese: "名前は Itsuki Mizuhara です。",
+                romaji: "マイ・ネーム・イズ・イツキ・ミズハラ",
+                scenario: "受付で氏名を確認されたとき。",
+                etiquette: "名字をゆっくり発音し、予約名と同じ表記を示す。"
+            ),
+            .init(
+                english: "I'm here for the Ray-Ban Display demo.",
+                japanese: "Ray-Ban Display のデモで来ました。",
+                romaji: "アイム・ヒア・フォー・ザ・レイバン・ディスプレイ・デモ",
+                scenario: "来店理由としてデモ参加を伝えるとき。",
+                etiquette: "デモ対象モデルをはっきり伝える。"
+            ),
+            .init(
+                english: "Do you have it in stock today?",
+                japanese: "今日は在庫ありますか？",
+                romaji: "ドゥ・ユー・ハブ・イット・イン・ストック・トゥデイ？",
+                scenario: "当日購入できるか在庫を確認したいとき。",
+                etiquette: "モデルやカラーを指差しながら尋ねる。"
+            ),
+            .init(
+                english: "Is this the newest model?",
+                japanese: "これは最新モデルですか。",
+                romaji: "イズ・ディス・ザ・ニューイスト・モデル？",
+                scenario: "展示されている機種が最新か確認したいとき。",
+                etiquette: "発売日も気になる場合は続けて尋ねると良い。"
+            ),
+            .init(
+                english: "Can I buy the Display model after the demo?",
+                japanese: "デモ後に Display モデルを購入できますか？",
+                romaji: "キャン・アイ・バイ・ザ・ディスプレイ・モデル・アフター・ザ・デモ？",
+                scenario: "デモ参加後に購入可能か確認するとき。",
+                etiquette: "購入希望を早めに伝えると在庫を確保してもらいやすい。"
+            ),
+            .init(
+                english: "Does the Display support all features in Japan?",
+                japanese: "日本でもすべての機能が使えますか？",
+                romaji: "ダズ・ザ・ディスプレイ・サポート・オール・フィーチャーズ・イン・ジャパン？",
+                scenario: "日本での機能制限がないか確認したいとき。",
+                etiquette: "具体的な機能名（通話、通知など）も合わせて尋ねると確実。"
+            ),
+            .init(
+                english: "I'll take this one.",
+                japanese: "これを購入します。",
+                romaji: "アイル・テイク・ディス・ワン",
+                scenario: "購入意思を伝えるとき。",
+                etiquette: "カラーやサイズを指差しで示すと間違いを防げる。"
+            ),
+            .init(
+                english: "Can I pair this with my iPhone here?",
+                japanese: "iPhoneとここでペアリングできますか。",
+                romaji: "キャン・アイ・ペア・ディス・ウィズ・マイ・アイフォーン・ヒア？",
+                scenario: "その場でiPhoneと接続できるか確認したいとき。",
+                etiquette: "スタッフの指示に従い、Wi-FiやBluetooth設定を開いておく。"
+            ),
+            .init(
+                english: "How long is the battery life with the display on?",
+                japanese: "ディスプレイを使った場合のバッテリー持ちはどれくらいですか。",
+                romaji: "ハウ・ロング・イズ・ザ・バッテリー・ライフ・ウィズ・ザ・ディスプレイ・オン？",
+                scenario: "ディスプレイ使用時の稼働時間を確認したいとき。",
+                etiquette: "利用時間の目安と充電方法も合わせて聞くと安心。"
+            ),
+            .init(
+                english: "Can I see notifications from my iPhone on the display?",
+                japanese: "iPhoneの通知をディスプレイに表示できますか。",
+                romaji: "キャン・アイ・シー・ノーティフィケーションズ・フロム・マイ・アイフォーン・オン・ザ・ディスプレイ？",
+                scenario: "通知連携が可能か確認したいとき。",
+                etiquette: "実演をお願いする場合は画面を見せてもらうよう頼む。"
+            ),
+            .init(
+                english: "What voice commands are supported?",
+                japanese: "どの音声コマンドが使えますか。",
+                romaji: "ワット・ヴォイス・コマンズ・アー・サポーテッド？",
+                scenario: "利用できる音声操作の一覧を知りたいとき。",
+                etiquette: "代表的なコマンドを教えてもらい、復唱して確認する。"
+            ),
+            .init(
+                english: "How durable is this model?",
+                japanese: "このモデルの耐久性はどれくらいですか。",
+                romaji: "ハウ・デュラブル・イズ・ディス・モデル？",
+                scenario: "強度や防水性能が気になるとき。",
+                etiquette: "落下や雨天での使用可否など具体例を添える。"
+            ),
+            .init(
+                english: "Does this support third-party apps or APIs?",
+                japanese: "サードパーティアプリやAPIはサポートしていますか。",
+                romaji: "ダズ・ディス・サポート・サードパーティー・アプス・オア・エーピーアイズ？",
+                scenario: "外部アプリ連携や開発可能性を確認したいとき。",
+                etiquette: "開発目的を簡潔に伝えると詳しい担当につないでもらいやすい。"
+            ),
+            .init(
+                english: "Is there a developer mode available?",
+                japanese: "開発者向けモードはありますか。",
+                romaji: "イズ・ゼア・ア・デベロッパー・モード・アベイラブル？",
+                scenario: "デベロッパー向け設定の有無を確認したいとき。",
+                etiquette: "必要ならどのように有効化するかも聞いておく。"
+            ),
+            .init(
+                english: "Do you have any information about the upcoming SDK?",
+                japanese: "今後提供予定のSDKについて情報はありますか。",
+                romaji: "ドゥ・ユー・ハブ・エニー・インフォメーション・アバウト・ジ・アップカミング・エスディーケー？",
+                scenario: "公開予定のSDKの情報を確認したいとき。",
+                etiquette: "非公開情報がある場合もあるので、聞き方は丁寧に。"
+            ),
+            .init(
+                english: "Can I test the display navigation or UI here?",
+                japanese: "ディスプレイのナビゲーションやUIをここで試せますか。",
+                romaji: "キャン・アイ・テスト・ザ・ディスプレイ・ナビゲーション・オア・ユーアイ・ヒア？",
+                scenario: "実機でUI操作を体験したいとき。",
+                etiquette: "スタッフの案内を受けながら安全に触る。"
+            )
+        ]
+    ),
+
+    WordMannerCategory(
         title: "Sway",
         subtitle: "音楽×ロケーションSNSを紹介するとき",
         overview: "Swayの特徴や安全性、開発背景を英語で説明できるピッチ用フレーズをまとめました。プロダクト紹介やカジュアルな会話でそのまま使えます。",
